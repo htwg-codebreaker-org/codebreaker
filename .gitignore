@@ -1,0 +1,27 @@
+# Scala
+*.class
+*.log
+*.iml
+.tasty
+.history
+
+# IntelliJ
+.idea/
+*.ipr
+*.iws
+
+# sbt
+target/
+project/target/
+project/project/
+
+# Metals / bloop
+.bloop/
+.metals/
+.bsp/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
