@@ -1,27 +1,37 @@
-# Scala
-*.class
-*.log
-*.iml
-.tasty
-.history
-
-# IntelliJ
+# === IntelliJ / VS Code / Metals ===
 .idea/
-*.ipr
-*.iws
-
-# sbt
-target/
-project/target/
+.vscode/
+.metals/
+.bloop/
 project/project/
+project/target/
 
-# Metals / bloop
+# === Bloop/Metals Cache ===
 .bloop/
 .metals/
-.bsp/
+.metals.sbt
+metals.log
+metals.lock.db
+metals.mv.db
+.metals/.reports/
+.metals/.tmp/
 
-# VSCode
-.vscode/
+# === SBT Build Output ===
+target/
+project/target/
+project/project/target/
 
-# macOS
+# === Classes, binaries, compiled output ===
+*.class
+*.tasty
+*.log
+
+# === SemanticDB ===
+**/*.semanticdb
+
+# === Temp & System ===
 .DS_Store
+*.tmp
+*.bak
+*.swp
+*~
