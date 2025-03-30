@@ -17,6 +17,9 @@ object ServerGenerator:
       val rewardCpu = 10 + rng.nextInt(11)  // 10–20
       val rewardRam = 10 + rng.nextInt(11)
       val rewardCode = 10 + rng.nextInt(11)
+      val rewardMoney = rng.nextInt(11)  // 0-10
+      val rewardXp = rng.nextInt(11)  // 0-10
+
 
       Server(
         name = s"Nebenserver-${continent.toString.take(2)}-$idx",
@@ -24,6 +27,9 @@ object ServerGenerator:
         difficulty = difficulty,
         rewardCpu = rewardCpu,
         rewardRam = rewardRam,
+        rewardCode = rewardCode,
+        rewardMoney = rewardMoney,
+        rewardXp = rewardXp,
         hacked = false,
         serverType = ServerType.Side
       )

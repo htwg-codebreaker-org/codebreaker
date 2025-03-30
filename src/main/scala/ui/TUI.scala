@@ -11,7 +11,7 @@ object TUI:
     println()
     players.zipWithIndex.foreach { case (p, i) =>
       println(s"Spieler $i: ${p.name} @ ${p.position}")
-      println(s"CPU: ${p.cpu} | RAM: ${p.ram} | Code: ${p.code}")
+      println(s"CPU: ${p.cpu} | RAM: ${p.ram} | Code: ${p.code} | Money: ${p.money}")
       println(s"Level: ${p.level} | XP: ${p.xp} | Security: ${p.cybersecurity}%")
       println("-" * 30)
     }
@@ -24,11 +24,12 @@ object TUI:
       val continent = map.continentAt(pos._1, pos._2)
       val contShort = continent.map(_.short).getOrElse("??")
 
-      val rewardStr = server.serverType match
-        case ServerType.Side    => s"+${server.rewardCpu} CPU, +${server.rewardRam} RAM"
-        case ServerType.Bank    => s"+${server.rewardCpu} CPU, +${server.rewardRam} Code"
-        case ServerType.GKS     => "🏁 Endziel"
-        case _                  => s"+${server.rewardCpu} CPU, +${server.rewardRam} RAM"
+      val rewardStr =
+        if server.serverType == ServerType.GKS then "Endziel"
+        else
+          f"+${server.rewardCpu} CPU, +${server.rewardRam} RAM, +${server.rewardCode} Code, +${server.rewardMoney}, +${server.rewardXp} XP"
 
-      println(f"[$index%2d] ${server.name}%-20s | $contShort | Pos: (${pos._1}%2d, ${pos._2}%2d) | Typ: ${server.serverType}%-9s | Schwierigkeit: ${server.difficulty}%2d%% | $rewardStr")
+      println(
+        f"[$index%2d] ${server.name}%-20s | $contShort | Pos: (${pos._1}%2d, ${pos._2}%2d) | Typ: ${server.serverType}%-9s | Schwierigkeit: ${server.difficulty}%2d%% | $rewardStr"
+      )
     }

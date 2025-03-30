@@ -9,6 +9,10 @@ case class Server(
     difficulty: Int,
     rewardCpu: Int,
     rewardRam: Int,
+    rewardCode: Int,
+    rewardMoney: Int,
+    rewardXp: Int,
     hacked: Boolean,
     serverType: ServerType
 )
+
