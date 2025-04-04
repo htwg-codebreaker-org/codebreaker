@@ -8,5 +8,5 @@ case class Player(
     code: Int,
     level: Int,
     xp: Int,
-    cybersecurity: Int
+    cybersecuri: Int
 )
