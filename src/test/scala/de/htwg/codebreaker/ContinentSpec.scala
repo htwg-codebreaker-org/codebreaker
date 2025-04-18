@@ -1,4 +1,5 @@
-package model
+import de.htwg.codebreaker.model._
+
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -31,7 +32,7 @@ class ContinentSpec extends AnyWordSpec with Matchers {
       Continent.Asia.short          shouldBe "AS"
       Continent.Oceania.short       shouldBe "OC"
       Continent.Antarctica.short    shouldBe "AN"
-      Continent.Ocean.short         shouldBe "XX"
+      Continent.Ocean.short         shouldBe "~~"
     }
   }
 }

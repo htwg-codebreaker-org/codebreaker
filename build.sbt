@@ -8,8 +8,13 @@ lazy val root = project
 
     scalaVersion := scala3Version,
 
-    /*libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test*/
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % Test
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit"     % "1.0.0" % Test,
+      "org.scalactic" %% "scalactic" % "3.2.14",
+      "org.scalatest" %% "scalatest" % "3.2.14" % Test
+    ),
+
+    testFrameworks += new TestFramework("org.scalatest.tools.Framework")
     
   )
   
