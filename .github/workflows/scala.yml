@@ -2,9 +2,9 @@ name: Scala CI
 
 on:
   push:
-    branches: [ mvc_integration ]
+    branches: [ mvc ]
   pull_request:
-    branches: [ mvc_integration ]
+    branches: [ mvc ]
 
 jobs:
   build:
