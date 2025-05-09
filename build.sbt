@@ -2,11 +2,14 @@ val scala3Version = "3.6.4"
 
 lazy val root = project
   .in(file("."))
+  .enablePlugins(CoverallsPlugin)   // ← wichtig für Coveralls
   .settings(
     name := "codebreaker",
     version := "0.1.0-SNAPSHOT",
 
     scalaVersion := scala3Version,
+
+    coverageEnabled := true,         // ← wichtig für scoverage
 
     // Bibliotheken für Tests und Hilfsmittel
     libraryDependencies ++= Seq(
