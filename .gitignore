@@ -1,14 +1,13 @@
-# === IntelliJ / VS Code / Metals ===
+# === IDEs & Editor-Projekte ===
 .idea/
 .vscode/
-.metals/
-.bloop/
-project/project/
-project/target/
+*.swp
+*~
 
-# === Bloop/Metals Cache ===
+# === Metals & Bloop Buildsystem ===
 .bloop/
 .metals/
+.bsp/
 .metals.sbt
 metals.log
 metals.lock.db
@@ -16,22 +15,33 @@ metals.mv.db
 .metals/.reports/
 .metals/.tmp/
 
-# === SBT Build Output ===
+# === SBT Projekt-Output ===
 target/
 project/target/
+project/project/
 project/project/target/
+project/.bloop/
 
-# === Classes, binaries, compiled output ===
+# === Klassen, Kompilate, Scala-Output ===
 *.class
 *.tasty
+**/*.semanticdb
 *.log
 
-# === SemanticDB ===
-**/*.semanticdb
+# === Build Cache / Streams / Temp Output ===
+*/streams/
+*/update_cache_2.12/
+*/update_cache_3/
+*/config-classes/
+*/task-temp-directory/
 
-# === Temp & System ===
+# === Coverage Tools (optional) ===
+coverage/
+scoverage-data/
+
+# === OS & allgemeiner Müll ===
 .DS_Store
 *.tmp
 *.bak
-*.swp
-*~
+*.pid
+*.db
