@@ -2,6 +2,7 @@ package de.htwg.codebreaker.model
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import generator.ServerGenerator
 
 class ServerGeneratorSpec extends AnyWordSpec with Matchers {
   import ServerGenerator._
