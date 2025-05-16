@@ -1,21 +1,18 @@
+// src/main/scala/de/htwg/codebreaker/Main.scala
 package de.htwg.codebreaker
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.view.Tui
+
+import de.htwg.codebreaker.model.game._
 import de.htwg.codebreaker.controller.Controller
+import de.htwg.codebreaker.view.TUI
 
+object Codebreaker:
+  def main(args: Array[String]): Unit =
+    val (gameModel, gameState) = GameFactory.createDefaultGame()
+    val controller = new Controller(gameModel, gameState)
+    val tui = new TUI(controller)
 
-object Codebreaker {
-  val controller = new Controller()
-  val tui = new Tui(controller)
-
-  def main(args: Array[String]): Unit = {
-
-    var input: String = ""
-    while (input != "q") {
+    var input = ""
+    while input != "q" do
       print("> ")
       input = scala.io.StdIn.readLine()
       tui.processInputLine(input)
-    }
-    println("Danke fürs Spielen!")
-  }
-}

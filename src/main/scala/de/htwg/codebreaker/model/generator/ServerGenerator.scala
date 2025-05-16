@@ -1,5 +1,5 @@
-package de.htwg.codebreaker.model
-
+package de.htwg.codebreaker.model.generator
+import de.htwg.codebreaker.model._
 import scala.util.Random
 
 /** 
