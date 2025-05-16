@@ -10,11 +10,3 @@ object Codebreaker:
     val (gameModel, gameState) = GameFactory.createDefaultGame()
     val controller = new Controller(gameModel, gameState)
     val tui = new TUI(controller)
-
-    var input = ""
-    while input != "q" do
-      print("> ")
-      input = scala.io.StdIn.readLine()
-      tui.processInputLine(input)
-
-    println("Danke fürs Spielen!")
