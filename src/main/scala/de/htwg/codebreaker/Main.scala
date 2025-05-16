@@ -7,8 +7,8 @@ import de.htwg.codebreaker.view.TUI
 
 object Codebreaker:
   def main(args: Array[String]): Unit =
-    val (gameModel, gameState) = GameFactory.createDefaultGame()
-    val controller = new Controller(gameModel, gameState)
+    val (model, state) = GameFactory.createDefaultGame()
+    val controller = Controller(model, state)
     val tui = new TUI(controller)
 
     var input = ""

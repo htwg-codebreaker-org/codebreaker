@@ -1,4 +1,4 @@
-package de.htwg.codebreaker.model.generator
+package de.htwg.codebreaker.model.game.strategy
 import de.htwg.codebreaker.model._
 import scala.util.Random
 

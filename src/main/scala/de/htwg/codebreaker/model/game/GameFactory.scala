@@ -1,25 +1,28 @@
 package de.htwg.codebreaker.model.game
 
 import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.generator._
+import de.htwg.codebreaker.model.game.strategy._
 
-object GameFactory:
+object GameFactory {
 
-  def createDefaultGame(): (GameModel, GameState) =
+  def createGameWithStrategies(
+      playerStrategy: PlayerGenerationStrategy,
+      serverStrategy: ServerGenerationStrategy
+  ): (GameModel, GameState) = {
+
     val map = WorldMap.defaultMap
+    val servers = serverStrategy.generateServers(map)
+    val takenTiles = servers.map(_.tile)
+    val players = playerStrategy.generatePlayers(2, map, avoidTiles = takenTiles)
 
-    // Spieler
-    val player1 = Player(1, "Nico", map.tileAt(3, 2).get, 50, 20, 10, 1, 0, 20)
-    val player2 = Player(2, "Henrik", map.tileAt(15, 6).get, 50, 20, 10, 1, 0, 20)
-    val players = List(player1, player2)
-
-    // Server
-    val continents = Continent.values.filter(_.isLand).toList
-    val fixedServers = ServerGenerator.generateFixedServers(map)
-    val sideServers = continents.flatMap(c => ServerGenerator.generateSideServersFor(c, map, fixedServers))
-    val allServers = fixedServers ++ sideServers
-
-    val model = GameModel(players = players, servers = allServers, worldMap = map)
-    val state = GameState() // Standardzustand
+    val model = GameModel(players, servers, map)
+    val state = GameState()
 
     (model, state)
+  }
+
+  // Standard-Spiel mit Defaults
+  def createDefaultGame(): (GameModel, GameState) = {
+    createGameWithStrategies(RandomPlayerGenerator, DefaultServerStrategy)
+  }
+}

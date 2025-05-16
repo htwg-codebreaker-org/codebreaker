@@ -8,10 +8,8 @@ enum Phase:
   case AwaitingInput, ExecutingTurn, FinishedTurn
 
 case class GameState(
-  var currentPlayerIndex: Option[Int] = None,
-  var status: GameStatus = GameStatus.Running,
-  var phase: Phase = Phase.AwaitingInput,
-  var round: Int = 1
+  currentPlayerIndex: Option[Int] = None,
+  status: GameStatus = GameStatus.Running,
+  phase: Phase = Phase.AwaitingInput,
+  round: Int = 1
 )
-
-
