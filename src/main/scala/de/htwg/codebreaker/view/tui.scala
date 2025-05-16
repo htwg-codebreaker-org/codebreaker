@@ -5,7 +5,7 @@ import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.MapObject._
 
-class tui(controller: Controller) extends Observer:
+class TUI(controller: Controller) extends Observer:
   controller.add(this)
 
   def processInputLine(input: String): Unit =
