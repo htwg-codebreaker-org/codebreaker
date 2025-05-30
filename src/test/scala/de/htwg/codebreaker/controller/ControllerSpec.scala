@@ -9,8 +9,9 @@ import de.htwg.codebreaker.model.game.strategy._
 
 class ControllerSpec extends AnyWordSpec with Matchers {
 
-  val (model, state) = GameFactory.createDefaultGame()
-  val controller = Controller(model, state)
+  val game = GameFactory("default") // oder "default" falls du es so nennst
+  val controller = Controller(game)
+
 
   class TestObserver extends Observer {
     var updated = false

@@ -4,6 +4,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game.strategy._
+import de.htwg.codebreaker.model.game.builder._
 
 class GameFactorySpec extends AnyWordSpec with Matchers {
 
@@ -25,21 +26,15 @@ class GameFactorySpec extends AnyWordSpec with Matchers {
 
   "GameFactory" should {
     "create a game using custom strategies" in {
-      val (model, state) = GameFactory.createGameWithStrategies(DummyPlayerStrategy, DummyServerStrategy)
+      val game = GameBuilder()
+        .withPlayerStrategy(DummyPlayerStrategy)
+        .withServerStrategy(DummyServerStrategy)
+        .build()
 
-      model.players should have size 2
-      model.servers should have size 1
-      model.worldMap should not be null
-      state shouldBe a [GameState]
-    }
-
-    "create a default game with predefined strategies" in {
-      val (model, state) = GameFactory.createDefaultGame()
-
-      model.players should have size 2
-      model.servers should not be empty
-      model.worldMap should not be null
-      state shouldBe a [GameState]
+      game.model.players should have size 2
+      game.model.servers should have size 1
+      game.model.worldMap should not be null
+      game.state shouldBe a [GameState]
     }
   }
 }

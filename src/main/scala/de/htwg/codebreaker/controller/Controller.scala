@@ -1,31 +1,51 @@
 package de.htwg.codebreaker.controller
+
 import de.htwg.codebreaker.util.Observable
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
 
+class Controller(initialGame: Game) extends Observable:
 
-class Controller(
-    var model: GameModel,
-    var state: GameState
-) extends Observable:
+  private var currentGame: Game = initialGame
+
+  def game: Game = currentGame
+
+  def getPlayers: List[Player] = game.model.players
+  def getServers: List[Server] = game.model.servers
+  def getMapData(): Vector[Vector[MapObject]] =
+    game.model.worldMap.getMapData(game.model.players, game.model.servers)
+  def getState: GameState = game.state
 
   def claimServer(serverName: String, playerIndex: Int): Unit =
-    model.servers.find(_.name == serverName).foreach { server =>
-      val updated = Server.claim(server, playerIndex)
-      model.servers = model.servers.map(s => if s.name == serverName then updated else s)
-      notifyObservers
+    val updatedServers = game.model.servers.map {
+      case s if s.name == serverName => Server.claim(s, playerIndex)
+      case s => s
     }
+    val updatedModel = game.model.copy(servers = updatedServers)
+    currentGame = game.copy(model = updatedModel)
+    notifyObservers
 
   def unclaimServer(serverName: String): Unit =
-    model.servers.find(_.name == serverName).foreach { server =>
-      val updated = Server.unclaim(server)
-      model.servers = model.servers.map(s => if s.name == serverName then updated else s)
-      notifyObservers
+    val updatedServers = game.model.servers.map {
+      case s if s.name == serverName => Server.unclaim(s)
+      case s => s
     }
+    val updatedModel = game.model.copy(servers = updatedServers)
+    currentGame = game.copy(model = updatedModel)
+    notifyObservers
 
-  def getPlayers: List[Player] = model.players
+  def advanceRound(): Unit =
+    currentGame = game.copy(state = game.state.advanceRound())
+    notifyObservers
 
-  def getServers: List[Server] = model.servers
+  def nextPlayer(totalPlayers: Int): Unit =
+    currentGame = game.copy(state = game.state.nextPlayer(totalPlayers))
+    notifyObservers
 
-  def getMapData(): Vector[Vector[MapObject]] =
-    model.worldMap.getMapData(model.players, model.servers)
+  def setPhase(newPhase: Phase): Unit =
+    currentGame = game.copy(state = game.state.setPhase(newPhase))
+    notifyObservers
+
+  def setStatus(newStatus: GameStatus): Unit =
+    currentGame = game.copy(state = game.state.setStatus(newStatus))
+    notifyObservers
