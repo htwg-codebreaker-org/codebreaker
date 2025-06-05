@@ -6,8 +6,13 @@ import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.MapObject._
 
-class TUI(controller: Controller) extends Observer:
-  controller.add(this)
+object TUI extends Observer:
+
+  private var controllerOpt: Option[Controller] = None
+  def init(ctrl: Controller): Unit =
+    controllerOpt = Some(ctrl)
+    ctrl.add(this)
+    
 
   def processInputLine(input: String): Unit =
   input match
@@ -20,22 +25,27 @@ class TUI(controller: Controller) extends Observer:
 
 
   def show(): Unit =
-    val players = controller.getPlayers
-    val servers = controller.getServers
-    val map = controller.getMapData()
+    controllerOpt match
+      case Some(controller) =>
+        val players = controller.getPlayers
+        val servers = controller.getServers
+        val map = controller.getMapData()
 
-    println("Willkommen zu Codebreaker!")
-    println("== Codebreaker: Weltkarte ==")
-    println(displayMap(map))
-    println()
-    players.zipWithIndex.foreach { case (p, i) =>
-      println(s"Spieler $i: ${p.name} @ (${p.tile.x}, ${p.tile.y}) [${p.tile.continent.short}]")
-      println(s"CPU: ${p.cpu} | RAM: ${p.ram} | Code: ${p.code}")
-      println(s"Level: ${p.level} | XP: ${p.xp} | Security: ${p.cybersecurity}%")
-      println("-" * 30)
-    }
-    println("== Serverliste ==")
-    printServerList(servers)
+        println("Willkommen zu Codebreaker!")
+        println("== Codebreaker: Weltkarte ==")
+        println(displayMap(map))
+        println()
+        players.zipWithIndex.foreach { case (p, i) =>
+          println(s"Spieler $i: ${p.name} @ (${p.tile.x}, ${p.tile.y}) [${p.tile.continent.short}]")
+          println(s"CPU: ${p.cpu} | RAM: ${p.ram} | Code: ${p.code}")
+          println(s"Level: ${p.level} | XP: ${p.xp} | Security: ${p.cybersecurity}%")
+          println("-" * 30)
+        }
+        println("== Serverliste ==")
+        printServerList(servers)
+      case None => 
+        println("Fehler: Controller nicht initialisiert")
+    
 
   def displayMap(mapData: Vector[Vector[MapObject]]): String =
     mapData.map { row =>

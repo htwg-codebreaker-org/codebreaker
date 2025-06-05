@@ -6,11 +6,14 @@ import scalafx.scene.Scene
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.layout.VBox
 import scalafx.Includes._
-import scala.compiletime.uninitialized
+
 
 object GUI extends JFXApp3:
 
-  var controller: Controller = uninitialized
+  private var controllerOpt: Option[Controller] = None
+
+  def init(ctrl: Controller): Unit =
+    controllerOpt = Some(ctrl) 
 
   override def start(): Unit =
     val showMapButton = new Button("Zeige Weltkarte")
