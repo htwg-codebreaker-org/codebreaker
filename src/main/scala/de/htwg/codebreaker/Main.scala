@@ -23,3 +23,4 @@ object Codebreaker:
       print("> ")
       input = scala.io.StdIn.readLine()
       tui.processInputLine(input)
+    sys.exit()

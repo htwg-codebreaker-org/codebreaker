@@ -58,30 +58,53 @@ case class WorldMap(width: Int, height: Int, tiles: Vector[Tile]):
 
 object WorldMap:
 
-  /** Erzeugt die Standard‑Map mit Breite=20, Höhe=10 und Kontinent‑Einteilung. */
+  /** Erzeugt die Standard‑Map mit Breite=80, Höhe=40 und Kontinent‑Einteilung. */
   def defaultMap: WorldMap =
-    val width  = 20
-    val height = 10
+    val width  = 80
+    val height = 40
     val tiles = for {
       y <- 0 until height
       x <- 0 until width
     } yield Tile(x, y, classifyContinent(x, y))
     WorldMap(width, height, tiles.toVector)
 
+  // --- Koordinaten für Südamerika als Set ---
+  private val southAmericaTiles: Set[(Int, Int)] = Set(
+    (25,31),(24,31),(23,31),(23,30),(24,30),(25,30),(25,29),(24,29),(24,28),(25,28),(26,28),(27,28),
+    (28,27),(27,27),(26,27),(25,27),(24,27),(24,26),(25,26),(26,26),(27,26),(28,26),(30,25),(29,25),
+    (28,25),(27,25),(26,25),(25,25),(24,25),(24,24),(23,24),(25,24),(26,24),(27,24),(28,24),(29,24),
+    (30,24),(31,23),(30,23),(29,23),(28,23),(27,23),(26,23),(25,23),(24,23),(23,23),(22,23),(22,22),
+    (23,22),(24,22),(25,22),(26,22),(27,22),(28,22),(29,22),(30,22),(31,22),
+    (23,21),(24,21),(25,21),(26,21),(27,21),(28,21),
+    (27,20),(26,20),(25,20),(24,20),(23,20),(24,19)
+  )
+
   /**
    * Ordnet jeder (x,y)‑Koordinate einen Kontinent zu.
-   * Regeln basieren auf typischen Positionsbereichen.
+   * Bereiche sind für 80x40 Tiles und orientieren sich an deinen Markierungen.
+   * Ergänze weitere Bereiche nach Bedarf!
    */
   private def classifyContinent(x: Int, y: Int): Continent =
-    (x, y) match
-      case (x, y) if x <= 4 && y <= 3                             => Continent.NorthAmerica
-      case (x, y) if x >= 2 && x <= 4 && y >= 4 && y <= 7         => Continent.SouthAmerica
-      case (x, y) if x >= 6 && x <= 8 && y >= 1 && y <= 3         => Continent.Europe
-      case (x, y) if x >= 6 && x <= 8 && y >= 4 && y <= 6         => Continent.Africa
-      case (x, y) if x >= 10 && x <= 17 && y <= 5                => Continent.Asia
-      case (x, y) if x >= 17 && y >= 6 && y <= 8                  => Continent.Oceania
-      case (_, 9)                                                 => Continent.Antarctica
-      case _                                                      => Continent.Ocean
+    if (southAmericaTiles.contains((x, y))) Continent.SouthAmerica
+    // --- Grönland (Europe): alle von dir markierten Tiles ---
+    else if (
+      (x == 28 && (y >= 6 && y <= 9)) ||
+      (x == 29 && (y == 9)) ||
+      (x == 30 && (y == 8 || y == 9)) ||
+      (x == 31 && (y == 8)) ||
+      (x == 32 && (y == 8)) ||
+      (x == 33 && (y == 7)) ||
+      (x == 34 && (y == 6))
+    ) Continent.Europe
+    // --- Rest wie bisher (grobe Bereiche, ggf. weiter anpassen) ---
+    else (x, y) match
+      case (x, y) if x <= 18 && y <= 13 => Continent.NorthAmerica
+      case (x, y) if x >= 28 && x <= 38 && y >= 6 && y <= 13 => Continent.Europe
+      case (x, y) if x >= 32 && x <= 42 && y >= 14 && y <= 25 => Continent.Africa
+      case (x, y) if x >= 43 && x <= 70 && y >= 4 && y <= 18 => Continent.Asia
+      case (x, y) if x >= 65 && x <= 78 && y >= 25 && y <= 36 => Continent.Oceania
+      case (_, y) if y >= 37 => Continent.Antarctica
+      case _ => Continent.Ocean
 
   /** Druckt die Kurz‑Codes (z.B. "NA", "EU", "~~") für alle Kacheln. */
   def printContinentMap(map: WorldMap): Unit =
