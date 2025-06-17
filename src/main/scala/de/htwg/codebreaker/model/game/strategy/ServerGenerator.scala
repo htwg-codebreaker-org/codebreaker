@@ -146,15 +146,23 @@ object ServerGenerator:
   // --------------------------------------------
   // Die Koordinaten basieren auf der Continent‐Einteilung in WorldMap.classifyContinent.
   val fixedBlueprints: List[ServerBlueprint] = List(
-    ServerBlueprint("Pentagon",         (2,  2), ServerType.Military, (85, 90),  (30, 35), (50, 60)),
-    ServerBlueprint("GKS",              (10,  5), ServerType.GKS,      (90,100),  (0,   0), (0,   0)),
-    ServerBlueprint("Silicon Valley",   (1,   3), ServerType.Cloud,    (60, 70),  (15,  20), (30,  35)),
-    ServerBlueprint("Wall Street",      (3,   2), ServerType.Bank,     (60, 75),  (20,  25), (25,  30)),
-    ServerBlueprint("Brussels",         (7,   2), ServerType.Bank,     (70, 80),  (30,  40), (15,  25)),
-    ServerBlueprint("Frankfurt Hub",    (6,   2), ServerType.Bank,     (60, 75),  (25,  30), (15,  20)),
-    ServerBlueprint("Tokyo Grid",       (15,  2), ServerType.Cloud,    (60, 70),  (20,  25), (15,  25)),
-    ServerBlueprint("Cairo",            (8,   5), ServerType.Firm,     (40, 60),  (20,  30), (10,  20)),
-    ServerBlueprint("Sydney Core",      (18,  6), ServerType.Cloud,    (50, 65),  (20,  25), (20,  30)),
-    ServerBlueprint("Moscow",           (10,  2), ServerType.Military, (60, 70),  (25,  30), (15,  20)),
-    ServerBlueprint("Beijing",          (13,  3), ServerType.Military, (65, 75),  (30,  35), (20,  25))
+    // USA: Pentagon (Washington DC), Wall Street (NYC), Silicon Valley (Kalifornien)
+    ServerBlueprint("Pentagon",         (24, 14), ServerType.Military, (85, 90),  (30, 35), (50, 60)), // Ostküste, Nordamerika
+    ServerBlueprint("Wall Street",      (23, 14), ServerType.Bank,     (60, 75),  (20,  25), (25,  30)), // NYC, Nordamerika
+    ServerBlueprint("Silicon Valley",   (13, 15), ServerType.Cloud,    (60, 70),  (15,  20), (30,  35)), // Westküste, Nordamerika
+    // Europa: Brüssel, Frankfurt
+    ServerBlueprint("Brussels",         (39, 11), ServerType.Bank,     (70, 80),  (30,  40), (15,  25)), // Belgien, Europa
+    ServerBlueprint("Frankfurt Hub",    (40, 12), ServerType.Bank,     (60, 75),  (25,  30), (15,  20)), // Deutschland, Europa
+    // Russland: Moskau
+    ServerBlueprint("Moscow",           (46, 11), ServerType.Military, (60, 70),  (25,  30), (15,  20)), // Russland, Asien
+    // China: Beijing
+    ServerBlueprint("Beijing",          (61, 15), ServerType.Military, (65, 75),  (30,  35), (20,  25)), // China, Asien
+    // Japan: Tokyo
+    ServerBlueprint("Tokyo Grid",       (66, 15), ServerType.Cloud,    (60, 70),  (20,  25), (15,  25)), // Japan, Asien
+    // Australien: Sydney
+    ServerBlueprint("Sydney Core",      (67, 27), ServerType.Cloud,    (50, 65),  (20,  25), (20,  30)), // Australien, Ozeanien
+    // Afrika: Kairo
+    ServerBlueprint("Cairo",            (44, 16), ServerType.Firm,     (40, 60),  (20,  30), (10,  20)), // Ägypten, Afrika
+    // Deutschland: GKS (fiktiv, zentral in Europa)
+    ServerBlueprint("GKS",              (11, 8), ServerType.GKS,      (90,100),  (0,   0), (0,   0))    // Deutschland, Europa
   )
