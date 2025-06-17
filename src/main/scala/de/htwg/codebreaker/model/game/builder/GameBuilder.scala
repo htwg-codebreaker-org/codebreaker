@@ -28,7 +28,20 @@ final class GameBuilder private (
     val servers = serverStrategy.generateServers(map)
     val takenTiles = servers.map(_.tile)
     val players = playerStrategy.generatePlayers(numPlayers, map, takenTiles)
-    Game(GameModel(players, servers, map), GameState())
+
+    val model = GameModel(players, servers, map)
+
+    // Spieler 0 beginnt, Spiel läuft, Phase ist AwaitingInput, Runde 1
+    val state = GameState(
+      currentPlayerIndex = Some(0),
+      status = GameStatus.Running,
+      phase = Phase.AwaitingInput,
+      round = 1
+    )
+
+    Game(model, state)
+
+
 
 
 object GameBuilder:

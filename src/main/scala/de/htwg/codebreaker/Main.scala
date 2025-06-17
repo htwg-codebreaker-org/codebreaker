@@ -3,19 +3,20 @@ package de.htwg.codebreaker
 
 import de.htwg.codebreaker.model.game._
 import de.htwg.codebreaker.controller.Controller
-import de.htwg.codebreaker.view.{TUI, GUI}
+import de.htwg.codebreaker.view.{TUI}
+import de.htwg.codebreaker.view.gui.GUI
 
 object Codebreaker:
   def main(args: Array[String]): Unit =
     val game = GameFactory("default")
     val controller = Controller(game)
 
-    // TUI starten
+    // TUI und GUI als Observer registrieren
     val tui = new TUI(controller)
+    val gui = new GUI(controller)
 
-    // GUI vorbereiten und in eigenem Thread starten
-    GUI.controller = controller
-    new Thread(() => GUI.main(Array.empty)).start()
+    // GUI in eigenem Thread starten
+    new Thread(() => gui.main(Array.empty)).start()
 
     // Konsoleninterface
     var input = ""
@@ -24,4 +25,3 @@ object Codebreaker:
       input = scala.io.StdIn.readLine()
       tui.processInputLine(input)
     sys.exit()
-  

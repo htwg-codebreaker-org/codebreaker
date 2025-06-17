@@ -13,8 +13,6 @@ class TUI(controller: Controller) extends Observer:
   input match
     case "q" =>
       println("Spiel beendet.")
-    case "m" =>
-      show()
     case _ =>
       println("Unbekannter Befehl.")
 
@@ -60,6 +58,7 @@ class TUI(controller: Controller) extends Observer:
       println(f"[$index%2d] ${server.name}%-20s | $contShort | Pos: (${pos._1}%2d, ${pos._2}%2d) | Typ: ${server.serverType}%-9s | Schwierigkeit: ${server.difficulty}%2d%% | $rewardStr")
     }
 
-  override def update: Unit =
+
+  override def update(): Unit =
     println("Spielzustand hat sich geändert.")
     show()
