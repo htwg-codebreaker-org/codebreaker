@@ -1,59 +1,96 @@
 package de.htwg.codebreaker.controller
 
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
-import de.htwg.codebreaker.util._
-import de.htwg.codebreaker.model.game.strategy._
 
 class ControllerSpec extends AnyWordSpec with Matchers {
 
-  val game = GameFactory("default") // oder "default" falls du es so nennst
+  val tile = Tile(0, 0, Continent.Europe)
+  val player = Player(0, "Test", tile, 1, 1, 1, 1, 0, 0)
+  val server = Server("S1", tile, 10, 2, 3, false, ServerType.Bank)
+  val model = GameModel(List(player), List(server), WorldMap(1, 1, Vector(tile)))
+  val state = GameState()
+  val game = Game(model, state)
   val controller = Controller(game)
-
-
-  class TestObserver extends Observer {
-    var updated = false
-    override def update: Unit = updated = true
-  }
 
   "A Controller" should {
 
-    "return all players and servers" in {
-      controller.getPlayers should have size 2
-      controller.getServers should not be empty
+    "return correct players, servers and map" in {
+      controller.getPlayers shouldBe List(player)
+      controller.getServers shouldBe List(server)
+      controller.getMapData().size shouldBe 1
     }
 
-    "claim a server and notify observers" in {
-      val observer = new TestObserver
-      controller.add(observer)
-
-      val unclaimed = controller.getServers.find(_.claimedBy.isEmpty).get
-      controller.claimServer(unclaimed.name, 0)
-
-      val updated = controller.getServers.find(_.name == unclaimed.name).get
-      updated.claimedBy shouldBe Some(0)
-      observer.updated shouldBe true
+    "handle undo/redo stacks correctly" in {
+      controller.canUndo shouldBe false
+      controller.canRedo shouldBe false
     }
 
-    "unclaim a server and notify observers" in {
-      val observer = new TestObserver
-      controller.add(observer)
-
-      val anyServer = controller.getServers.find(_.claimedBy.isEmpty).get
-      controller.claimServer(anyServer.name, 1)
-      controller.unclaimServer(anyServer.name)
-
-      val updated = controller.getServers.find(_.name == anyServer.name).get
-      updated.claimedBy shouldBe None
-      observer.updated shouldBe true
+    "advance round" in {
+      val oldRound = controller.getState.round
+      controller.advanceRound()
+      controller.getState.round shouldBe (oldRound + 1)
     }
 
-    "return map data properly" in {
-      val mapData = controller.getMapData()
-      mapData shouldBe a [Vector[?]]
-      mapData.flatten.exists(_.isInstanceOf[MapObject]) shouldBe true
+    "change player and round via command" in {
+      controller.doAndRemember(NextPlayerCommand())
+      controller.getState.currentPlayerIndex shouldBe Some(0)
+    }
+
+
+    "set phase and status" in {
+      controller.setPhase(Phase.ExecutingTurn)
+      controller.getState.phase shouldBe Phase.ExecutingTurn
+
+      controller.setStatus(GameStatus.Paused)
+      controller.getState.status shouldBe GameStatus.Paused
+    }
+
+
+    "replace game with new one" in {
+      val newGame = game.copy(state = GameState().copy(round = 99))
+      controller.setGame(newGame)
+      controller.getState.round shouldBe 99
     }
   }
+
+  "doAndRemember should handle failing command" in {
+  val failingCmd = new Command {
+    def doStep(game: Game) = scala.util.Failure(new RuntimeException("fail"))
+    def undoStep(game: Game) = scala.util.Success(game)
+  }
+  noException should be thrownBy controller.doAndRemember(failingCmd)
+}
+
+  "undo should print message if nothing to undo" in {
+    val emptyController = Controller(game)
+    noException should be thrownBy emptyController.undo()
+  }
+
+  "redo should print message if nothing to redo" in {
+    val emptyController = Controller(game)
+    noException should be thrownBy emptyController.redo()
+  }
+
+  "undo should handle failing undoStep" in {
+    val cmd = new Command {
+      def doStep(g: Game) = scala.util.Success(g)
+      def undoStep(g: Game) = scala.util.Failure(new RuntimeException("fail undo"))
+    }
+    controller.doAndRemember(cmd)
+    noException should be thrownBy controller.undo()
+  }
+
+  "redo should handle failing doStep" in {
+    val cmd = new Command {
+      def doStep(g: Game) = scala.util.Failure(new RuntimeException("redo fail"))
+      def undoStep(g: Game) = scala.util.Success(g)
+    }
+    controller.doAndRemember(cmd)
+    controller.undo()
+    noException should be thrownBy controller.redo()
+  }
+
 }

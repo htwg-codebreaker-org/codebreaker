@@ -2,39 +2,40 @@ package de.htwg.codebreaker.model.game
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game.strategy._
-import de.htwg.codebreaker.model.game.builder._
 
 class GameFactorySpec extends AnyWordSpec with Matchers {
 
-  object DummyPlayerStrategy extends PlayerGenerationStrategy {
-    override def generatePlayers(numPlayers: Int, map: WorldMap, avoidTiles: List[Tile]): List[Player] = {
-      (0 until numPlayers).toList.map { i =>
-        Player(i, s"Player$i", Tile(i, i, Continent.Europe), 10, 10, 10, 1, 0, 5)
-      }
-    }
-  }
-
-  object DummyServerStrategy extends ServerGenerationStrategy {
-    override def generateServers(map: WorldMap): List[Server] = {
-      List(
-        Server("S1", Tile(0, 0, Continent.Europe), 10, 10, 10, false, ServerType.Cloud)
-      )
-    }
-  }
-
   "GameFactory" should {
-    "create a game using custom strategies" in {
-      val game = GameBuilder()
-        .withPlayerStrategy(DummyPlayerStrategy)
-        .withServerStrategy(DummyServerStrategy)
-        .build()
 
-      game.model.players should have size 2
-      game.model.servers should have size 1
-      game.model.worldMap should not be null
-      game.state shouldBe a [GameState]
+    "return a default game when called with 'easy'" in {
+      val game = GameFactory("easy")
+      game should not be null
+      game.model.players.size shouldBe 2
+
+    }
+
+    "return a hard game when called with 'hard'" in {
+      val game = GameFactory("hard")
+      game should not be null
+      game.model.players.size shouldBe 2
+
+    }
+
+    "fallback to default game when called with unknown kind" in {
+      val game = GameFactory("custom")
+      game should not be null
+      game.model.players.size shouldBe 2
+
+    }
+
+    "create default game explicitly" in {
+      val game = GameFactory.default()
+      game should not be null
+    }
+
+    "create hard game explicitly" in {
+      val game = GameFactory.hard()
+      game should not be null
     }
   }
 }

@@ -11,29 +11,30 @@ class WorldMapSpec extends AnyWordSpec with Matchers {
   "WorldMap" should {
 
     "have correct dimensions and number of tiles" in {
-      map.width shouldBe 20
-      map.height shouldBe 10
-      map.tiles.size shouldBe 200
+      map.width shouldBe 80
+      map.height shouldBe 40
+      map.tiles.size shouldBe 3200
     }
 
     "return correct tile at coordinates" in {
-      val tile = map.tileAt(3, 2)
+      val tile = map.tileAt(10, 10)
       tile shouldBe defined
-      tile.get.x shouldBe 3
-      tile.get.y shouldBe 2
+      tile.get.x shouldBe 10
+      tile.get.y shouldBe 10
     }
 
     "return None for out-of-bound coordinates" in {
       map.tileAt(-1, -1) shouldBe None
-      map.tileAt(100, 100) shouldBe None
+      map.tileAt(1000, 1000) shouldBe None
     }
 
     "return continent at valid position" in {
-      map.continentAt(3, 2) shouldBe Some(Continent.NorthAmerica)
+      // Wähle eine bekannte NA-Position aus der northAmericaTiles-Liste
+      map.continentAt(15, 14) shouldBe Some(Continent.NorthAmerica)
     }
 
     "return None for continent at invalid position" in {
-      map.continentAt(99, 99) shouldBe None
+      map.continentAt(-1, -1) shouldBe None
     }
 
     "return all tiles of a given continent" in {
@@ -71,10 +72,9 @@ class WorldMapSpec extends AnyWordSpec with Matchers {
     }
 
     "throw an exception if tile is missing" in {
-      val modifiedMap = map.copy(tiles = map.tiles.filterNot(t => t.x == 19 && t.y == 9))
+      val modifiedMap = map.copy(tiles = map.tiles.filterNot(t => t.x == 79 && t.y == 39))
       an[IllegalArgumentException] should be thrownBy modifiedMap.getMapData(Nil, Nil)
     }
-
 
     "printContinentMap without crashing" in {
       noException should be thrownBy WorldMap.printContinentMap(map)

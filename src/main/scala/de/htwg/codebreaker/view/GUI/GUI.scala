@@ -3,7 +3,7 @@ package de.htwg.codebreaker.view.gui
 import de.htwg.codebreaker.controller.Controller
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model.{Continent, ServerType, WorldMap}
-import de.htwg.codebreaker.controller.{ClaimServerCommand, Command}
+import de.htwg.codebreaker.controller.{ClaimServerCommand, Command, NextPlayerCommand}
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
 import scalafx.scene.control.{Button, Label}
@@ -18,6 +18,7 @@ import scalafx.scene.image.ImageView
 import java.io.FileInputStream
 import scalafx.beans.binding.Bindings
 import scalafx.beans.property.BooleanProperty
+
 
 
 class GUI(val controller: Controller) extends JFXApp3 with Observer:
@@ -189,7 +190,7 @@ class GUI(val controller: Controller) extends JFXApp3 with Observer:
           style = "-fx-background-color: #66ff66; -fx-text-fill: black; -fx-font-weight: bold;"
         },
         new Button("Runde an nächsten Spieler") {
-          onAction = _ => controller.nextPlayerAndNotify()
+          onAction = _ => controller.doAndRemember(NextPlayerCommand())
           style = "-fx-background-color: #4db8ff; -fx-text-fill: white; -fx-font-weight: bold;"
         },
         new Button("Spiel beenden") {
@@ -227,7 +228,7 @@ class GUI(val controller: Controller) extends JFXApp3 with Observer:
     mode = GUIMode.Game
     println(s"[DEBUG] Aktueller Spieler bei Start: ${controller.getState.currentPlayerIndex}")
     if controller.getState.currentPlayerIndex.isEmpty then
-      controller.nextPlayerAndNotify()
+      controller.doAndRemember(NextPlayerCommand())
     showWorldMap()
   }
 

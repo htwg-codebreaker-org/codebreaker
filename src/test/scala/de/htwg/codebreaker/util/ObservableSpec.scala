@@ -8,37 +8,43 @@ class ObservableSpec extends AnyWordSpec with Matchers {
   class TestObserver extends Observer {
     var updated = false
     def reset(): Unit = updated = false
-    override def update: Unit = updated = true
+    override def update(): Unit = updated = true
   }
 
   "An Observable" should {
-    val observable = new Observable()
-    val observer1 = new TestObserver()
-    val observer2 = new TestObserver()
 
     "allow adding observers" in {
-      observable.add(observer1)
-      observable.subscribers should contain (observer1)
+      val observable = new Observable()
+      val observer = new TestObserver()
+      observable.add(observer)
+      observable.subscribers should contain(observer)
     }
 
     "allow removing observers" in {
-      observable.add(observer2)
-      observable.remove(observer2)
-      observable.subscribers should not contain observer2
+      val observable = new Observable()
+      val observer = new TestObserver()
+      observable.add(observer)
+      observable.remove(observer)
+      observable.subscribers should not contain observer
     }
 
     "notify all observers" in {
-      observer1.reset()
+      val observable = new Observable()
+      val observer = new TestObserver()
+      observable.add(observer)
+      observer.reset()
       observable.notifyObservers
-      observer1.updated should be (true)
+      observer.updated shouldBe true
     }
 
     "not notify removed observers" in {
-      observer2.reset()
-      observable.add(observer2)
-      observable.remove(observer2)
+      val observable = new Observable()
+      val observer = new TestObserver()
+      observable.add(observer)
+      observable.remove(observer)
+      observer.reset()
       observable.notifyObservers
-      observer2.updated should be (false)
+      observer.updated shouldBe false
     }
   }
 }

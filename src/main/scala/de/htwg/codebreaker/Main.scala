@@ -18,6 +18,9 @@ object Codebreaker:
     // GUI in eigenem Thread starten
     new Thread(() => gui.main(Array.empty)).start()
 
+    // TUI direkt anzeigen
+    tui.show()
+
     // Konsoleninterface
     var input = ""
     while input != "q" do

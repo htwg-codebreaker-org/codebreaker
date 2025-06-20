@@ -5,16 +5,57 @@ import de.htwg.codebreaker.controller.Controller
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.MapObject._
+import de.htwg.codebreaker.controller.ClaimServerCommand
+import de.htwg.codebreaker.controller.NextPlayerCommand
 
 class TUI(controller: Controller) extends Observer:
   controller.add(this)
 
   def processInputLine(input: String): Unit =
-  input match
-    case "q" =>
-      println("Spiel beendet.")
-    case _ =>
-      println("Unbekannter Befehl.")
+    input.trim match
+      case "q" =>
+        println("Spiel beendet.")
+
+      case "m" =>
+        show()
+
+      case "undo" =>
+        controller.undo()
+
+      case "redo" =>
+        controller.redo()
+
+      case "next" =>
+        controller.doAndRemember(NextPlayerCommand())
+
+      case "help" =>
+        println(
+          """Verfügbare Befehle:
+            |  m            → Karte & Status anzeigen
+            |  claim <S>    → Server S claimen
+            |  undo         → Letzten Spielzug rückgängig
+            |  redo         → Rückgängig gemachten Zug wiederholen
+            |  next         → Nächster Spieler
+            |  q            → Spiel beenden
+            |""".stripMargin)
+
+
+      case "claim" =>
+        println("Syntax: claim <Servername>")
+
+      case s if s.startsWith("claim ") =>
+        val parts = s.split(" ")
+        if parts.length == 2 then
+          val serverName = parts(1)
+          val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+          controller.doAndRemember(ClaimServerCommand(serverName, playerIndex))
+        else
+          println("Syntax: claim <Servername>")
+
+
+      case _ =>
+        println("Unbekannter Befehl.")
+
 
 
   def show(): Unit =

@@ -1,83 +1,101 @@
 package de.htwg.codebreaker.view
 
-import de.htwg.codebreaker.controller.Controller
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game._
-import de.htwg.codebreaker.model.MapObject._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import de.htwg.codebreaker.model._
+import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.controller._
+import java.io.{ByteArrayOutputStream, PrintStream}
 
 class TUISpec extends AnyWordSpec with Matchers {
 
-  // Einfaches Setup für das Model
   val tile = Tile(0, 0, Continent.Europe)
-
-  val players = List(Player(0, "Tester", tile, 5, 5, 5, 1, 0, 50))
-  val servers = List(Server("TestServer", tile, 10, 2, 3, false, ServerType.Side))
-
+  val player = Player(0, "Tester", tile, 1, 1, 1, 1, 0, 0)
+  val server = Server("S1", tile, 10, 2, 2, false, ServerType.Firm)
   val worldMap = WorldMap(1, 1, Vector(tile))
-  val model = GameModel(players, servers, worldMap)
+  val model = GameModel(List(player), List(server), worldMap)
   val state = GameState()
+  val controller = Controller(Game(model, state))
+  val tui = TUI(controller)
 
-  val controller = new Controller(model, state)
-  val tui = new TUI(controller)
+  def captureOutput(body: => Unit): String = {
+    val outCapture = new ByteArrayOutputStream()
+    Console.withOut(new PrintStream(outCapture)) {
+      body
+    }
+    outCapture.toString.trim
+  }
 
-  "A TUI" should {
+  "TUI" should {
 
-    "handle input: 'q' to quit" in {
+    "print welcome and game info on show()" in {
+      val output = captureOutput {
+        tui.show()
+      }
+      output should include ("Willkommen zu Codebreaker")
+      output should include ("Spieler 0: Tester")
+      output should include ("S1")
+    }
+
+    "handle 'q' to quit" in {
       val output = captureOutput {
         tui.processInputLine("q")
       }
-      output should include ("Spiel beendet.")
-    }
-
-    "handle input: 'm' to show full view" in {
-      val output = captureOutput {
-        tui.processInputLine("m")
-      }
-      output should include ("Willkommen zu Codebreaker!")
-      output should include ("Spieler 0: Tester")
-      output should include ("TestServer")
+      output should include ("Spiel beendet")
     }
 
     "handle unknown input" in {
       val output = captureOutput {
         tui.processInputLine("xyz")
       }
-      output should include ("Unbekannter Befehl.")
+      output should include ("Unbekannter Befehl")
     }
 
-    "display all map object types" in {
-      val data = Vector(Vector(
-        PlayerAndServerTile(0, 0, ServerType.Side, Continent.Europe),
-        PlayerOnTile(0),
-        ServerOnTile(0, ServerType.Bank, Continent.Asia),
-        EmptyTile(Continent.Africa)
-      ))
-      val mapString = tui.displayMap(data)
-      mapString should include ("[P0/S0]")
-      mapString should include ("[P0]")
-      mapString should include ("[0]S-AS")
-      mapString should include (" . ")
-    }
-
-    "print server list for all types" in {
-      val allTypes = ServerType.values.toList.zipWithIndex.map { case (stype, idx) =>
-        Server(s"Server$idx", tile, 20, 1, 2, false, stype)
-      }
+    "handle 'm' to show map" in {
       val output = captureOutput {
-        tui.printServerList(allTypes)
+        tui.processInputLine("m")
       }
-      ServerType.values.foreach { stype =>
-        output should include (stype.toString)
-      }
+      output should include ("== Codebreaker: Weltkarte ==")
     }
-  }
 
-  // Hilfsfunktion: println-Ausgaben abfangen
-  def captureOutput(block: => Unit): String = {
-    val stream = new java.io.ByteArrayOutputStream()
-    Console.withOut(stream)(block)
-    stream.toString
+    "handle 'help' to show commands" in {
+      val output = captureOutput {
+        tui.processInputLine("help")
+      }
+      output should include ("Verfügbare Befehle")
+      output should include ("claim <S>")
+    }
+
+    "handle 'claim S1' command" in {
+      val output = captureOutput {
+        tui.processInputLine("claim S1")
+      }
+      controller.getServers.find(_.name == "S1").get.claimedBy should contain (0)
+    }
+
+    "handle 'undo' and 'redo'" in {
+      tui.processInputLine("claim S1")
+      controller.getServers.head.claimedBy shouldBe Some(0)
+
+      tui.processInputLine("undo")
+      controller.getServers.head.claimedBy shouldBe None
+
+      tui.processInputLine("redo")
+      controller.getServers.head.claimedBy shouldBe Some(0)
+    }
+
+    "handle 'next' to advance player" in {
+      val output = captureOutput {
+        tui.processInputLine("next")
+      }
+      output should include ("Spielzustand hat sich geändert")
+    }
+
+    "reject invalid 'claim' syntax" in {
+      val output = captureOutput {
+        tui.processInputLine("claim")
+      }
+      output should include ("Syntax: claim <Servername>")
+    }
   }
 }
