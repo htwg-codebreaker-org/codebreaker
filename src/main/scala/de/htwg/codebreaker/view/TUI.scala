@@ -77,12 +77,17 @@ class TUI(controller: Controller) extends Observer:
     printServerList(servers)
 
   def displayMap(mapData: Vector[Vector[MapObject]]): String =
+    val BLUE = "\u001B[34m"
+    val GREEN = "\u001B[32m"
+    val RED = "\u001B[31m"
+    val RESET = "\u001B[0m"
+    
     mapData.map { row =>
       row.map {
-        case PlayerAndServerTile(p, s, _, _) => f"[P$p/S$s]"
-        case PlayerOnTile(i)                 => f"[P$i]"
-        case ServerOnTile(i, _, cont)        => f"[$i]S-${cont.short}"
-        case EmptyTile(_)                    => " .   "
+        case PlayerAndServerTile(p, s, _, _) => f"$RED[P$p/S$s]$RESET"
+        case PlayerOnTile(i)                 => f"$BLUE[P$i]$RESET"
+        case ServerOnTile(i, _, _)          => f"$GREEN[$i]-S$RESET"
+        case EmptyTile(cont)                    => f"${cont.short}"
       }.mkString(" ")
     }.mkString("\n")
 

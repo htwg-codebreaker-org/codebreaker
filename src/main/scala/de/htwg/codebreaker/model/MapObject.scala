@@ -30,5 +30,5 @@ object MapObject:
     continent: Continent
   ) extends MapObject
 
-  /** Keine Objekte auf der Kachel. */
+  /** Keine Objekte auf der Kachel auf Land. */
   case class EmptyTile(continent: Continent) extends MapObject
