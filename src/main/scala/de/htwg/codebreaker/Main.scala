@@ -21,7 +21,6 @@ object Codebreaker:
     // TUI direkt anzeigen
     tui.show()
 
-    // Konsoleninterface
     var input = ""
     while input != "q" do
       print("> ")
