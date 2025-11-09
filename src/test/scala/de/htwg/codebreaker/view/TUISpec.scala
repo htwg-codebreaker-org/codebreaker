@@ -97,5 +97,36 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
       output should include ("Syntax: claim <Servername>")
     }
+
+    "handle invalid claim syntax with multiple args" in {
+      val output = captureOutput {
+        tui.processInputLine("claim S1 extra args")
+      }
+      output should include ("Syntax: claim <Servername>")
+    }
+
+    "display different server types correctly" in {
+      val tile2 = Tile(1, 1, Continent.Africa)
+      val bankServer = Server("Bank1", tile2, 15, 3, 2, false, ServerType.Bank)
+      val gksServer = Server("GKS1", tile2, 50, 0, 0, false, ServerType.GKS)
+
+      val model2 = GameModel(List(player), List(bankServer, gksServer), worldMap)
+      val controller2 = Controller(Game(model2, state))
+      val tui2 = TUI(controller2)
+
+      val output = captureOutput {
+        tui2.show()
+      }
+      output should include ("Bank1")
+      output should include ("GKS1")
+    }
+
+    "update correctly when observer is notified" in {
+      val output = captureOutput {
+        tui.update()
+      }
+      output should include ("Spielzustand hat sich geändert")
+      output should include ("Willkommen zu Codebreaker")
+    }
   }
 }

@@ -43,7 +43,8 @@ lazy val root = project
     coverageEnabled := true,
     coverageHighlighting := true,
     coverageFailOnMinimum := false,
-    coverageMinimumStmtTotal := 40,
+    coverageMinimumStmtTotal := 70,
+    coverageExcludedPackages := "<empty>;.*view.gui.*;.*Main.*",
 
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit"              % "1.0.0"   % Test,
