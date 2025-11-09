@@ -44,7 +44,8 @@ lazy val root = project
     coverageHighlighting := true,
     coverageFailOnMinimum := false,
     coverageMinimumStmtTotal := 70,
-    coverageExcludedPackages := "<empty>;.*view.gui.*;.*Main.*",
+    coverageExcludedPackages := "<empty>;de\\.htwg\\.codebreaker\\.view\\.gui\\..*;de\\.htwg\\.codebreaker\\.Codebreaker",
+    coverageExcludedFiles := ".*\\/view\\/gui\\/.*;.*\\/Main\\.scala",
 
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit"              % "1.0.0"   % Test,
