@@ -1,6 +1,6 @@
 package de.htwg.codebreaker.view.gui
 
-import de.htwg.codebreaker.controller.Controller
+import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model.{Continent, ServerType, WorldMap}
 import de.htwg.codebreaker.controller.{ClaimServerCommand, Command, NextPlayerCommand}
@@ -19,9 +19,12 @@ import java.io.FileInputStream
 import scalafx.beans.binding.Bindings
 import scalafx.beans.property.BooleanProperty
 
-
-
-class GUI(val controller: Controller) extends JFXApp3 with Observer:
+/**
+ * Graphical User Interface component using ScalaFX.
+ * Depends only on ControllerInterface, not on the concrete Controller implementation.
+ * Implements Observer to receive updates when the game state changes.
+ */
+class GUI(val controller: ControllerInterface) extends JFXApp3 with Observer:
 
 
   controller.add(this)

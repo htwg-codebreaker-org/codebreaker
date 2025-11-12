@@ -5,8 +5,12 @@ import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
 import scala.util.{Try, Success, Failure}
 
-
-class Controller(initialGame: Game) extends Observable:
+/**
+ * Implementation of the game controller component.
+ * Manages game state, command execution, undo/redo functionality, and observer notifications.
+ * This class encapsulates all game logic and state management, exposing only the interface methods.
+ */
+class Controller(initialGame: Game) extends ControllerInterface with Observable:
 
   private var currentGame: Game = initialGame
 
