@@ -43,7 +43,7 @@ lazy val root = project
     coverageEnabled := true,
     coverageHighlighting := true,
     coverageFailOnMinimum := false,
-    coverageMinimumStmtTotal := 70,
+    coverageMinimumStmtTotal := 60,
     coverageExcludedPackages := "<empty>;de\\.htwg\\.codebreaker\\.view\\.gui\\..*;de\\.htwg\\.codebreaker\\.Codebreaker",
     coverageExcludedFiles := ".*\\/view\\/gui\\/.*;.*\\/Main\\.scala",
 

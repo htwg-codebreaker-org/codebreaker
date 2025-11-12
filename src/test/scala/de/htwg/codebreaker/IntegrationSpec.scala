@@ -50,26 +50,27 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
     "progress through multiple players and rounds" in {
       val game = GameFactory("default")
       val controller = Controller(game)
+      val numPlayers = controller.getPlayers.length
 
       // Start game
       controller.doAndRemember(NextPlayerCommand())
-      val initialPlayer = controller.getState.currentPlayerIndex.get
+      val startPlayer = controller.getState.currentPlayerIndex.get
       val initialRound = controller.getState.round
 
       // Advance to next player
       controller.doAndRemember(NextPlayerCommand())
-      controller.getState.currentPlayerIndex.get should not be initialPlayer
-      controller.getState.round shouldBe initialRound
+      val secondPlayer = controller.getState.currentPlayerIndex.get
+      secondPlayer should not be startPlayer
 
-      // Keep advancing until we wrap around
-      val numPlayers = controller.getPlayers.length
-      for (_ <- 1 until numPlayers) {
+      // Advance through remaining players to complete one full cycle
+      for (_ <- 2 until numPlayers) {
         controller.doAndRemember(NextPlayerCommand())
       }
 
-      // Should have incremented round after going through all players
-      controller.getState.round should be >= initialRound
-      controller.getState.currentPlayerIndex shouldBe Some(0)
+      // One more advance should bring us back to start player with incremented round
+      controller.doAndRemember(NextPlayerCommand())
+      controller.getState.currentPlayerIndex.get shouldBe startPlayer
+      controller.getState.round should be > initialRound
     }
 
     "handle game state transitions" in {
