@@ -54,7 +54,8 @@ lazy val root = project
       "org.scalatestplus" %% "mockito-3-12"   % "3.2.10.0" % Test,
       "org.scalafx" %% "scalafx"              % "22.0.0-R33" excludeAll (
         ExclusionRule(organization = "org.openjfx")
-      )
+      ),
+      "com.google.inject" % "guice"            % "7.0.0"
     ),
 
     libraryDependencies ++= setJavaFXVersion.value,

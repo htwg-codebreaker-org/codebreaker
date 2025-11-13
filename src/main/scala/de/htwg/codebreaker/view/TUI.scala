@@ -1,6 +1,7 @@
 // src/main/scala/de/htwg/codebreaker/view/TUI.scala
 package de.htwg.codebreaker.view
 
+import com.google.inject.Inject
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model._
@@ -12,8 +13,10 @@ import de.htwg.codebreaker.controller.NextPlayerCommand
  * Text-based User Interface component.
  * Depends only on ControllerInterface, not on the concrete Controller implementation.
  * Implements Observer to receive updates when the game state changes.
+ *
+ * @param controller The game controller, injected by Guice
  */
-class TUI(controller: ControllerInterface) extends Observer:
+class TUI @Inject() (controller: ControllerInterface) extends Observer:
   controller.add(this)
 
   def processInputLine(input: String): Unit =

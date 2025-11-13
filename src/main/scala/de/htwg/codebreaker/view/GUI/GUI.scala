@@ -1,5 +1,6 @@
 package de.htwg.codebreaker.view.gui
 
+import com.google.inject.Inject
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model.{Continent, ServerType, WorldMap}
@@ -23,8 +24,10 @@ import scalafx.beans.property.BooleanProperty
  * Graphical User Interface component using ScalaFX.
  * Depends only on ControllerInterface, not on the concrete Controller implementation.
  * Implements Observer to receive updates when the game state changes.
+ *
+ * @param controller The game controller, injected by Guice
  */
-class GUI(val controller: ControllerInterface) extends JFXApp3 with Observer:
+class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with Observer:
 
 
   controller.add(this)
