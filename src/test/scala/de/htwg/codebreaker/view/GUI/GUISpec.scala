@@ -15,6 +15,15 @@ import de.htwg.codebreaker.controller.Controller
 class TestGUI(controller: Controller) extends GUI(controller) {
   override def showWorldMap(): Unit = () // überspringt GUI-Rendering
   override def start(): Unit = () // blockiert das GUI-Fenster vollständig
+
+  // Override update to avoid Platform.runLater which requires JavaFX toolkit
+  override def update(): Unit = {
+    // Update properties without using Platform.runLater
+    if (canUndoProperty != null && canRedoProperty != null) {
+      canUndoProperty.value = controller.canUndo
+      canRedoProperty.value = controller.canRedo
+    }
+  }
 }
 
 
