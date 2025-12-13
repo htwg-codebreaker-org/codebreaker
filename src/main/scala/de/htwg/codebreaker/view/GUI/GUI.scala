@@ -19,6 +19,7 @@ import scalafx.scene.image.ImageView
 import java.io.FileInputStream
 import scalafx.beans.binding.Bindings
 import scalafx.beans.property.BooleanProperty
+import scalafx.application.Platform
 
 /**
  * Graphical User Interface component using ScalaFX.
@@ -223,9 +224,12 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   override def update(): Unit = {
     // Hier kann die GUI auf Änderungen im Spielzustand reagieren
     // Zum Beispiel: this.showWorldMap() oder Aktualisierung von Labels, etc.
-    if mode == GUIMode.Game then showWorldMap()
-    canUndoProperty.value = controller.canUndo
-    canRedoProperty.value = controller.canRedo
+    // Ensure UI updates happen on JavaFX application thread
+    Platform.runLater {
+      if mode == GUIMode.Game then showWorldMap()
+      canUndoProperty.value = controller.canUndo
+      canRedoProperty.value = controller.canRedo
+    }
   }
 
   def startGame(): Unit = {
