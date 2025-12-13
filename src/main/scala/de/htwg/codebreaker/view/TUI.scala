@@ -8,6 +8,7 @@ import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.MapObject._
 import de.htwg.codebreaker.controller.ClaimServerCommand
 import de.htwg.codebreaker.controller.NextPlayerCommand
+import de.htwg.codebreaker.controller.MovePlayerCommand
 
 /**
  * Text-based User Interface component.
@@ -40,6 +41,7 @@ class TUI @Inject() (controller: ControllerInterface) extends Observer:
         println(
           """Verfügbare Befehle:
             |  m            → Karte & Status anzeigen
+            |  move <X> <Y> → Aktuellen Spieler zu Position (X, Y) bewegen
             |  claim <S>    → Server S claimen
             |  undo         → Letzten Spielzug rückgängig
             |  redo         → Rückgängig gemachten Zug wiederholen
@@ -60,6 +62,27 @@ class TUI @Inject() (controller: ControllerInterface) extends Observer:
         else
           println("Syntax: claim <Servername>")
 
+      case "move" =>
+        println("Syntax: move <X> <Y>")
+
+      case s if s.startsWith("move ") =>
+        val parts = s.split(" ")
+        if parts.length == 3 then
+          try
+            val x = parts(1).toInt
+            val y = parts(2).toInt
+            val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+            val map = controller.game.model.worldMap
+            map.tileAt(x, y) match
+              case Some(tile) =>
+                controller.doAndRemember(MovePlayerCommand(playerIndex, tile))
+              case None =>
+                println(s"Ungültige Koordinaten: ($x, $y)")
+          catch
+            case _: NumberFormatException =>
+              println("X und Y müssen Zahlen sein")
+        else
+          println("Syntax: move <X> <Y>")
 
       case _ =>
         println("Unbekannter Befehl.")

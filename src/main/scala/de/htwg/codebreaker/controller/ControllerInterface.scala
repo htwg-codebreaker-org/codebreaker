@@ -17,6 +17,7 @@ trait ControllerInterface:
   def remove(observer: Observer): Unit
 
   // Query methods - read-only access to game state
+  def game: Game
   def getPlayers: List[Player]
   def getServers: List[Server]
   def getMapData(): Vector[Vector[MapObject]]

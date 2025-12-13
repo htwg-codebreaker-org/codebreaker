@@ -4,13 +4,13 @@ import com.google.inject.Inject
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model.{Continent, ServerType, WorldMap}
-import de.htwg.codebreaker.controller.{ClaimServerCommand, Command, NextPlayerCommand}
+import de.htwg.codebreaker.controller.{ClaimServerCommand, Command, NextPlayerCommand, MovePlayerCommand}
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.layout.{VBox, GridPane, StackPane, Pane}
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.Rectangle
+import scalafx.scene.shape.{Rectangle, Circle}
 import scalafx.scene.input.MouseEvent
 import scalafx.Includes._
 import scala.compiletime.uninitialized
@@ -120,7 +120,31 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
           }
           dialog.showAndWait()
         } else {
-          println(s"Tile clicked: (${tile.x}, ${tile.y}) - ${tile.continent}")
+          // Kein Server auf diesem Tile - Option zum Bewegen anbieten
+          if (tile.continent.isLand) {
+            val moveButton = new Button("Hierhin bewegen") {
+              onAction = _ => {
+                val currentPlayerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+                controller.doAndRemember(MovePlayerCommand(currentPlayerIndex, tile))
+              }
+            }
+            val moveDialog = new scalafx.scene.control.Dialog[Unit]() {
+              title = "Tile auswählen"
+              headerText = s"Position: (${tile.x}, ${tile.y}) - ${tile.continent}"
+              dialogPane().content = new VBox {
+                spacing = 10
+                children = Seq(
+                  new Label(s"Kontinent: ${tile.continent}"),
+                  new Label(s"Koordinaten: (${tile.x}, ${tile.y})"),
+                  moveButton
+                )
+              }
+              dialogPane().buttonTypes = Seq(scalafx.scene.control.ButtonType.Close)
+            }
+            moveDialog.showAndWait()
+          } else {
+            println(s"Ocean-Tile bei (${tile.x}, ${tile.y}) - nicht begehbar")
+          }
         }
       }
       tilePane.children.add(rect)
@@ -144,6 +168,25 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
         // Hier ggf. weitere Interaktion/Popup
       }
       tilePane.children.add(iconView)
+    }
+
+    // Player-Icons auf die Map legen
+    val players = controller.getPlayers
+    for ((player, index) <- players.zipWithIndex) {
+      val playerIcon = new scalafx.scene.shape.Circle {
+        radius <== stage.width.divide(map.width) * 0.3
+        centerX <== stage.width.divide(map.width).multiply(player.tile.x) + stage.width.divide(map.width) * 0.5
+        centerY <== stage.height.divide(map.height).multiply(player.tile.y) + stage.height.divide(map.height) * 0.5
+        fill = if (index == 0) Color.Blue else Color.Red
+        stroke = Color.White
+        strokeWidth = 2
+      }
+      val playerLabel = new Label(s"P$index") {
+        layoutX <== stage.width.divide(map.width).multiply(player.tile.x) + stage.width.divide(map.width) * 0.35
+        layoutY <== stage.height.divide(map.height).multiply(player.tile.y) + stage.height.divide(map.height) * 0.35
+        style = "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;"
+      }
+      tilePane.children.addAll(playerIcon, playerLabel)
     }
 
     // --- Nur aktiver Spieler ---
