@@ -17,7 +17,8 @@ enum ServerType:
  * @param rewardRam   RAM‑Belohnung
  * @param hacked      Wurde der Server bereits gehackt?
  * @param serverType  Art des Servers
- * @param claimedBy   Optional: Spieler‑ID, der den Server besitzt
+ * @param hackedBy    Optional: Spieler‑ID, der den Server gehackt hat
+ * @param claimedBy   Optional: Spieler‑ID, der den Server besitzt (wird beim Hack gesetzt)
  */
 case class Server(
   name: String,
@@ -27,6 +28,7 @@ case class Server(
   rewardRam: Int,
   hacked: Boolean,
   serverType: ServerType,
+  hackedBy: Option[Int] = None,
   claimedBy: Option[Int] = None
 )
 

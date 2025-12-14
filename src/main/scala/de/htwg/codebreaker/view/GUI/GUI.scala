@@ -4,10 +4,11 @@ import com.google.inject.Inject
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model.{Continent, ServerType, WorldMap}
-import de.htwg.codebreaker.controller.{ClaimServerCommand, Command, NextPlayerCommand, MovePlayerCommand}
+import de.htwg.codebreaker.controller.{HackServerCommand, Command, NextPlayerCommand, MovePlayerCommand}
 import scalafx.application.JFXApp3
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, Label}
+import scalafx.scene.control.{Button, Label, Alert}
+import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.layout.{VBox, GridPane, StackPane, Pane}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.{Rectangle, Circle}
@@ -34,6 +35,11 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   controller.add(this)
   var canUndoProperty: BooleanProperty = uninitialized
   var canRedoProperty: BooleanProperty = uninitialized
+
+  // Track previous server states to detect hack events
+  private var previousServers: List[de.htwg.codebreaker.model.Server] = controller.getServers
+  // Track previous player states to calculate rewards
+  private var previousPlayers: List[de.htwg.codebreaker.model.Player] = controller.getPlayers
 
 
 
@@ -88,63 +94,12 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
         strokeWidth = 0.5
       }
       rect.onMouseClicked = (_: MouseEvent) => {
-        val serverOpt = controller.getServers.find(_.tile == tile)
-        if (serverOpt.isDefined) {
-          val server = serverOpt.get
-          val claimButton = new Button("Server claimen") {
-            onAction = _ => {
-              val currentPlayerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
-              controller.doAndRemember(ClaimServerCommand(server.name, currentPlayerIndex))
-            }
-          }
-          val dialog = new scalafx.scene.control.Dialog[Unit]() {
-            title = s"Server: ${server.name}"
-            headerText = s"Typ: ${server.serverType} | Schwierigkeit: ${server.difficulty} | Kontinent: ${tile.continent}"
-            dialogPane().content = new VBox {
-              spacing = 10
-              children = Seq(
-                new ImageView(new Image(new FileInputStream(serverIconFile(server.serverType)))) {
-                  fitWidth = 80
-                  fitHeight = 80
-                  preserveRatio = true
-                },
-                new Label(s"Name: ${server.name}"),
-                new Label(s"Belohnung CPU: ${server.rewardCpu}"),
-                new Label(s"Belohnung RAM: ${server.rewardRam}"),
-                new Label(s"Gehackt: ${if (server.hacked) "Ja" else "Nein"}"),
-                new Label(s"Besitzer: ${server.claimedBy.getOrElse("-")}"),
-                claimButton
-              )
-            }
-            dialogPane().buttonTypes = Seq(scalafx.scene.control.ButtonType.Close)
-          }
-          dialog.showAndWait()
+        // Direkte Bewegung zum angeklickten Tile (wenn Land)
+        if (tile.continent.isLand) {
+          val currentPlayerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+          controller.doAndRemember(MovePlayerCommand(currentPlayerIndex, tile))
         } else {
-          // Kein Server auf diesem Tile - Option zum Bewegen anbieten
-          if (tile.continent.isLand) {
-            val moveButton = new Button("Hierhin bewegen") {
-              onAction = _ => {
-                val currentPlayerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
-                controller.doAndRemember(MovePlayerCommand(currentPlayerIndex, tile))
-              }
-            }
-            val moveDialog = new scalafx.scene.control.Dialog[Unit]() {
-              title = "Tile auswählen"
-              headerText = s"Position: (${tile.x}, ${tile.y}) - ${tile.continent}"
-              dialogPane().content = new VBox {
-                spacing = 10
-                children = Seq(
-                  new Label(s"Kontinent: ${tile.continent}"),
-                  new Label(s"Koordinaten: (${tile.x}, ${tile.y})"),
-                  moveButton
-                )
-              }
-              dialogPane().buttonTypes = Seq(scalafx.scene.control.ButtonType.Close)
-            }
-            moveDialog.showAndWait()
-          } else {
-            println(s"Ocean-Tile bei (${tile.x}, ${tile.y}) - nicht begehbar")
-          }
+          println(s"Ocean-Tile bei (${tile.x}, ${tile.y}) - nicht begehbar")
         }
       }
       tilePane.children.add(rect)
@@ -163,10 +118,8 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
       // Position mittig auf Tile
       iconView.layoutX <== stage.width.divide(map.width).multiply(server.tile.x) + stage.width.divide(map.width) * 0.2
       iconView.layoutY <== stage.height.divide(map.height).multiply(server.tile.y) + stage.height.divide(map.height) * 0.2
-      iconView.onMouseClicked = (_: MouseEvent) => {
-        println(s"Server clicked: ${server.name} (${server.serverType}) auf Tile (${server.tile.x},${server.tile.y})")
-        // Hier ggf. weitere Interaktion/Popup
-      }
+      // Server-Icons lassen Maus-Events durch zum darunterliegenden Tile
+      iconView.mouseTransparent = true
       tilePane.children.add(iconView)
     }
 
@@ -180,11 +133,13 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
         fill = if (index == 0) Color.Blue else Color.Red
         stroke = Color.White
         strokeWidth = 2
+        mouseTransparent = true
       }
       val playerLabel = new Label(s"P$index") {
         layoutX <== stage.width.divide(map.width).multiply(player.tile.x) + stage.width.divide(map.width) * 0.35
         layoutY <== stage.height.divide(map.height).multiply(player.tile.y) + stage.height.divide(map.height) * 0.35
         style = "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;"
+        mouseTransparent = true
       }
       tilePane.children.addAll(playerIcon, playerLabel)
     }
@@ -198,6 +153,7 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
       children = Seq(
         new Label(s"Spieler: ${player.name}") { style = "-fx-text-fill: white; -fx-font-weight: bold;" },
         new Label(s"CPU: ${player.cpu}   RAM: ${player.ram}   Code: ${player.code}") { style = "-fx-text-fill: #ccc;" },
+        new Label(s"Bewegungspunkte: ${player.movementPoints}/${player.maxMovementPoints}") { style = "-fx-text-fill: #4db8ff; -fx-font-weight: bold;" },
         new Label(s"Level: ${player.level}   XP: ${player.xp}") { style = "-fx-text-fill: #ccc;" },
         new Label(s"Cybersecurity: ${player.cybersecurity}") { style = "-fx-text-fill: #ccc;" },
         new Button("Undo") {
@@ -267,11 +223,95 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   override def update(): Unit = {
     // Hier kann die GUI auf Änderungen im Spielzustand reagieren
     // Zum Beispiel: this.showWorldMap() oder Aktualisierung von Labels, etc.
+
+    // Check for hack events before updating
+    val currentServers = controller.getServers
+    val currentPlayers = controller.getPlayers
+    detectAndShowHackResult(previousServers, currentServers, previousPlayers, currentPlayers)
+    previousServers = currentServers
+    previousPlayers = currentPlayers
+
     // Ensure UI updates happen on JavaFX application thread
     Platform.runLater {
       if mode == GUIMode.Game then showWorldMap()
       canUndoProperty.value = controller.canUndo
       canRedoProperty.value = controller.canRedo
+    }
+  }
+
+  /**
+   * Detects if a server was hacked and shows a notification popup with rewards
+   */
+  private def detectAndShowHackResult(
+    oldServers: List[de.htwg.codebreaker.model.Server],
+    newServers: List[de.htwg.codebreaker.model.Server],
+    oldPlayers: List[de.htwg.codebreaker.model.Player],
+    newPlayers: List[de.htwg.codebreaker.model.Player]
+  ): Unit = {
+    // Find servers that changed from not-hacked to hacked
+    val newlyHackedServers = newServers.filter { newServer =>
+      newServer.hacked && oldServers.exists(oldServer =>
+        oldServer.name == newServer.name && !oldServer.hacked
+      )
+    }
+
+    // Show popup for each newly hacked server with detailed rewards
+    newlyHackedServers.foreach { server =>
+      // Find the player who hacked this server
+      server.hackedBy.foreach { playerIndex =>
+        val oldPlayer = oldPlayers.lift(playerIndex)
+        val newPlayer = newPlayers.lift(playerIndex)
+
+        (oldPlayer, newPlayer) match {
+          case (Some(old), Some(current)) =>
+            // Calculate the actual rewards received
+            val cpuGained = current.cpu - old.cpu
+            val ramGained = current.ram - old.ram
+            val codeGained = current.code - old.code
+            val xpGained = current.xp - old.xp
+
+            // Build reward details string
+            val rewardLines = List(
+              if (cpuGained > 0) Some(s"+$cpuGained CPU") else None,
+              if (ramGained > 0) Some(s"+$ramGained RAM") else None,
+              if (codeGained > 0) Some(s"+$codeGained Code") else None,
+              if (xpGained > 0) Some(s"+$xpGained XP") else None
+            ).flatten
+
+            val rewardText = if (rewardLines.nonEmpty) {
+              rewardLines.mkString("\n")
+            } else {
+              "Keine Belohnungen"
+            }
+
+            Platform.runLater {
+              val alert = new Alert(AlertType.Information) {
+                title = "Server gehackt!"
+                headerText = s"Server '${server.name}' erfolgreich gehackt!"
+                contentText = s"""Server-Typ: ${server.serverType}
+                                 |Schwierigkeit: ${server.difficulty}%
+                                 |
+                                 |Belohnungen erhalten:
+                                 |$rewardText""".stripMargin
+              }
+              alert.showAndWait()
+            }
+
+          case _ =>
+            // Fallback if player data not available
+            Platform.runLater {
+              val alert = new Alert(AlertType.Information) {
+                title = "Server gehackt!"
+                headerText = s"Server '${server.name}' erfolgreich gehackt!"
+                contentText = s"""Server-Typ: ${server.serverType}
+                                 |Schwierigkeit: ${server.difficulty}%
+                                 |
+                                 |Belohnungen erhalten!""".stripMargin
+              }
+              alert.showAndWait()
+            }
+        }
+      }
     }
   }
 

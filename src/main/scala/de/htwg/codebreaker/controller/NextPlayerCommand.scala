@@ -13,7 +13,16 @@ case class NextPlayerCommand() extends Command {
     val roundInc = if currentIndex == totalPlayers - 1 then 1 else 0
     val newRound = game.state.round + roundInc
 
+    // Bewegungspunkte des nächsten Spielers auffüllen
+    val players = game.model.players
+    val nextPlayer = players(nextIndex)
+    val refreshedPlayer = nextPlayer.copy(
+      movementPoints = nextPlayer.maxMovementPoints
+    )
+    val updatedPlayers = players.updated(nextIndex, refreshedPlayer)
+
     game.copy(
+      model = game.model.copy(players = updatedPlayers),
       state = game.state.copy(
         currentPlayerIndex = Some(nextIndex),
         round = newRound

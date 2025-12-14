@@ -63,25 +63,48 @@ class TUISpec extends AnyWordSpec with Matchers {
         tui.processInputLine("help")
       }
       output should include ("Verfügbare Befehle")
-      output should include ("claim <S>")
+      output should include ("hack <S>")
     }
 
-    "handle 'claim S1' command" in {
-      val output = captureOutput {
-        tui.processInputLine("claim S1")
+    "handle 'hack S1' command" in {
+      // Player braucht genug Ressourcen fürs Hacken
+      val richPlayer = Player(0, "Tester", tile, 100, 100, 1, 1, 50, 0, 5, 5)
+      val model2 = GameModel(List(richPlayer), List(server), worldMap)
+      val controller2 = Controller(Game(model2, state))
+      val tui2 = TUI(controller2)
+
+      // Manuell HackServerCommand mit festem Random ausführen
+      val fixedRandom = new scala.util.Random(42) {
+        override def nextInt(n: Int): Int = 0 // Garantiert Erfolg
       }
-      controller.getServers.find(_.name == "S1").get.claimedBy should contain (0)
+      val hackCommand = HackServerCommand("S1", 0, fixedRandom)
+      controller2.doAndRemember(hackCommand)
+
+      // Server sollte jetzt gehackt sein
+      val hackedServer = controller2.getServers.find(_.name == "S1").get
+      hackedServer.hacked shouldBe true
+      hackedServer.claimedBy should contain (0)
     }
 
     "handle 'undo' and 'redo'" in {
-      tui.processInputLine("claim S1")
-      controller.getServers.head.claimedBy shouldBe Some(0)
+      val richPlayer = Player(0, "Tester", tile, 100, 100, 1, 1, 50, 0, 5, 5)
+      val model2 = GameModel(List(richPlayer), List(server), worldMap)
+      val controller2 = Controller(Game(model2, state))
+      val tui2 = TUI(controller2)
 
-      tui.processInputLine("undo")
-      controller.getServers.head.claimedBy shouldBe None
+      // Manuell HackServerCommand mit festem Random ausführen
+      val fixedRandom = new scala.util.Random(42) {
+        override def nextInt(n: Int): Int = 0 // Garantiert Erfolg
+      }
+      val hackCommand = HackServerCommand("S1", 0, fixedRandom)
+      controller2.doAndRemember(hackCommand)
+      controller2.getServers.head.hacked shouldBe true
 
-      tui.processInputLine("redo")
-      controller.getServers.head.claimedBy shouldBe Some(0)
+      tui2.processInputLine("undo")
+      controller2.getServers.head.hacked shouldBe false
+
+      tui2.processInputLine("redo")
+      controller2.getServers.head.hacked shouldBe true
     }
 
     "handle 'next' to advance player" in {
@@ -91,18 +114,18 @@ class TUISpec extends AnyWordSpec with Matchers {
       output should include ("Spielzustand hat sich geändert")
     }
 
-    "reject invalid 'claim' syntax" in {
+    "reject invalid 'hack' syntax" in {
       val output = captureOutput {
-        tui.processInputLine("claim")
+        tui.processInputLine("hack")
       }
-      output should include ("Syntax: claim <Servername>")
+      output should include ("Syntax: hack <Servername>")
     }
 
-    "handle invalid claim syntax with multiple args" in {
+    "handle invalid hack syntax with multiple args" in {
       val output = captureOutput {
-        tui.processInputLine("claim S1 extra args")
+        tui.processInputLine("hack S1 extra args")
       }
-      output should include ("Syntax: claim <Servername>")
+      output should include ("Syntax: hack <Servername>")
     }
 
     "display different server types correctly" in {

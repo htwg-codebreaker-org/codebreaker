@@ -6,7 +6,7 @@ import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.MapObject._
-import de.htwg.codebreaker.controller.ClaimServerCommand
+import de.htwg.codebreaker.controller.HackServerCommand
 import de.htwg.codebreaker.controller.NextPlayerCommand
 import de.htwg.codebreaker.controller.MovePlayerCommand
 
@@ -42,7 +42,7 @@ class TUI @Inject() (controller: ControllerInterface) extends Observer:
           """Verfügbare Befehle:
             |  m            → Karte & Status anzeigen
             |  move <X> <Y> → Aktuellen Spieler zu Position (X, Y) bewegen
-            |  claim <S>    → Server S claimen
+            |  hack <S>     → Server S hacken (kostet CPU/RAM, gibt Belohnungen)
             |  undo         → Letzten Spielzug rückgängig
             |  redo         → Rückgängig gemachten Zug wiederholen
             |  next         → Nächster Spieler
@@ -50,17 +50,17 @@ class TUI @Inject() (controller: ControllerInterface) extends Observer:
             |""".stripMargin)
 
 
-      case "claim" =>
-        println("Syntax: claim <Servername>")
+      case "hack" =>
+        println("Syntax: hack <Servername>")
 
-      case s if s.startsWith("claim ") =>
+      case s if s.startsWith("hack ") =>
         val parts = s.split(" ")
         if parts.length == 2 then
           val serverName = parts(1)
           val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
-          controller.doAndRemember(ClaimServerCommand(serverName, playerIndex))
+          controller.doAndRemember(HackServerCommand(serverName, playerIndex))
         else
-          println("Syntax: claim <Servername>")
+          println("Syntax: hack <Servername>")
 
       case "move" =>
         println("Syntax: move <X> <Y>")
@@ -100,7 +100,7 @@ class TUI @Inject() (controller: ControllerInterface) extends Observer:
     println()
     players.zipWithIndex.foreach { case (p, i) =>
       println(s"Spieler $i: ${p.name} @ (${p.tile.x}, ${p.tile.y}) [${p.tile.continent.short}]")
-      println(s"CPU: ${p.cpu} | RAM: ${p.ram} | Code: ${p.code}")
+      println(s"CPU: ${p.cpu} | RAM: ${p.ram} | Code: ${p.code} | Bewegung: ${p.movementPoints}/${p.maxMovementPoints}")
       println(s"Level: ${p.level} | XP: ${p.xp} | Security: ${p.cybersecurity}%")
       println("-" * 30)
     }
