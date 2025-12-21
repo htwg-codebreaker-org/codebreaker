@@ -15,7 +15,7 @@ class TUISpec extends AnyWordSpec with Matchers {
   val worldMap = WorldMap(1, 1, Vector(tile))
   val model = GameModel(List(player), List(server), worldMap)
   val state = GameState()
-  val controller = Controller(Game(model, state))
+  val controller = Controller(Game(model, state), de.htwg.codebreaker.TestHelper.mockFileIO)
   val tui = TUI(controller)
 
   def captureOutput(body: => Unit): String = {
@@ -70,7 +70,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       // Player braucht genug Ressourcen fürs Hacken
       val richPlayer = Player(0, "Tester", tile, 100, 100, 1, 1, 50, 0, 5, 5)
       val model2 = GameModel(List(richPlayer), List(server), worldMap)
-      val controller2 = Controller(Game(model2, state))
+      val controller2 = Controller(Game(model2, state), de.htwg.codebreaker.TestHelper.mockFileIO)
       val tui2 = TUI(controller2)
 
       // Manuell HackServerCommand mit festem Random ausführen
@@ -89,7 +89,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "handle 'undo' and 'redo'" in {
       val richPlayer = Player(0, "Tester", tile, 100, 100, 1, 1, 50, 0, 5, 5)
       val model2 = GameModel(List(richPlayer), List(server), worldMap)
-      val controller2 = Controller(Game(model2, state))
+      val controller2 = Controller(Game(model2, state), de.htwg.codebreaker.TestHelper.mockFileIO)
       val tui2 = TUI(controller2)
 
       // Manuell HackServerCommand mit festem Random ausführen
@@ -134,7 +134,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val gksServer = Server("GKS1", tile2, 50, 0, 0, false, ServerType.GKS)
 
       val model2 = GameModel(List(player), List(bankServer, gksServer), worldMap)
-      val controller2 = Controller(Game(model2, state))
+      val controller2 = Controller(Game(model2, state), de.htwg.codebreaker.TestHelper.mockFileIO)
       val tui2 = TUI(controller2)
 
       val output = captureOutput {

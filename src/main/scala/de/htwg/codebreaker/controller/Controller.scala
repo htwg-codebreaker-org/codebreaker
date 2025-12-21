@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import de.htwg.codebreaker.util.Observable
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.persistence.FileIOInterface
 import scala.util.{Try, Success, Failure}
 
 /**
@@ -12,8 +13,9 @@ import scala.util.{Try, Success, Failure}
  * This class encapsulates all game logic and state management, exposing only the interface methods.
  *
  * @param initialGame The initial game state, injected by Guice
+ * @param fileIO The file I/O implementation, injected by Guice
  */
-class Controller @Inject() (initialGame: Game) extends ControllerInterface with Observable:
+class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends ControllerInterface with Observable:
 
   private var currentGame: Game = initialGame
 
@@ -43,6 +45,7 @@ class Controller @Inject() (initialGame: Game) extends ControllerInterface with 
         undoStack = HistoryEntry(game, cmd) :: undoStack
         redoStack = Nil // Redo wird ungültig bei neuem Schritt
         currentGame = newGame
+        save() // Auto-save after each command
         notifyObservers
       case Failure(ex) =>
         println(s"Command fehlgeschlagen: ${ex.getMessage}")
@@ -102,3 +105,17 @@ class Controller @Inject() (initialGame: Game) extends ControllerInterface with 
     undoStack = Nil
     redoStack = Nil
     notifyObservers
+
+  def save(): Unit =
+    fileIO.save(game) match {
+      case Success(_) => println("Spiel gespeichert!")
+      case Failure(ex) => println(s"Fehler beim Speichern: ${ex.getMessage}")
+    }
+
+  def load(): Unit =
+    fileIO.load() match {
+      case Success(loadedGame) =>
+        setGame(loadedGame)
+        println("Spiel geladen!")
+      case Failure(ex) => println(s"Fehler beim Laden: ${ex.getMessage}")
+    }

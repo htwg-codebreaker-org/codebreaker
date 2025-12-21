@@ -37,3 +37,7 @@ trait ControllerInterface:
   def setPhase(newPhase: Phase): Unit
   def setStatus(newStatus: GameStatus): Unit
   def setGame(newGame: Game): Unit
+
+  // File I/O operations
+  def save(): Unit
+  def load(): Unit

@@ -55,7 +55,9 @@ lazy val root = project
       "org.scalafx" %% "scalafx"              % "22.0.0-R33" excludeAll (
         ExclusionRule(organization = "org.openjfx")
       ),
-      "com.google.inject" % "guice"            % "7.0.0"
+      "com.google.inject" % "guice"            % "7.0.0",
+      "org.scala-lang.modules" %% "scala-xml"  % "2.1.0",
+      "com.typesafe.play" %% "play-json"       % "2.10.0-RC7"
     ),
 
     libraryDependencies ++= setJavaFXVersion.value,

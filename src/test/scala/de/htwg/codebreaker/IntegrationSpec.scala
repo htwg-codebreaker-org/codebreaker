@@ -15,7 +15,7 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
       game should not be null
 
       // Create controller
-      val controller = Controller(game)
+      val controller = Controller(game, TestHelper.mockFileIO)
       controller.getPlayers.length should be >= 2
       controller.getServers.length should be > 0
 
@@ -49,7 +49,7 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
 
     "progress through multiple players and rounds" in {
       val game = GameFactory("default")
-      val controller = Controller(game)
+      val controller = Controller(game, TestHelper.mockFileIO)
       val numPlayers = controller.getPlayers.length
 
       // Start game
@@ -75,7 +75,7 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
 
     "handle game state transitions" in {
       val game = GameFactory("default")
-      val controller = Controller(game)
+      val controller = Controller(game, TestHelper.mockFileIO)
 
       // Change phase
       controller.setPhase(Phase.ExecutingTurn)

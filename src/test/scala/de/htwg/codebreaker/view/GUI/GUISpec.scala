@@ -35,7 +35,7 @@ class GUISpec extends AnyWordSpec with Matchers {
   val worldMap = WorldMap(1, 1, Vector(tile))
   val model = GameModel(List(player), List(server), worldMap)
   val state = GameState()
-  val controller = Controller(Game(model, state))
+  val controller = Controller(Game(model, state), de.htwg.codebreaker.TestHelper.mockFileIO)
   val gui = new TestGUI(controller)
 
   "A GUI" should {

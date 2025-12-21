@@ -4,8 +4,16 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.persistence.FileIOInterface
+import scala.util.{Try, Success}
 
 class ControllerSpec extends AnyWordSpec with Matchers {
+
+  // Mock FileIO for testing (does nothing)
+  val mockFileIO = new FileIOInterface {
+    def save(game: Game): Try[Unit] = Success(())
+    def load(): Try[Game] = Success(game)
+  }
 
   val tile = Tile(0, 0, Continent.Europe)
   val player = Player(0, "Test", tile, 1, 1, 1, 1, 0, 0)
@@ -13,7 +21,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
   val model = GameModel(List(player), List(server), WorldMap(1, 1, Vector(tile)))
   val state = GameState()
   val game = Game(model, state)
-  val controller = Controller(game)
+  val controller = Controller(game, mockFileIO)
 
   "A Controller" should {
 
@@ -65,12 +73,12 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 }
 
   "undo should print message if nothing to undo" in {
-    val emptyController = Controller(game)
+    val emptyController = Controller(game, mockFileIO)
     noException should be thrownBy emptyController.undo()
   }
 
   "redo should print message if nothing to redo" in {
-    val emptyController = Controller(game)
+    val emptyController = Controller(game, mockFileIO)
     noException should be thrownBy emptyController.redo()
   }
 
