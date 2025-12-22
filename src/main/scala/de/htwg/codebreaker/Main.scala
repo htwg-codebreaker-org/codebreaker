@@ -20,6 +20,13 @@ object Codebreaker:
     // Create the Guice injector with our module
     val injector: Injector = Guice.createInjector(new CodebreakerModule())
 
+    // Get controller to check for saved game
+    val controller = injector.getInstance(classOf[ControllerInterface])
+
+    // Try to load saved game, if it exists
+    println("Versuche gespeichertes Spiel zu laden...")
+    controller.load() // Will print success or error message
+
     // Get component instances from the injector
     // Guice automatically injects all dependencies (Game -> Controller, Controller -> Views)
     val tui = injector.getInstance(classOf[TUI])
