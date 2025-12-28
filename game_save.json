@@ -1,0 +1,468 @@
+{
+  "model" : {
+    "players" : [ {
+      "ram" : 50,
+      "code" : 10,
+      "cybersecurity" : 20,
+      "cpu" : 100,
+      "maxMovementPoints" : 5,
+      "movementPoints" : 0,
+      "name" : "Spieler 1",
+      "xp" : 0,
+      "id" : 1,
+      "tile" : {
+        "x" : 48,
+        "y" : 9,
+        "continent" : "Europe"
+      },
+      "level" : 1
+    }, {
+      "ram" : 50,
+      "code" : 10,
+      "cybersecurity" : 20,
+      "cpu" : 100,
+      "maxMovementPoints" : 5,
+      "movementPoints" : 0,
+      "name" : "Spieler 2",
+      "xp" : 0,
+      "id" : 2,
+      "tile" : {
+        "x" : 31,
+        "y" : 5,
+        "continent" : "NorthAmerica"
+      },
+      "level" : 1
+    } ],
+    "servers" : [ {
+      "rewardRam" : 51,
+      "name" : "Pentagon",
+      "difficulty" : 90,
+      "hacked" : false,
+      "rewardCpu" : 33,
+      "serverType" : "Military",
+      "tile" : {
+        "x" : 24,
+        "y" : 14,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 25,
+      "name" : "Wall Street",
+      "difficulty" : 69,
+      "hacked" : false,
+      "rewardCpu" : 23,
+      "serverType" : "Bank",
+      "tile" : {
+        "x" : 23,
+        "y" : 14,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 32,
+      "name" : "Silicon Valley",
+      "difficulty" : 69,
+      "hacked" : false,
+      "rewardCpu" : 18,
+      "serverType" : "Cloud",
+      "tile" : {
+        "x" : 13,
+        "y" : 15,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Brussels",
+      "difficulty" : 74,
+      "hacked" : false,
+      "rewardCpu" : 36,
+      "serverType" : "Bank",
+      "tile" : {
+        "x" : 39,
+        "y" : 11,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 15,
+      "name" : "Frankfurt Hub",
+      "difficulty" : 72,
+      "hacked" : false,
+      "rewardCpu" : 28,
+      "serverType" : "Bank",
+      "tile" : {
+        "x" : 40,
+        "y" : 12,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Moscow",
+      "difficulty" : 62,
+      "hacked" : false,
+      "rewardCpu" : 28,
+      "serverType" : "Military",
+      "tile" : {
+        "x" : 46,
+        "y" : 11,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 21,
+      "name" : "Beijing",
+      "difficulty" : 74,
+      "hacked" : false,
+      "rewardCpu" : 33,
+      "serverType" : "Military",
+      "tile" : {
+        "x" : 61,
+        "y" : 15,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 18,
+      "name" : "Tokyo Grid",
+      "difficulty" : 62,
+      "hacked" : false,
+      "rewardCpu" : 21,
+      "serverType" : "Cloud",
+      "tile" : {
+        "x" : 66,
+        "y" : 15,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 25,
+      "name" : "Sydney Core",
+      "difficulty" : 51,
+      "hacked" : false,
+      "rewardCpu" : 24,
+      "serverType" : "Cloud",
+      "tile" : {
+        "x" : 67,
+        "y" : 27,
+        "continent" : "Oceania"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Cairo",
+      "difficulty" : 57,
+      "hacked" : false,
+      "rewardCpu" : 24,
+      "serverType" : "Firm",
+      "tile" : {
+        "x" : 44,
+        "y" : 16,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 0,
+      "name" : "GKS",
+      "difficulty" : 99,
+      "hacked" : false,
+      "rewardCpu" : 0,
+      "serverType" : "GKS",
+      "tile" : {
+        "x" : 11,
+        "y" : 8,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 15,
+      "name" : "Nebenserver-NA-0",
+      "difficulty" : 33,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 21,
+        "y" : 20,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-NA-1",
+      "difficulty" : 38,
+      "hacked" : false,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 21,
+        "y" : 6,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 12,
+      "name" : "Nebenserver-NA-2",
+      "difficulty" : 28,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 7,
+        "y" : 10,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Nebenserver-NA-3",
+      "difficulty" : 34,
+      "hacked" : false,
+      "rewardCpu" : 16,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 25,
+        "y" : 5,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-NA-4",
+      "difficulty" : 37,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 31,
+        "y" : 7,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-NA-5",
+      "difficulty" : 32,
+      "hacked" : false,
+      "rewardCpu" : 15,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 14,
+        "y" : 12,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-SA-0",
+      "difficulty" : 23,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 24,
+        "y" : 20,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 14,
+      "name" : "Nebenserver-SA-1",
+      "difficulty" : 50,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 28,
+        "y" : 25,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-SA-2",
+      "difficulty" : 41,
+      "hacked" : false,
+      "rewardCpu" : 18,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 29,
+        "y" : 24,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-SA-3",
+      "difficulty" : 35,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 24,
+        "y" : 30,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-EU-0",
+      "difficulty" : 27,
+      "hacked" : false,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 46,
+        "y" : 7,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-EU-1",
+      "difficulty" : 46,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 49,
+        "y" : 5,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 17,
+      "name" : "Nebenserver-EU-2",
+      "difficulty" : 28,
+      "hacked" : false,
+      "rewardCpu" : 18,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 37,
+        "y" : 11,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 17,
+      "name" : "Nebenserver-EU-3",
+      "difficulty" : 29,
+      "hacked" : false,
+      "rewardCpu" : 14,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 47,
+        "y" : 8,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 15,
+      "name" : "Nebenserver-AF-0",
+      "difficulty" : 48,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 36,
+        "y" : 16,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 14,
+      "name" : "Nebenserver-AF-1",
+      "difficulty" : 35,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 43,
+        "y" : 22,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 11,
+      "name" : "Nebenserver-AF-2",
+      "difficulty" : 34,
+      "hacked" : false,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 39,
+        "y" : 19,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-AS-0",
+      "difficulty" : 41,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 58,
+        "y" : 18,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-AS-1",
+      "difficulty" : 44,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 59,
+        "y" : 8,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-AS-2",
+      "difficulty" : 27,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 56,
+        "y" : 8,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-AS-3",
+      "difficulty" : 40,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 58,
+        "y" : 9,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 15,
+      "name" : "Nebenserver-OC-0",
+      "difficulty" : 23,
+      "hacked" : false,
+      "rewardCpu" : 16,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 63,
+        "y" : 24,
+        "continent" : "Oceania"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-OC-1",
+      "difficulty" : 21,
+      "hacked" : false,
+      "rewardCpu" : 18,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 72,
+        "y" : 28,
+        "continent" : "Oceania"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-OC-2",
+      "difficulty" : 30,
+      "hacked" : false,
+      "rewardCpu" : 17,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 61,
+        "y" : 27,
+        "continent" : "Oceania"
+      }
+    } ],
+    "worldMap" : {
+      "width" : 80,
+      "height" : 40
+    }
+  },
+  "state" : {
+    "status" : "Running",
+    "phase" : "AwaitingInput",
+    "round" : 1,
+    "currentPlayerIndex" : 1
+  }
+}
