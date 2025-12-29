@@ -45,6 +45,8 @@ case class MovePlayerCommand(playerIndex: Int, newTile: Tile, random: Random = R
     // Distanz berechnen
     val distance = calculateDistance(player.tile, newTile)
 
+    require(distance > 0,
+      s"Neues Tile muss sich von aktuellem Tile unterscheiden")
     // Validierung: Genug Bewegungspunkte?
     require(player.movementPoints >= distance,
       s"Nicht genug Bewegungspunkte (benötigt: $distance, vorhanden: ${player.movementPoints})")
