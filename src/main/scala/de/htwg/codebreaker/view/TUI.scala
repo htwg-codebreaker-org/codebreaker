@@ -4,11 +4,17 @@ package de.htwg.codebreaker.view
 import com.google.inject.Inject
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.util.Observer
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.MapObject._
+import de.htwg.codebreaker.model.Server
+import de.htwg.codebreaker.model.ServerType
 import de.htwg.codebreaker.controller.HackServerCommand
 import de.htwg.codebreaker.controller.NextPlayerCommand
 import de.htwg.codebreaker.controller.MovePlayerCommand
+import de.htwg.codebreaker.model.MapObject
+import de.htwg.codebreaker.model.MapObject.*
+import com.typesafe.scalalogging.LazyLogging
+
+
+
 
 /**
  * Text-based User Interface component.
@@ -17,8 +23,11 @@ import de.htwg.codebreaker.controller.MovePlayerCommand
  *
  * @param controller The game controller, injected by Guice
  */
-class TUI @Inject() (controller: ControllerInterface) extends Observer:
+class TUI @Inject() (controller: ControllerInterface)
+  extends Observer
+    with LazyLogging:
   controller.add(this)
+  logger.info("TUI initialized")
 
   def processInputLine(input: String): Unit =
     input.trim match

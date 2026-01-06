@@ -57,7 +57,11 @@ lazy val root = project
       ),
       "com.google.inject" % "guice"            % "7.0.0",
       "org.scala-lang.modules" %% "scala-xml"  % "2.1.0",
-      "com.typesafe.play" %% "play-json"       % "2.10.0-RC7"
+      "com.typesafe.play" %% "play-json"       % "2.10.0-RC7",
+
+      // ===== LOGGING (VORLESUNG) =====
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+      "ch.qos.logback" % "logback-classic" % "1.4.11"
     ),
 
     libraryDependencies ++= setJavaFXVersion.value,
