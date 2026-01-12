@@ -70,29 +70,25 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
 
   def showWorldMap(): Unit = {
     val map = WorldMap.defaultMap
-    val sidebarWidth = 250.0
     val windowWidth = 1920.0
     val windowHeight = 1080.0
-    val mapWidth = windowWidth - sidebarWidth  // Reserve space for sidebar
 
     val bgImage = new Image(new FileInputStream("src/main/scala/de/htwg/codebreaker/assets/graphics/landscape.png"))
     val bgView = new ImageView(bgImage)
     bgView.preserveRatio = false
-    bgView.fitWidth = mapWidth
-    bgView.fitHeight = windowHeight
+    bgView.fitWidth <== stage.width
+    bgView.fitHeight <== stage.height
 
     val tilePane = new Pane {
-      prefWidth = mapWidth
-      prefHeight = windowHeight
+      prefWidth <== stage.width
+      prefHeight <== stage.height
     }
     for (tile <- map.tiles) {
-      val tileWidth = mapWidth / map.width
-      val tileHeight = windowHeight / map.height
       val rect = new Rectangle {
-        width = tileWidth
-        height = tileHeight
-        x = tileWidth * tile.x
-        y = tileHeight * tile.y
+        width <== stage.width.divide(map.width)
+        height <== stage.height.divide(map.height)
+        x <== stage.width.divide(map.width).multiply(tile.x)
+        y <== stage.height.divide(map.height).multiply(tile.y)
         fill = continentColor(tile.continent).deriveColor(0, 1, 1, 0.5)
         stroke = Color.Black
         strokeWidth = 0.5
@@ -116,14 +112,12 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
       val iconImg = new Image(new FileInputStream(iconPath))
       val iconView = new ImageView(iconImg)
       // Dynamische Größe: z.B. 60% der Tile-Kantenlänge
-      val tileWidth = mapWidth / map.width
-      val tileHeight = windowHeight / map.height
-      iconView.fitWidth = tileWidth * 0.6
-      iconView.fitHeight = tileHeight * 0.6
+      iconView.fitWidth <== stage.width.divide(map.width) * 0.6
+      iconView.fitHeight <== stage.height.divide(map.height) * 0.6
       iconView.preserveRatio = true
       // Position mittig auf Tile
-      iconView.layoutX = tileWidth * server.tile.x + tileWidth * 0.2
-      iconView.layoutY = tileHeight * server.tile.y + tileHeight * 0.2
+      iconView.layoutX <== stage.width.divide(map.width).multiply(server.tile.x) + stage.width.divide(map.width) * 0.2
+      iconView.layoutY <== stage.height.divide(map.height).multiply(server.tile.y) + stage.height.divide(map.height) * 0.2
       // Server-Icons lassen Maus-Events durch zum darunterliegenden Tile
       iconView.mouseTransparent = true
       tilePane.children.add(iconView)
@@ -132,70 +126,48 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
     // Player-Icons auf die Map legen
     val players = controller.getPlayers
     for ((player, index) <- players.zipWithIndex) {
-      val tileWidth = mapWidth / map.width
-      val tileHeight = windowHeight / map.height
       val playerIcon = new scalafx.scene.shape.Circle {
-        radius = tileWidth * 0.3
-        centerX = tileWidth * player.tile.x + tileWidth * 0.5
-        centerY = tileHeight * player.tile.y + tileHeight * 0.5
+        radius <== stage.width.divide(map.width) * 0.3
+        centerX <== stage.width.divide(map.width).multiply(player.tile.x) + stage.width.divide(map.width) * 0.5
+        centerY <== stage.height.divide(map.height).multiply(player.tile.y) + stage.height.divide(map.height) * 0.5
         fill = if (index == 0) Color.Blue else Color.Red
         stroke = Color.White
         strokeWidth = 2
         mouseTransparent = true
       }
       val playerLabel = new Label(s"P$index") {
-        layoutX = tileWidth * player.tile.x + tileWidth * 0.35
-        layoutY = tileHeight * player.tile.y + tileHeight * 0.35
+        layoutX <== stage.width.divide(map.width).multiply(player.tile.x) + stage.width.divide(map.width) * 0.35
+        layoutY <== stage.height.divide(map.height).multiply(player.tile.y) + stage.height.divide(map.height) * 0.35
         style = "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 10px;"
         mouseTransparent = true
       }
       tilePane.children.addAll(playerIcon, playerLabel)
     }
 
-    // --- Alle Spieler anzeigen ---
+    // --- Nur aktiver Spieler ---
     val currentPlayerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
-
-    val playerInfoBoxes = players.zipWithIndex.map { case (player, index) =>
-      val isActive = index == currentPlayerIndex
-      val borderColor = if (isActive) "#4db8ff" else "#888"
-      val backgroundColor = if (isActive) "#2a2a2a" else "#222"
-      val playerColor = if (index == 0) "Blue" else "Red"
-
-      new VBox {
-        style = s"-fx-background-color: $backgroundColor; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-color: $borderColor; -fx-border-width: 2;"
-        spacing = 4
-        children = Seq(
-          new Label(s"${player.name} ${if (isActive) "★" else ""}") {
-            style = s"-fx-text-fill: $playerColor; -fx-font-weight: bold; -fx-font-size: 14px;"
-          },
-          new scalafx.scene.layout.HBox {
-            spacing = 10
-            children = Seq(
-              new Label(s"CPU: ${player.cpu}") { style = "-fx-text-fill: #66ff66;" },
-              new Label(s"RAM: ${player.ram}") { style = "-fx-text-fill: #66ccff;" },
-              new Label(s"Code: ${player.code}") { style = "-fx-text-fill: #ffcc66;" }
-            )
-          },
-          new Label(s"Bewegung: ${player.movementPoints}/${player.maxMovementPoints}") {
-            style = "-fx-text-fill: #4db8ff; -fx-font-weight: bold; -fx-font-size: 11px;"
-          },
-          new scalafx.scene.layout.HBox {
-            spacing = 10
-            children = Seq(
-              new Label(s"Level: ${player.level}") { style = "-fx-text-fill: #ccc; -fx-font-size: 11px;" },
-              new Label(s"XP: ${player.xp}") { style = "-fx-text-fill: #ffb84d; -fx-font-size: 11px;" }
-            )
-          },
-          new Label(s"Security: ${player.cybersecurity}%") { style = "-fx-text-fill: #ff6666; -fx-font-size: 11px;" }
-        )
-      }
+    val player = controller.getPlayers(currentPlayerIndex)
+    val playerInfoBox = new VBox {
+      style = "-fx-background-color: #222; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-color: #888; -fx-border-width: 2;"
+      spacing = 6
+      children = Seq(
+        new Label(s"Spieler: ${player.name}") { style = "-fx-text-fill: white; -fx-font-weight: bold;" },
+        new Label(s"CPU: ${player.cpu}   RAM: ${player.ram}   Code: ${player.code}") { style = "-fx-text-fill: #ccc;" },
+        new Label(s"Bewegungspunkte: ${player.movementPoints}/${player.maxMovementPoints}") { style = "-fx-text-fill: #4db8ff; -fx-font-weight: bold;" },
+        new Label(s"Level: ${player.level}   XP: ${player.xp}") { style = "-fx-text-fill: #ccc;" },
+        new Label(s"Cybersecurity: ${player.cybersecurity}") { style = "-fx-text-fill: #ccc;" },
+        new Button("Undo") {
+          disable = false
+          onAction = _ => controller.undo()
+          style = "-fx-background-color: #ffb84d; -fx-font-weight: bold;"
+        }
+      )
     }
 
-    // --- Spieler-Info als vertikale Sidebar rechts ---
-    val playerInfoSidebar = new scalafx.scene.layout.VBox {
-      style = "-fx-background-color: #1a1a1a; -fx-padding: 15; -fx-min-width: 250; -fx-max-width: 250;"
-      spacing = 15
-      children = playerInfoBoxes
+    val playerInfoBar = new scalafx.scene.layout.HBox {
+      style = "-fx-background-color: #222; -fx-padding: 10;"
+      spacing = 20
+      children = Seq(playerInfoBox)
     }
 
     val stack = new StackPane {
@@ -237,7 +209,7 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
 
     val borderPane = new scalafx.scene.layout.BorderPane {
       center = stack
-      right = playerInfoSidebar
+      bottom = playerInfoBar
       top = topBar
     }
     stage.scene = new Scene(windowWidth, windowHeight) {
