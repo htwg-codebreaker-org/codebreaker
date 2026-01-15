@@ -1,25 +1,23 @@
 package de.htwg.codebreaker.module
 
-import com.google.inject.AbstractModule
+import com.google.inject.{AbstractModule, Scopes}
 import de.htwg.codebreaker.controller.{Controller, ControllerInterface}
 import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.persistence.{FileIOInterface, FileIOJSON, FileIOXML}
-import com.google.inject.Scopes
 
-/**
- * Guice Module for the Codebreaker application.
- * Defines all dependency injection bindings between interfaces and implementations.
- *
- * This module:
- * - Binds ControllerInterface to Controller implementation
- * - Provides Game instances via GameProvider
- * - Binds FileIOInterface to either JSON or XML implementation (choose one)
- * - Uses singleton scope for shared components (Controller)
- *
- * To switch between JSON and XML, change the binding below:
- * - For JSON: bind(classOf[FileIOInterface]).to(classOf[FileIOJSON])
- * - For XML:  bind(classOf[FileIOInterface]).to(classOf[FileIOXML])
- */
+/** Guice Module for the Codebreaker application. Defines all dependency injection bindings between
+  * interfaces and implementations.
+  *
+  * This module:
+  *   - Binds ControllerInterface to Controller implementation
+  *   - Provides Game instances via GameProvider
+  *   - Binds FileIOInterface to either JSON or XML implementation (choose one)
+  *   - Uses singleton scope for shared components (Controller)
+  *
+  * To switch between JSON and XML, change the binding below:
+  *   - For JSON: bind(classOf[FileIOInterface]).to(classOf[FileIOJSON])
+  *   - For XML: bind(classOf[FileIOInterface]).to(classOf[FileIOXML])
+  */
 class CodebreakerModule extends AbstractModule:
 
   override def configure(): Unit =

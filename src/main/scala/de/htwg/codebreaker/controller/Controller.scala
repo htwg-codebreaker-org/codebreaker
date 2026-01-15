@@ -1,21 +1,25 @@
 package de.htwg.codebreaker.controller
 
 import com.google.inject.Inject
-import de.htwg.codebreaker.util.Observable
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
 import de.htwg.codebreaker.persistence.FileIOInterface
-import scala.util.{Try, Success, Failure}
+import de.htwg.codebreaker.util.Observable
 
-/**
- * Implementation of the game controller component.
- * Manages game state, command execution, undo/redo functionality, and observer notifications.
- * This class encapsulates all game logic and state management, exposing only the interface methods.
- *
- * @param initialGame The initial game state, injected by Guice
- * @param fileIO The file I/O implementation, injected by Guice
- */
-class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends ControllerInterface with Observable:
+import scala.util.{Failure, Success, Try}
+
+/** Implementation of the game controller component. Manages game state, command execution,
+  * undo/redo functionality, and observer notifications. This class encapsulates all game logic and
+  * state management, exposing only the interface methods.
+  *
+  * @param initialGame
+  *   The initial game state, injected by Guice
+  * @param fileIO
+  *   The file I/O implementation, injected by Guice
+  */
+class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface)
+    extends ControllerInterface
+    with Observable:
 
   private var currentGame: Game = initialGame
 
@@ -24,18 +28,16 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
   def canUndo: Boolean = undoStack.nonEmpty
   def canRedo: Boolean = redoStack.nonEmpty
 
-
-  def getPlayers: List[Player] = game.model.players
-  def getServers: List[Server] = game.model.servers
+  def getPlayers: List[Player]                = game.model.players
+  def getServers: List[Server]                = game.model.servers
   def getMapData(): Vector[Vector[MapObject]] =
     game.model.worldMap.getMapData(game.model.players, game.model.servers)
-  def getState: GameState = game.state
+  def getState: GameState                     = game.state
 
   private case class HistoryEntry(gameBefore: Game, command: Command)
 
   private var undoStack: List[HistoryEntry] = Nil
   private var redoStack: List[HistoryEntry] = Nil
-
 
   /** Führt ein Command aus und speichert den alten Zustand für Undo. */
   def doAndRemember(cmd: Command): Unit = {
@@ -45,13 +47,12 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
         undoStack = HistoryEntry(game, cmd) :: undoStack
         redoStack = Nil // Redo wird ungültig bei neuem Schritt
         currentGame = newGame
-        save() // Auto-save after each command
+        save()          // Auto-save after each command
         notifyObservers
-      case Failure(ex) =>
+      case Failure(ex)      =>
         println(s"Command fehlgeschlagen: ${ex.getMessage}")
     }
   }
-
 
   /** Macht den letzten Schritt rückgängig. */
   def undo(): Unit = undoStack match {
@@ -62,12 +63,11 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
           currentGame = revertedGame
           undoStack = rest
           notifyObservers
-        case Failure(ex) =>
+        case Failure(ex)           =>
           println(s"Undo fehlgeschlagen: ${ex.getMessage}")
       }
-    case Nil => println("Nichts zum Rückgängig machen.")
+    case Nil                               => println("Nichts zum Rückgängig machen.")
   }
-
 
   /** Stellt einen rückgängig gemachten Schritt wieder her. */
   def redo(): Unit = redoStack match {
@@ -78,19 +78,17 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
           currentGame = redoneGame
           redoStack = rest
           notifyObservers
-        case Failure(ex) =>
+        case Failure(ex)         =>
           println(s"Redo fehlgeschlagen: ${ex.getMessage}")
       }
-    case Nil => println("Nichts zum Wiederholen.")
+    case Nil                               => println("Nichts zum Wiederholen.")
   }
-
 
   // Die direkte unclaimServer-Methode wird entfernt, da alles über das Command-Pattern laufen soll
 
   def advanceRound(): Unit =
     currentGame = game.copy(state = game.state.advanceRound())
     notifyObservers
-
 
   def setPhase(newPhase: Phase): Unit =
     currentGame = game.copy(state = game.state.setPhase(newPhase))
@@ -108,7 +106,7 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
 
   def save(): Unit =
     fileIO.save(game) match {
-      case Success(_) => println("Spiel gespeichert!")
+      case Success(_)  => println("Spiel gespeichert!")
       case Failure(ex) => println(s"Fehler beim Speichern: ${ex.getMessage}")
     }
 
@@ -117,5 +115,5 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
       case Success(loadedGame) =>
         setGame(loadedGame)
         println("Spiel geladen!")
-      case Failure(ex) => println(s"Fehler beim Laden: ${ex.getMessage}")
+      case Failure(ex)         => println(s"Fehler beim Laden: ${ex.getMessage}")
     }

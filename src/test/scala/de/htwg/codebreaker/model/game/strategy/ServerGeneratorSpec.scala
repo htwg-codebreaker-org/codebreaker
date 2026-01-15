@@ -1,15 +1,15 @@
 package de.htwg.codebreaker.model.game.strategy
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class ServerGeneratorSpec extends AnyWordSpec with Matchers {
 
   "ServerGenerator" should {
 
     "generate fixed servers from blueprints with valid properties" in {
-      val map = WorldMap.defaultMap
+      val map     = WorldMap.defaultMap
       val servers = ServerGenerator.generateFixedServers(map)
 
       servers should not be empty
@@ -18,9 +18,9 @@ class ServerGeneratorSpec extends AnyWordSpec with Matchers {
     }
 
     "generate side servers for a given continent with correct types" in {
-      val map = WorldMap.defaultMap
+      val map   = WorldMap.defaultMap
       val fixed = ServerGenerator.generateFixedServers(map)
-      val side = ServerGenerator.generateSideServersFor(Continent.Europe, map, fixed, 2)
+      val side  = ServerGenerator.generateSideServersFor(Continent.Europe, map, fixed, 2)
 
       side should not be empty
       all(side.map(_.serverType)) shouldBe ServerType.Side
@@ -28,16 +28,16 @@ class ServerGeneratorSpec extends AnyWordSpec with Matchers {
     }
 
     "select tiles that meet minimum distance requirements" in {
-      val map = WorldMap.defaultMap
+      val map         = WorldMap.defaultMap
       val europeTiles = map.tilesOf(Continent.Europe)
-      val selected = ServerGenerator.pickNonCloseTiles(europeTiles, 3, 2, Nil)
+      val selected    = ServerGenerator.pickNonCloseTiles(europeTiles, 3, 2, Nil)
 
       selected.size should be <= 3
       selected.combinations(2).foreach {
         case Seq(a, b) =>
           val dist = ServerGenerator.distance(a, b)
           dist should be >= 2
-        case _ => // do nothing
+        case _         => // do nothing
       }
     }
 

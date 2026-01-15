@@ -1,18 +1,17 @@
 package de.htwg.codebreaker.model
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model.game.GameModel
-
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class GameModelSpec extends AnyWordSpec with Matchers {
 
   "A GameModel" should {
 
-    val tile = Tile(0, 0, Continent.Europe)
+    val tile   = Tile(0, 0, Continent.Europe)
     val player = Player(0, "Tester", tile, 1, 1, 1, 1, 0, 0)
     val server = Server("S1", tile, 10, 2, 2, false, ServerType.Firm)
-    val map = WorldMap(1, 1, Vector(tile))
+    val map    = WorldMap(1, 1, Vector(tile))
 
     val model = GameModel(List(player), List(server), map)
 

@@ -1,26 +1,27 @@
 package de.htwg.codebreaker.controller
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
 import de.htwg.codebreaker.persistence.FileIOInterface
-import scala.util.{Try, Success}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
+import scala.util.{Success, Try}
 
 class ControllerSpec extends AnyWordSpec with Matchers {
 
   // Mock FileIO for testing (does nothing)
   val mockFileIO = new FileIOInterface {
     def save(game: Game): Try[Unit] = Success(())
-    def load(): Try[Game] = Success(game)
+    def load(): Try[Game]           = Success(game)
   }
 
-  val tile = Tile(0, 0, Continent.Europe)
-  val player = Player(0, "Test", tile, 1, 1, 1, 1, 0, 0)
-  val server = Server("S1", tile, 10, 2, 3, false, ServerType.Bank)
-  val model = GameModel(List(player), List(server), WorldMap(1, 1, Vector(tile)))
-  val state = GameState()
-  val game = Game(model, state)
+  val tile       = Tile(0, 0, Continent.Europe)
+  val player     = Player(0, "Test", tile, 1, 1, 1, 1, 0, 0)
+  val server     = Server("S1", tile, 10, 2, 3, false, ServerType.Bank)
+  val model      = GameModel(List(player), List(server), WorldMap(1, 1, Vector(tile)))
+  val state      = GameState()
+  val game       = Game(model, state)
   val controller = Controller(game, mockFileIO)
 
   "A Controller" should {
@@ -47,7 +48,6 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.getState.currentPlayerIndex shouldBe Some(0)
     }
 
-
     "set phase and status" in {
       controller.setPhase(Phase.ExecutingTurn)
       controller.getState.phase shouldBe Phase.ExecutingTurn
@@ -55,7 +55,6 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.setStatus(GameStatus.Paused)
       controller.getState.status shouldBe GameStatus.Paused
     }
-
 
     "replace game with new one" in {
       val newGame = game.copy(state = GameState().copy(round = 99))
@@ -65,12 +64,12 @@ class ControllerSpec extends AnyWordSpec with Matchers {
   }
 
   "doAndRemember should handle failing command" in {
-  val failingCmd = new Command {
-    def doStep(game: Game) = scala.util.Failure(new RuntimeException("fail"))
-    def undoStep(game: Game) = scala.util.Success(game)
+    val failingCmd = new Command {
+      def doStep(game: Game)   = scala.util.Failure(new RuntimeException("fail"))
+      def undoStep(game: Game) = scala.util.Success(game)
+    }
+    noException should be thrownBy controller.doAndRemember(failingCmd)
   }
-  noException should be thrownBy controller.doAndRemember(failingCmd)
-}
 
   "undo should print message if nothing to undo" in {
     val emptyController = Controller(game, mockFileIO)
@@ -84,7 +83,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
   "undo should handle failing undoStep" in {
     val cmd = new Command {
-      def doStep(g: Game) = scala.util.Success(g)
+      def doStep(g: Game)   = scala.util.Success(g)
       def undoStep(g: Game) = scala.util.Failure(new RuntimeException("fail undo"))
     }
     controller.doAndRemember(cmd)
@@ -93,7 +92,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
   "redo should handle failing doStep" in {
     val cmd = new Command {
-      def doStep(g: Game) = scala.util.Failure(new RuntimeException("redo fail"))
+      def doStep(g: Game)   = scala.util.Failure(new RuntimeException("redo fail"))
       def undoStep(g: Game) = scala.util.Success(g)
     }
     controller.doAndRemember(cmd)

@@ -1,17 +1,17 @@
 package de.htwg.codebreaker.model.game
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class GameSpec extends AnyWordSpec with Matchers {
 
-  val tile = Tile(0, 0, Continent.Europe)
-  val player = Player(0, "Test", tile, 1, 1, 1, 1, 0, 0)
-  val server = Server("S1", tile, 10, 2, 3, false, ServerType.Bank)
+  val tile     = Tile(0, 0, Continent.Europe)
+  val player   = Player(0, "Test", tile, 1, 1, 1, 1, 0, 0)
+  val server   = Server("S1", tile, 10, 2, 3, false, ServerType.Bank)
   val worldMap = WorldMap(1, 1, Vector(tile))
-  val model = GameModel(List(player), List(server), worldMap)
-  val state = GameState()
+  val model    = GameModel(List(player), List(server), worldMap)
+  val state    = GameState()
 
   "A Game" should {
     "be created with model and state" in {
@@ -21,9 +21,9 @@ class GameSpec extends AnyWordSpec with Matchers {
     }
 
     "support copy" in {
-      val game = Game(model, state)
+      val game     = Game(model, state)
       val newState = state.copy(round = 5)
-      val newGame = game.copy(state = newState)
+      val newGame  = game.copy(state = newState)
 
       newGame.model shouldBe model
       newGame.state.round shouldBe 5

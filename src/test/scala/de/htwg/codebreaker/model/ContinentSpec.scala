@@ -1,15 +1,13 @@
 import de.htwg.codebreaker.model._
-
-
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class ContinentSpec extends AnyWordSpec with Matchers {
 
   "A Continent" should {
 
     "correctly report if it is land or not" in {
-      val landContinents = List(
+      val landContinents    = List(
         Continent.NorthAmerica,
         Continent.SouthAmerica,
         Continent.Europe,
@@ -27,12 +25,12 @@ class ContinentSpec extends AnyWordSpec with Matchers {
     "return the correct short codes" in {
       Continent.NorthAmerica.short shouldBe "NA"
       Continent.SouthAmerica.short shouldBe "SA"
-      Continent.Europe.short        shouldBe "EU"
-      Continent.Africa.short        shouldBe "AF"
-      Continent.Asia.short          shouldBe "AS"
-      Continent.Oceania.short       shouldBe "OC"
-      Continent.Antarctica.short    shouldBe "AN"
-      Continent.Ocean.short         shouldBe "~~"
+      Continent.Europe.short shouldBe "EU"
+      Continent.Africa.short shouldBe "AF"
+      Continent.Asia.short shouldBe "AS"
+      Continent.Oceania.short shouldBe "OC"
+      Continent.Antarctica.short shouldBe "AN"
+      Continent.Ocean.short shouldBe "~~"
     }
   }
 }

@@ -4,12 +4,10 @@ import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
 import de.htwg.codebreaker.util.Observer
 
-/**
- * Interface for the game controller component.
- * Defines all public operations that can be performed on the game state.
- * This interface enforces the component boundary and prevents direct access
- * to internal implementation details.
- */
+/** Interface for the game controller component. Defines all public operations that can be performed
+  * on the game state. This interface enforces the component boundary and prevents direct access to
+  * internal implementation details.
+  */
 trait ControllerInterface:
 
   // Observer pattern methods

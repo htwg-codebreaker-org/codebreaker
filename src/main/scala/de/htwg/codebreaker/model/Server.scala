@@ -1,25 +1,32 @@
 // src/main/scala/de/htwg/codebreaker/model/Server.scala
 package de.htwg.codebreaker.model
 
-/**
- * Typen von Servern im Spiel.
- */
+/** Typen von Servern im Spiel.
+  */
 enum ServerType:
   case Side, Firm, Cloud, Bank, Military, GKS, Private
 
-/**
- * Ein Server auf der Weltkarte.
- *
- * @param name        Anzeigename
- * @param tile        Position auf der Karte
- * @param difficulty  Schwierigkeit (0–100)
- * @param rewardCpu   CPU‑Belohnung
- * @param rewardRam   RAM‑Belohnung
- * @param hacked      Wurde der Server bereits gehackt?
- * @param serverType  Art des Servers
- * @param hackedBy    Optional: Spieler‑ID, der den Server gehackt hat
- * @param claimedBy   Optional: Spieler‑ID, der den Server besitzt (wird beim Hack gesetzt)
- */
+/** Ein Server auf der Weltkarte.
+  *
+  * @param name
+  *   Anzeigename
+  * @param tile
+  *   Position auf der Karte
+  * @param difficulty
+  *   Schwierigkeit (0–100)
+  * @param rewardCpu
+  *   CPU‑Belohnung
+  * @param rewardRam
+  *   RAM‑Belohnung
+  * @param hacked
+  *   Wurde der Server bereits gehackt?
+  * @param serverType
+  *   Art des Servers
+  * @param hackedBy
+  *   Optional: Spieler‑ID, der den Server gehackt hat
+  * @param claimedBy
+  *   Optional: Spieler‑ID, der den Server besitzt (wird beim Hack gesetzt)
+  */
 case class Server(
   name: String,
   tile: Tile,
@@ -32,10 +39,9 @@ case class Server(
   claimedBy: Option[Int] = None
 )
 
-/**
- * Blueprint für einen Fixed‑Server:
- * Name, feste Position und Werte‑Spannen für dynamische Erzeugung.
- */
+/** Blueprint für einen Fixed‑Server: Name, feste Position und Werte‑Spannen für dynamische
+  * Erzeugung.
+  */
 case class ServerBlueprint(
   name: String,
   preferredPosition: (Int, Int),

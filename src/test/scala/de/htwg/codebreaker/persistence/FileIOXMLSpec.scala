@@ -2,15 +2,16 @@ package de.htwg.codebreaker.persistence
 
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.BeforeAndAfterEach
-import scala.util.{Success, Failure}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
 import java.io.File
+import scala.util.{Failure, Success}
 
 class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
-  val fileIO = new FileIOXML()
+  val fileIO   = new FileIOXML()
   val filePath = "game_save.xml"
 
   // Test data setup
@@ -68,8 +69,8 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
   )
 
   val worldMap = WorldMap.defaultMap
-  val model = GameModel(List(player1, player2), List(server1, server2), worldMap)
-  val state = GameState(
+  val model    = GameModel(List(player1, player2), List(server1, server2), worldMap)
+  val state    = GameState(
     currentPlayerIndex = Some(0),
     status = GameStatus.Running,
     phase = Phase.AwaitingInput,
@@ -146,7 +147,7 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
     "save and load game with no current player" in {
       val stateNoPlayer = state.copy(currentPlayerIndex = None)
-      val gameNoPlayer = testGame.copy(state = stateNoPlayer)
+      val gameNoPlayer  = testGame.copy(state = stateNoPlayer)
 
       fileIO.save(gameNoPlayer) shouldBe a[Success[?]]
       val loaded = fileIO.load().get
@@ -156,7 +157,7 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
     "save and load game with different game statuses" in {
       val gameOverState = state.copy(status = GameStatus.GameOver)
-      val gameOverGame = testGame.copy(state = gameOverState)
+      val gameOverGame  = testGame.copy(state = gameOverState)
 
       fileIO.save(gameOverGame) shouldBe a[Success[?]]
       val loaded = fileIO.load().get
@@ -166,7 +167,7 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
     "save and load game with different phases" in {
       val finishedState = state.copy(phase = Phase.FinishedTurn)
-      val finishedGame = testGame.copy(state = finishedState)
+      val finishedGame  = testGame.copy(state = finishedState)
 
       fileIO.save(finishedGame) shouldBe a[Success[?]]
       val loaded = fileIO.load().get
@@ -175,7 +176,7 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     }
 
     "save and load game with all server types" in {
-      val servers = List(
+      val servers           = List(
         Server("Bank", tile1, 10, 1, 1, false, ServerType.Bank),
         Server("Firm", tile1, 10, 1, 1, false, ServerType.Firm),
         Server("Side", tile1, 10, 1, 1, false, ServerType.Side),
@@ -185,13 +186,13 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
         Server("Private", tile1, 10, 1, 1, false, ServerType.Private)
       )
       val modelWithAllTypes = model.copy(servers = servers)
-      val gameWithAllTypes = testGame.copy(model = modelWithAllTypes)
+      val gameWithAllTypes  = testGame.copy(model = modelWithAllTypes)
 
       fileIO.save(gameWithAllTypes) shouldBe a[Success[?]]
       val loaded = fileIO.load().get
 
       loaded.model.servers.size shouldBe 7
-      loaded.model.servers.map(_.serverType) should contain allOf(
+      loaded.model.servers.map(_.serverType) should contain allOf (
         ServerType.Bank,
         ServerType.Firm,
         ServerType.Side,
@@ -203,7 +204,7 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     }
 
     "save and load game with all continents" in {
-      val tiles = List(
+      val tiles   = List(
         Tile(0, 0, Continent.Europe),
         Tile(1, 0, Continent.Asia),
         Tile(2, 0, Continent.Africa),
@@ -212,18 +213,22 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
         Tile(5, 0, Continent.Oceania),
         Tile(6, 0, Continent.Ocean)
       )
-      val players = tiles.zipWithIndex.take(6).map { case (tile, idx) =>
-        player1.copy(id = idx, tile = tile)
-      }.toList
+      val players = tiles.zipWithIndex
+        .take(6)
+        .map {
+          case (tile, idx) =>
+            player1.copy(id = idx, tile = tile)
+        }
+        .toList
 
       val modelWithAllContinents = model.copy(players = players)
-      val gameWithAllContinents = testGame.copy(model = modelWithAllContinents)
+      val gameWithAllContinents  = testGame.copy(model = modelWithAllContinents)
 
       fileIO.save(gameWithAllContinents) shouldBe a[Success[?]]
       val loaded = fileIO.load().get
 
       loaded.model.players.size shouldBe 6
-      loaded.model.players.map(_.tile.continent) should contain allOf(
+      loaded.model.players.map(_.tile.continent) should contain allOf (
         Continent.Europe,
         Continent.Asia,
         Continent.Africa,
@@ -235,7 +240,7 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
     "save and load empty player list" in {
       val emptyModel = model.copy(players = List.empty)
-      val emptyGame = testGame.copy(model = emptyModel)
+      val emptyGame  = testGame.copy(model = emptyModel)
 
       fileIO.save(emptyGame) shouldBe a[Success[?]]
       val loaded = fileIO.load().get
@@ -245,7 +250,7 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
     "save and load empty server list" in {
       val emptyModel = model.copy(servers = List.empty)
-      val emptyGame = testGame.copy(model = emptyModel)
+      val emptyGame  = testGame.copy(model = emptyModel)
 
       fileIO.save(emptyGame) shouldBe a[Success[?]]
       val loaded = fileIO.load().get
@@ -264,11 +269,11 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
         movementPoints = 2,
         maxMovementPoints = 8
       )
-      val modelWithStats = model.copy(players = List(playerWithStats))
-      val gameWithStats = testGame.copy(model = modelWithStats)
+      val modelWithStats  = model.copy(players = List(playerWithStats))
+      val gameWithStats   = testGame.copy(model = modelWithStats)
 
       fileIO.save(gameWithStats) shouldBe a[Success[?]]
-      val loaded = fileIO.load().get
+      val loaded       = fileIO.load().get
       val loadedPlayer = loaded.model.players.head
 
       loadedPlayer.cpu shouldBe 42
@@ -286,11 +291,11 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
         rewardCpu = 25,
         rewardRam = 30
       )
-      val modelWithRewards = model.copy(servers = List(serverWithRewards))
-      val gameWithRewards = testGame.copy(model = modelWithRewards)
+      val modelWithRewards  = model.copy(servers = List(serverWithRewards))
+      val gameWithRewards   = testGame.copy(model = modelWithRewards)
 
       fileIO.save(gameWithRewards) shouldBe a[Success[?]]
-      val loaded = fileIO.load().get
+      val loaded       = fileIO.load().get
       val loadedServer = loaded.model.servers.head
 
       loadedServer.rewardCpu shouldBe 25
@@ -300,13 +305,13 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     "save XML with proper encoding header" in {
       fileIO.save(testGame) shouldBe a[Success[?]]
 
-      val file = new File(filePath)
-      val source = scala.io.Source.fromFile(file)
-      val firstLine = try {
-        source.getLines().next()
-      } finally {
-        source.close()
-      }
+      val file      = new File(filePath)
+      val source    = scala.io.Source.fromFile(file)
+      val firstLine =
+        try
+          source.getLines().next()
+        finally
+          source.close()
 
       firstLine should include("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
     }
@@ -314,10 +319,10 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     "handle server with hackedBy as None correctly" in {
       val serverNotHacked = server1.copy(hacked = false, hackedBy = None)
       val modelWithServer = model.copy(servers = List(serverNotHacked))
-      val gameWithServer = testGame.copy(model = modelWithServer)
+      val gameWithServer  = testGame.copy(model = modelWithServer)
 
       fileIO.save(gameWithServer) shouldBe a[Success[?]]
-      val loaded = fileIO.load().get
+      val loaded       = fileIO.load().get
       val loadedServer = loaded.model.servers.head
 
       loadedServer.hacked shouldBe false
@@ -325,12 +330,12 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     }
 
     "handle server with hackedBy as Some correctly" in {
-      val serverHacked = server2.copy(hacked = true, hackedBy = Some(1))
+      val serverHacked    = server2.copy(hacked = true, hackedBy = Some(1))
       val modelWithServer = model.copy(servers = List(serverHacked))
-      val gameWithServer = testGame.copy(model = modelWithServer)
+      val gameWithServer  = testGame.copy(model = modelWithServer)
 
       fileIO.save(gameWithServer) shouldBe a[Success[?]]
-      val loaded = fileIO.load().get
+      val loaded       = fileIO.load().get
       val loadedServer = loaded.model.servers.head
 
       loadedServer.hacked shouldBe true

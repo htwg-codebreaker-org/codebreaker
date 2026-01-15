@@ -1,8 +1,8 @@
 // src/main/scala/de/htwg/codebreaker/model/game/GameFactory.scala
 package de.htwg.codebreaker.model.game
 
-import de.htwg.codebreaker.model.game.builder.GameBuilder
 import de.htwg.codebreaker.model._
+import de.htwg.codebreaker.model.game.builder.GameBuilder
 import de.htwg.codebreaker.model.game.strategy._
 
 object GameFactory {
@@ -27,4 +27,3 @@ object GameFactory {
       .withMap(WorldMap.defaultMap)
       .build()
 }
-

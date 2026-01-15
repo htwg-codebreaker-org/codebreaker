@@ -1,10 +1,12 @@
 package de.htwg.codebreaker
 
-import de.htwg.codebreaker.persistence.FileIOInterface
 import de.htwg.codebreaker.model.game.Game
-import scala.util.{Try, Success, Failure}
+import de.htwg.codebreaker.persistence.FileIOInterface
+
+import scala.util.{Failure, Success, Try}
 
 object TestHelper {
+
   /** Mock FileIO for testing that does nothing */
   val mockFileIO: FileIOInterface = new FileIOInterface {
     private var savedGame: Option[Game] = None
@@ -16,7 +18,7 @@ object TestHelper {
 
     def load(): Try[Game] = savedGame match {
       case Some(g) => Success(g)
-      case None => Failure(new Exception("No game saved yet"))
+      case None    => Failure(new Exception("No game saved yet"))
     }
   }
 }

@@ -1,8 +1,6 @@
-import de.htwg.codebreaker.model._
-
-import org.scalatest.wordspec.AnyWordSpec
+import de.htwg.codebreaker.model.{Tile, _}
 import org.scalatest.matchers.should.Matchers
-import de.htwg.codebreaker.model.Tile
+import org.scalatest.wordspec.AnyWordSpec
 
 class TileSpec extends AnyWordSpec with Matchers {
 

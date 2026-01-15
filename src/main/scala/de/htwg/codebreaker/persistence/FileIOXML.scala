@@ -2,27 +2,24 @@ package de.htwg.codebreaker.persistence
 
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
-import scala.util.{Try, Success, Failure}
-import scala.xml._
-import java.io.{File, PrintWriter}
 
-/**
- * XML implementation of FileIO.
- * Saves and loads game state using XML format.
- */
+import java.io.{File, PrintWriter}
+import scala.util.{Failure, Success, Try}
+import scala.xml._
+
+/** XML implementation of FileIO. Saves and loads game state using XML format.
+  */
 class FileIOXML extends FileIOInterface:
 
   private val filePath = "game_save.xml"
 
   override def save(game: Game): Try[Unit] = Try {
-    val xml = gameToXML(game)
+    val xml    = gameToXML(game)
     val writer = new PrintWriter(new File(filePath))
     try {
       writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
       writer.write(xml.toString)
-    } finally {
-      writer.close()
-    }
+    } finally writer.close()
   }
 
   override def load(): Try[Game] = Try {
@@ -93,8 +90,8 @@ class FileIOXML extends FileIOInterface:
     Game(model, state)
 
   private def xmlToGameModel(xml: Node): GameModel =
-    val players = (xml \ "players" \ "player").map(xmlToPlayer).toList
-    val servers = (xml \ "servers" \ "server").map(xmlToServer).toList
+    val players  = (xml \ "players" \ "player").map(xmlToPlayer).toList
+    val servers  = (xml \ "servers" \ "server").map(xmlToServer).toList
     val worldMap = xmlToWorldMap((xml \ "worldMap").head)
     GameModel(players, servers, worldMap)
 
@@ -134,9 +131,9 @@ class FileIOXML extends FileIOInterface:
     )
 
   private def xmlToWorldMap(xml: Node): WorldMap =
-    val width = (xml \ "width").text.toInt
+    val width  = (xml \ "width").text.toInt
     val height = (xml \ "height").text.toInt
-    WorldMap.defaultMap  // We use the default map as it's statically defined
+    WorldMap.defaultMap // We use the default map as it's statically defined
 
   private def xmlToGameState(xml: Node): GameState =
     val playerIndexValue = (xml \ "currentPlayerIndex").text.toInt

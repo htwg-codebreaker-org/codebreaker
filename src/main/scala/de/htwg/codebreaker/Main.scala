@@ -2,19 +2,18 @@
 package de.htwg.codebreaker
 
 import com.google.inject.{Guice, Injector}
-import de.htwg.codebreaker.module.CodebreakerModule
 import de.htwg.codebreaker.controller.ControllerInterface
+import de.htwg.codebreaker.module.CodebreakerModule
 import de.htwg.codebreaker.view.TUI
 import de.htwg.codebreaker.view.gui.GUI
 
-/**
- * Main entry point for the Codebreaker application.
- * Demonstrates Dependency Injection with Google Guice:
- * - Creates a Guice Injector with CodebreakerModule
- * - Injector automatically resolves and injects dependencies
- * - Components are created through the injector, ensuring proper DI
- * - All dependencies (Game, ControllerInterface) are injected automatically
- */
+/** Main entry point for the Codebreaker application. Demonstrates Dependency Injection with Google
+  * Guice:
+  *   - Creates a Guice Injector with CodebreakerModule
+  *   - Injector automatically resolves and injects dependencies
+  *   - Components are created through the injector, ensuring proper DI
+  *   - All dependencies (Game, ControllerInterface) are injected automatically
+  */
 object Codebreaker:
   def main(args: Array[String]): Unit =
     // Create the Guice injector with our module

@@ -1,14 +1,14 @@
 package de.htwg.codebreaker.util
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class ObservableSpec extends AnyWordSpec with Matchers {
 
   // Test observer to track update() calls
   class TestObserver extends Observer {
-    var updated = false
-    def reset(): Unit = updated = false
+    var updated                 = false
+    def reset(): Unit           = updated = false
     override def update(): Unit = updated = true
   }
 
@@ -23,7 +23,7 @@ class ObservableSpec extends AnyWordSpec with Matchers {
 
     "allow adding observers" in {
       val observable = new TestObservable()
-      val observer = new TestObserver()
+      val observer   = new TestObserver()
       observable.add(observer)
       // We can't directly access subscribers anymore (it's private),
       // so we verify by checking if the observer gets notified
@@ -33,7 +33,7 @@ class ObservableSpec extends AnyWordSpec with Matchers {
 
     "allow removing observers" in {
       val observable = new TestObservable()
-      val observer = new TestObserver()
+      val observer   = new TestObserver()
       observable.add(observer)
       observable.remove(observer)
       observer.reset()
@@ -44,8 +44,8 @@ class ObservableSpec extends AnyWordSpec with Matchers {
 
     "notify all observers" in {
       val observable = new TestObservable()
-      val observer1 = new TestObserver()
-      val observer2 = new TestObserver()
+      val observer1  = new TestObserver()
+      val observer2  = new TestObserver()
       observable.add(observer1)
       observable.add(observer2)
       observer1.reset()
@@ -57,8 +57,8 @@ class ObservableSpec extends AnyWordSpec with Matchers {
 
     "not notify removed observers" in {
       val observable = new TestObservable()
-      val observer1 = new TestObserver()
-      val observer2 = new TestObserver()
+      val observer1  = new TestObserver()
+      val observer2  = new TestObserver()
       observable.add(observer1)
       observable.add(observer2)
       observable.remove(observer1)

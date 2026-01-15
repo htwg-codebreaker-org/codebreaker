@@ -1,13 +1,12 @@
 // src/main/scala/de/htwg/codebreaker/model/MapObject.scala
 package de.htwg.codebreaker.model
 
-/**
- * Verschiedene Objekte, die auf einer Weltkarten‑Zelle liegen können:
- * - Spieler
- * - Server
- * - Beides
- * - Nichts
- */
+/** Verschiedene Objekte, die auf einer Weltkarten‑Zelle liegen können:
+  *   - Spieler
+  *   - Server
+  *   - Beides
+  *   - Nichts
+  */
 sealed trait MapObject
 
 object MapObject:

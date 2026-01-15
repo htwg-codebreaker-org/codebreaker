@@ -1,13 +1,13 @@
 package de.htwg.codebreaker.model.game.strategy
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class ServerGenerationStrategySpec extends AnyWordSpec with Matchers {
 
   object DummyServerStrategy extends ServerGenerationStrategy {
-    override def generateServers(map: WorldMap): List[Server] = {
+    override def generateServers(map: WorldMap): List[Server] =
       List(
         Server(
           name = "Dummy",
@@ -19,12 +19,11 @@ class ServerGenerationStrategySpec extends AnyWordSpec with Matchers {
           serverType = ServerType.Cloud
         )
       )
-    }
   }
 
   "ServerGenerationStrategy" should {
     "generate servers based on the strategy implementation" in {
-      val map = WorldMap.defaultMap
+      val map     = WorldMap.defaultMap
       val servers = DummyServerStrategy.generateServers(map)
 
       servers should have size 1

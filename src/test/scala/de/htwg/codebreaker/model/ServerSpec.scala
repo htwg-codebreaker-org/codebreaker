@@ -1,7 +1,7 @@
 package de.htwg.codebreaker.model
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class ServerSpec extends AnyWordSpec with Matchers {
 
@@ -21,7 +21,7 @@ class ServerSpec extends AnyWordSpec with Matchers {
     }
 
     "be claimable and unclaimable using helper methods" in {
-      val s = Server("Bank", tile, 50, 20, 10, false, ServerType.Bank)
+      val s       = Server("Bank", tile, 50, 20, 10, false, ServerType.Bank)
       val claimed = Server.claim(s, 0)
       claimed.claimedBy shouldBe Some(0)
 
@@ -30,7 +30,7 @@ class ServerSpec extends AnyWordSpec with Matchers {
     }
 
     "support copy for updates" in {
-      val s = Server("Node", tile, 40, 10, 5, false, ServerType.Firm)
+      val s      = Server("Node", tile, 40, 10, 5, false, ServerType.Firm)
       val hacked = s.copy(hacked = true)
       hacked.hacked shouldBe true
     }

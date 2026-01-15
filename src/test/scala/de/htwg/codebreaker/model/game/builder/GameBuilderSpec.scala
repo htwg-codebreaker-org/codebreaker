@@ -1,10 +1,10 @@
 package de.htwg.codebreaker.model.game.builder
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
 import de.htwg.codebreaker.model.game.strategy._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class GameBuilderSpec extends AnyWordSpec with Matchers {
 
@@ -72,13 +72,12 @@ class GameBuilderSpec extends AnyWordSpec with Matchers {
     "allow customization of server strategy" in {
       // Create a custom server strategy that generates exactly 3 servers
       val customStrategy = new ServerGenerationStrategy {
-        override def generateServers(map: WorldMap): List[Server] = {
+        override def generateServers(map: WorldMap): List[Server] =
           List(
             Server("S1", Tile(1, 1, Continent.Europe), 10, 5, 3, false, ServerType.Firm),
             Server("S2", Tile(2, 2, Continent.Europe), 20, 10, 6, false, ServerType.Cloud),
             Server("S3", Tile(3, 3, Continent.Europe), 30, 15, 9, false, ServerType.Bank)
           )
-        }
       }
 
       val game = GameBuilder()
@@ -91,7 +90,7 @@ class GameBuilderSpec extends AnyWordSpec with Matchers {
 
     "allow customization of world map" in {
       val defaultMap = WorldMap.defaultMap
-      val game = GameBuilder()
+      val game       = GameBuilder()
         .withMap(defaultMap)
         .build()
 
@@ -137,16 +136,17 @@ class GameBuilderSpec extends AnyWordSpec with Matchers {
         .withNumberOfPlayers(3)
         .build()
 
-      game.model.players.zipWithIndex.foreach { case (player, index) =>
-        player.id shouldBe index + 1 // IDs start at 1
-        player.cpu shouldBe 100
-        player.ram shouldBe 50
-        player.code shouldBe 10
-        player.level shouldBe 1
-        player.xp shouldBe 0
-        player.cybersecurity shouldBe 20
-        player.movementPoints shouldBe 5
-        player.maxMovementPoints shouldBe 5
+      game.model.players.zipWithIndex.foreach {
+        case (player, index) =>
+          player.id shouldBe index + 1 // IDs start at 1
+          player.cpu shouldBe 100
+          player.ram shouldBe 50
+          player.code shouldBe 10
+          player.level shouldBe 1
+          player.xp shouldBe 0
+          player.cybersecurity shouldBe 20
+          player.movementPoints shouldBe 5
+          player.maxMovementPoints shouldBe 5
       }
     }
 
@@ -181,9 +181,8 @@ class GameBuilderSpec extends AnyWordSpec with Matchers {
           count: Int,
           map: WorldMap,
           avoidTiles: List[Tile]
-        ): List[Player] = {
+        ): List[Player] =
           List(Player(0, "TestPlayer", Tile(5, 5, Continent.Europe), 100, 100, 0, 1, 0, 0, 5))
-        }
       }
 
       val builder = GameBuilder(

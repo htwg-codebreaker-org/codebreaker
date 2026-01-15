@@ -1,53 +1,60 @@
 package de.htwg.codebreaker.controller
 
-import scala.util.{Try, Success, Failure, Random}
 import de.htwg.codebreaker.model.game.Game
-import de.htwg.codebreaker.model.{Player, Tile, ServerType}
+import de.htwg.codebreaker.model.{Player, ServerType, Tile}
 
-/**
- * Command zum Bewegen eines Spielers zu einem neuen Tile.
- *
- * Bewegungskosten basieren auf Manhattan-Distanz:
- * - Jedes Feld kostet 1 Bewegungspunkt
- * - Spieler braucht genug movementPoints
- *
- * @param playerIndex Index des Spielers, der bewegt werden soll
- * @param newTile Das Ziel-Tile
- */
-case class MovePlayerCommand(playerIndex: Int, newTile: Tile, random: Random = Random()) extends Command {
+import scala.util.{Failure, Random, Success, Try}
 
-  private var oldTile: Option[Tile] = None
-  private var oldMovementPoints: Option[Int] = None
-  private var oldPlayerState: Option[Player] = None
+/** Command zum Bewegen eines Spielers zu einem neuen Tile.
+  *
+  * Bewegungskosten basieren auf Manhattan-Distanz:
+  *   - Jedes Feld kostet 1 Bewegungspunkt
+  *   - Spieler braucht genug movementPoints
+  *
+  * @param playerIndex
+  *   Index des Spielers, der bewegt werden soll
+  * @param newTile
+  *   Das Ziel-Tile
+  */
+case class MovePlayerCommand(playerIndex: Int, newTile: Tile, random: Random = Random())
+    extends Command {
+
+  private var oldTile: Option[Tile]                                    = None
+  private var oldMovementPoints: Option[Int]                           = None
+  private var oldPlayerState: Option[Player]                           = None
   private var oldServerState: Option[de.htwg.codebreaker.model.Server] = None
-  private var hackWasAttempted: Boolean = false
+  private var hackWasAttempted: Boolean                                = false
 
-  /**
-   * Berechnet Manhattan-Distanz zwischen zwei Tiles
-   */
-  private def calculateDistance(from: Tile, to: Tile): Int = {
+  /** Berechnet Manhattan-Distanz zwischen zwei Tiles
+    */
+  private def calculateDistance(from: Tile, to: Tile): Int =
     math.abs(to.x - from.x) + math.abs(to.y - from.y)
-  }
 
   override def doStep(game: Game): Try[Game] = Try {
     val players = game.model.players
 
     // Validierung: Spieler-Index existiert?
-    require(playerIndex >= 0 && playerIndex < players.length,
-      s"Ungültiger Spieler-Index: $playerIndex")
+    require(
+      playerIndex >= 0 && playerIndex < players.length,
+      s"Ungültiger Spieler-Index: $playerIndex"
+    )
 
     val player = players(playerIndex)
 
     // Validierung: Ziel-Tile ist Land (nicht Ocean)?
-    require(newTile.continent.isLand,
-      s"Kann nicht auf Ocean-Tile bei (${newTile.x}, ${newTile.y}) bewegen")
+    require(
+      newTile.continent.isLand,
+      s"Kann nicht auf Ocean-Tile bei (${newTile.x}, ${newTile.y}) bewegen"
+    )
 
     // Distanz berechnen
     val distance = calculateDistance(player.tile, newTile)
 
     // Validierung: Genug Bewegungspunkte?
-    require(player.movementPoints >= distance,
-      s"Nicht genug Bewegungspunkte (benötigt: $distance, vorhanden: ${player.movementPoints})")
+    require(
+      player.movementPoints >= distance,
+      s"Nicht genug Bewegungspunkte (benötigt: $distance, vorhanden: ${player.movementPoints})"
+    )
 
     // Altes Tile und Bewegungspunkte für Undo speichern
     oldTile = Some(player.tile)
@@ -81,11 +88,11 @@ case class MovePlayerCommand(playerIndex: Int, newTile: Tile, random: Random = R
           )
 
           // Erfolgswahrscheinlichkeit berechnen
-          val baseChance = 100 - server.difficulty
+          val baseChance    = 100 - server.difficulty
           val securityBonus = movedPlayer.cybersecurity / 2
           val successChance = math.max(5, math.min(95, baseChance + securityBonus))
 
-          val roll = random.nextInt(100)
+          val roll           = random.nextInt(100)
           val hackSuccessful = roll < successChance
 
           if (hackSuccessful) {
@@ -114,14 +121,15 @@ case class MovePlayerCommand(playerIndex: Int, newTile: Tile, random: Random = R
             )
 
             val updatedPlayers = players.updated(playerIndex, finalPlayer)
-            val updatedServers = game.model.servers.map(s =>
-              if (s.name == server.name) hackedServer else s
-            )
+            val updatedServers =
+              game.model.servers.map(s => if (s.name == server.name) hackedServer else s)
 
-            game.copy(model = game.model.copy(
-              players = updatedPlayers,
-              servers = updatedServers
-            ))
+            game.copy(model =
+              game.model.copy(
+                players = updatedPlayers,
+                servers = updatedServers
+              )
+            )
           } else {
             // Misserfolg - nur Ressourcen verloren
             val updatedPlayers = players.updated(playerIndex, playerAfterCost)
@@ -149,23 +157,23 @@ case class MovePlayerCommand(playerIndex: Int, newTile: Tile, random: Random = R
         // Server zurücksetzen falls gehackt
         val revertedServers = oldServerState match {
           case Some(originalServer) =>
-            game.model.servers.map(s =>
-              if (s.tile == originalServer.tile) originalServer else s
-            )
-          case None =>
+            game.model.servers.map(s => if (s.tile == originalServer.tile) originalServer else s)
+          case None                 =>
             game.model.servers
         }
 
-        game.copy(model = game.model.copy(
-          players = revertedPlayers,
-          servers = revertedServers
-        ))
+        game.copy(model =
+          game.model.copy(
+            players = revertedPlayers,
+            servers = revertedServers
+          )
+        )
 
       case (Some(tile), Some(points), _) =>
         // Nur Bewegung ohne Hack - simple Wiederherstellung
-        val players = game.model.players
-        val player = players(playerIndex)
-        val revertedPlayer = player.copy(
+        val players         = game.model.players
+        val player          = players(playerIndex)
+        val revertedPlayer  = player.copy(
           tile = tile,
           movementPoints = points
         )

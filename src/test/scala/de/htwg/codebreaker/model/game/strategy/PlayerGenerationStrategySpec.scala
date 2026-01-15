@@ -1,13 +1,17 @@
 package de.htwg.codebreaker.model.game.strategy
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class PlayerGenerationStrategySpec extends AnyWordSpec with Matchers {
 
   object DummyPlayerStrategy extends PlayerGenerationStrategy {
-    override def generatePlayers(numPlayers: Int, map: WorldMap, avoidTiles: List[Tile]): List[Player] = {
+    override def generatePlayers(
+      numPlayers: Int,
+      map: WorldMap,
+      avoidTiles: List[Tile]
+    ): List[Player] =
       (0 until numPlayers).toList.map { i =>
         val tile = Tile(i, i, Continent.Europe)
         Player(
@@ -22,12 +26,11 @@ class PlayerGenerationStrategySpec extends AnyWordSpec with Matchers {
           cybersecurity = 3
         )
       }
-    }
   }
 
   "PlayerGenerationStrategy" should {
     "generate the correct number of players with expected attributes" in {
-      val map = WorldMap.defaultMap
+      val map   = WorldMap.defaultMap
       val avoid = List(Tile(0, 0, Continent.Europe))
 
       val players = DummyPlayerStrategy.generatePlayers(2, map, avoid)

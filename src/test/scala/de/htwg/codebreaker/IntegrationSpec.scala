@@ -1,10 +1,10 @@
 package de.htwg.codebreaker
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
+import de.htwg.codebreaker.controller._
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game._
-import de.htwg.codebreaker.controller._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class IntegrationSpec extends AnyWordSpec with Matchers {
 
@@ -27,7 +27,7 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
 
       // Try to claim a server
       val firstServer = controller.getServers.head
-      val claimCmd = ClaimServerCommand(firstServer.name, 0)
+      val claimCmd    = ClaimServerCommand(firstServer.name, 0)
       controller.doAndRemember(claimCmd)
 
       // Verify server is claimed
@@ -48,13 +48,13 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
     }
 
     "progress through multiple players and rounds" in {
-      val game = GameFactory("default")
+      val game       = GameFactory("default")
       val controller = Controller(game, TestHelper.mockFileIO)
       val numPlayers = controller.getPlayers.length
 
       // Start game
       controller.doAndRemember(NextPlayerCommand())
-      val startPlayer = controller.getState.currentPlayerIndex.get
+      val startPlayer  = controller.getState.currentPlayerIndex.get
       val initialRound = controller.getState.round
 
       // Advance to next player
@@ -63,9 +63,8 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
       secondPlayer should not be startPlayer
 
       // Advance through remaining players to complete one full cycle
-      for (_ <- 2 until numPlayers) {
+      for (_ <- 2 until numPlayers)
         controller.doAndRemember(NextPlayerCommand())
-      }
 
       // One more advance should bring us back to start player with incremented round
       controller.doAndRemember(NextPlayerCommand())
@@ -74,7 +73,7 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
     }
 
     "handle game state transitions" in {
-      val game = GameFactory("default")
+      val game       = GameFactory("default")
       val controller = Controller(game, TestHelper.mockFileIO)
 
       // Change phase
@@ -93,7 +92,7 @@ class IntegrationSpec extends AnyWordSpec with Matchers {
     }
 
     "handle different server types" in {
-      val tile = Tile(0, 0, Continent.Asia)
+      val tile    = Tile(0, 0, Continent.Asia)
       val servers = List(
         Server("Bank", tile, 20, 3, 2, false, ServerType.Bank),
         Server("Cloud", tile, 15, 2, 2, false, ServerType.Cloud),

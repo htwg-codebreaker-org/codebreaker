@@ -1,9 +1,10 @@
 package de.htwg.codebreaker.controller
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.model.game.{Game, GameModel, GameState}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
 import scala.util.Random
 
 class HackServerCommandSpec extends AnyWordSpec with Matchers {
@@ -12,7 +13,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "successfully hack a server when conditions are met" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -40,7 +41,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       // Use fixed Random to ensure success
       val fixedRandom = new Random() {
@@ -48,16 +49,16 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
       }
 
       val command = HackServerCommand("TestServer", 0, fixedRandom)
-      val result = command.doStep(game)
+      val result  = command.doStep(game)
 
       result.isSuccess shouldBe true
-      val newGame = result.get
+      val newGame      = result.get
       val hackedPlayer = newGame.model.players(0)
       val hackedServer = newGame.model.servers(0)
 
       // Player should have gained rewards
       hackedPlayer.cpu should be > (player.cpu - 50) // Lost some CPU but gained rewards
-      hackedPlayer.xp shouldBe 20 // Firm gives 20 XP
+      hackedPlayer.xp shouldBe 20                    // Firm gives 20 XP
 
       // Server should be hacked
       hackedServer.hacked shouldBe true
@@ -67,7 +68,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "fail to hack when resources are consumed even on failure" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -95,7 +96,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       // Use fixed Random to ensure failure
       val fixedRandom = new Random() {
@@ -103,10 +104,10 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
       }
 
       val command = HackServerCommand("TestServer", 0, fixedRandom)
-      val result = command.doStep(game)
+      val result  = command.doStep(game)
 
       result.isSuccess shouldBe true
-      val newGame = result.get
+      val newGame      = result.get
       val hackedPlayer = newGame.model.players(0)
       val hackedServer = newGame.model.servers(0)
 
@@ -122,7 +123,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "undo a successful hack correctly" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -150,13 +151,13 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val fixedRandom = new Random() {
         override def nextInt(n: Int): Int = 0
       }
 
-      val command = HackServerCommand("TestServer", 0, fixedRandom)
+      val command    = HackServerCommand("TestServer", 0, fixedRandom)
       val hackedGame = command.doStep(game).get
       val undoneGame = command.undoStep(hackedGame).get
 
@@ -175,7 +176,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "undo a failed hack correctly" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -203,13 +204,13 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val fixedRandom = new Random() {
         override def nextInt(n: Int): Int = 99 // Fail
       }
 
-      val command = HackServerCommand("TestServer", 0, fixedRandom)
+      val command    = HackServerCommand("TestServer", 0, fixedRandom)
       val hackedGame = command.doStep(game).get
       val undoneGame = command.undoStep(hackedGame).get
 
@@ -226,7 +227,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "fail if server name doesn't exist" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -244,10 +245,10 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val command = HackServerCommand("NonExistent", 0)
-      val result = command.doStep(game)
+      val result  = command.doStep(game)
 
       result.isFailure shouldBe true
       result.failed.get.getMessage should include("nicht gefunden")
@@ -256,7 +257,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "fail if player is not on server tile" in {
       val playerTile = Tile(0, 0, Continent.Europe)
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = playerTile,
@@ -284,10 +285,10 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val command = HackServerCommand("TestServer", 0)
-      val result = command.doStep(game)
+      val result  = command.doStep(game)
 
       result.isFailure shouldBe true
       result.failed.get.getMessage should include("muss auf Server-Tile sein")
@@ -295,7 +296,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "fail if server is already hacked" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -324,10 +325,10 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val command = HackServerCommand("TestServer", 0)
-      val result = command.doStep(game)
+      val result  = command.doStep(game)
 
       result.isFailure shouldBe true
       result.failed.get.getMessage should include("bereits gehackt")
@@ -335,7 +336,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "fail if server is Private" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -363,10 +364,10 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val command = HackServerCommand("PrivateServer", 0)
-      val result = command.doStep(game)
+      val result  = command.doStep(game)
 
       result.isFailure shouldBe true
       result.failed.get.getMessage should include("Private Server")
@@ -374,7 +375,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "fail if player doesn't have enough CPU" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -402,10 +403,10 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val command = HackServerCommand("TestServer", 0)
-      val result = command.doStep(game)
+      val result  = command.doStep(game)
 
       result.isFailure shouldBe true
       result.failed.get.getMessage should include("Nicht genug CPU")
@@ -413,7 +414,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "fail if player doesn't have enough RAM" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -441,10 +442,10 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val command = HackServerCommand("TestServer", 0)
-      val result = command.doStep(game)
+      val result  = command.doStep(game)
 
       result.isFailure shouldBe true
       result.failed.get.getMessage should include("Nicht genug RAM")
@@ -452,7 +453,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "give correct rewards for Side server" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -480,14 +481,14 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val fixedRandom = new Random() {
         override def nextInt(n: Int): Int = 0
       }
 
       val command = HackServerCommand("SideServer", 0, fixedRandom)
-      val result = command.doStep(game).get
+      val result  = command.doStep(game).get
 
       val hackedPlayer = result.model.players(0)
       hackedPlayer.xp shouldBe 10 // Side gives 10 XP
@@ -495,7 +496,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "give correct rewards for Cloud server" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -523,14 +524,14 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val fixedRandom = new Random() {
         override def nextInt(n: Int): Int = 0
       }
 
       val command = HackServerCommand("CloudServer", 0, fixedRandom)
-      val result = command.doStep(game).get
+      val result  = command.doStep(game).get
 
       val hackedPlayer = result.model.players(0)
       hackedPlayer.xp shouldBe 30 // Cloud gives 30 XP
@@ -538,7 +539,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "give correct rewards for Bank server (code instead of CPU/RAM)" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -566,23 +567,23 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val fixedRandom = new Random() {
         override def nextInt(n: Int): Int = 0
       }
 
       val command = HackServerCommand("BankServer", 0, fixedRandom)
-      val result = command.doStep(game).get
+      val result  = command.doStep(game).get
 
       val hackedPlayer = result.model.players(0)
       hackedPlayer.code shouldBe 15 // Bank gives code reward
-      hackedPlayer.xp shouldBe 40 // Bank gives 40 XP
+      hackedPlayer.xp shouldBe 40   // Bank gives 40 XP
     }
 
     "give correct rewards for Military server (double rewards)" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -610,28 +611,28 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val fixedRandom = new Random() {
         override def nextInt(n: Int): Int = 0
       }
 
       val command = HackServerCommand("MilitaryServer", 0, fixedRandom)
-      val result = command.doStep(game).get
+      val result  = command.doStep(game).get
 
       val hackedPlayer = result.model.players(0)
-      val cpuCost = 10 / 2
-      val ramCost = 10 / 3
+      val cpuCost      = 10 / 2
+      val ramCost      = 10 / 3
 
       // Military gives double rewards
       hackedPlayer.cpu shouldBe (100 - cpuCost + 20) // Lost cost, gained 2x reward
       hackedPlayer.ram shouldBe (100 - ramCost + 16) // Lost cost, gained 2x reward
-      hackedPlayer.xp shouldBe 50 // Military gives 50 XP
+      hackedPlayer.xp shouldBe 50                    // Military gives 50 XP
     }
 
     "give correct rewards for GKS server (high XP)" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -659,14 +660,14 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       val fixedRandom = new Random() {
         override def nextInt(n: Int): Int = 0
       }
 
       val command = HackServerCommand("GKSServer", 0, fixedRandom)
-      val result = command.doStep(game).get
+      val result  = command.doStep(game).get
 
       val hackedPlayer = result.model.players(0)
       hackedPlayer.xp shouldBe 100 // GKS gives 100 XP (end goal)
@@ -674,7 +675,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "calculate success chance correctly with cybersecurity bonus" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -702,7 +703,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       // With 50 difficulty and 40 cybersecurity:
       // baseChance = 100 - 50 = 50
@@ -710,24 +711,24 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
       // successChance = 50 + 20 = 70%
       // Roll 69 should succeed, 70 should fail
 
-      val successRandom = new Random() {
+      val successRandom  = new Random() {
         override def nextInt(n: Int): Int = 69
       }
       val successCommand = HackServerCommand("TestServer", 0, successRandom)
-      val successResult = successCommand.doStep(game).get
+      val successResult  = successCommand.doStep(game).get
       successResult.model.servers(0).hacked shouldBe true
 
-      val failRandom = new Random() {
+      val failRandom  = new Random() {
         override def nextInt(n: Int): Int = 70
       }
       val failCommand = HackServerCommand("TestServer", 0, failRandom)
-      val failResult = failCommand.doStep(game).get
+      val failResult  = failCommand.doStep(game).get
       failResult.model.servers(0).hacked shouldBe false
     }
 
     "cap success chance at 95%" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -755,20 +756,20 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       // Should cap at 95%
       val failRandom = new Random() {
         override def nextInt(n: Int): Int = 95 // Should fail
       }
-      val command = HackServerCommand("TestServer", 0, failRandom)
-      val result = command.doStep(game).get
+      val command    = HackServerCommand("TestServer", 0, failRandom)
+      val result     = command.doStep(game).get
       result.model.servers(0).hacked shouldBe false
     }
 
     "cap success chance at 5%" in {
       val serverTile = Tile(5, 5, Continent.Europe)
-      val player = Player(
+      val player     = Player(
         id = 0,
         name = "Hacker",
         tile = serverTile,
@@ -796,14 +797,14 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         servers = List(server),
         worldMap = WorldMap.defaultMap
       )
-      val game = Game(model, GameState())
+      val game  = Game(model, GameState())
 
       // Should have at least 5% chance
       val successRandom = new Random() {
         override def nextInt(n: Int): Int = 4 // Should succeed
       }
-      val command = HackServerCommand("TestServer", 0, successRandom)
-      val result = command.doStep(game).get
+      val command       = HackServerCommand("TestServer", 0, successRandom)
+      val result        = command.doStep(game).get
       result.model.servers(0).hacked shouldBe true
     }
   }

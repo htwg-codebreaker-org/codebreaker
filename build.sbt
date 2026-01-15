@@ -38,6 +38,8 @@ lazy val root = project
 
     scalaVersion := scala3Version,
     scalacOptions ++= Seq("-encoding", "UTF-8"),
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
     javaOptions += "-Dfile.encoding=UTF-8",
 
     coverageEnabled := true,

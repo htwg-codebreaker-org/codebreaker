@@ -7,4 +7,3 @@ case class GameModel(
   servers: List[Server],
   worldMap: WorldMap
 )
-

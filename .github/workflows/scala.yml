@@ -28,6 +28,12 @@ jobs:
         with:
           apps: sbt
 
+      - name: Check code formatting
+        run: sbt scalafmtCheckAll scalafmtSbtCheck
+
+      - name: Check code style (Scalafix)
+        run: sbt "scalafixAll --check"
+
       - name: Compile
         run: sbt compile
 

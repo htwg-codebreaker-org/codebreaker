@@ -1,8 +1,8 @@
 package de.htwg.codebreaker.module
 
 import de.htwg.codebreaker.model.game.Game
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class GameProviderSpec extends AnyWordSpec with Matchers {
 
@@ -10,14 +10,14 @@ class GameProviderSpec extends AnyWordSpec with Matchers {
 
     "provide a Game instance" in {
       val provider = new GameProvider()
-      val game = provider.get()
+      val game     = provider.get()
 
       game shouldBe a[Game]
     }
 
     "provide a default game with players and servers" in {
       val provider = new GameProvider()
-      val game = provider.get()
+      val game     = provider.get()
 
       // Default game should have players
       game.model.players should not be empty
@@ -31,8 +31,8 @@ class GameProviderSpec extends AnyWordSpec with Matchers {
 
     "provide a new game instance on each call" in {
       val provider = new GameProvider()
-      val game1 = provider.get()
-      val game2 = provider.get()
+      val game1    = provider.get()
+      val game2    = provider.get()
 
       // They should be different instances
       game1 should not be theSameInstanceAs(game2)
@@ -46,7 +46,7 @@ class GameProviderSpec extends AnyWordSpec with Matchers {
 
     "provide a game in Running state" in {
       val provider = new GameProvider()
-      val game = provider.get()
+      val game     = provider.get()
 
       game.state.status.toString shouldBe "Running"
     }

@@ -4,8 +4,8 @@ import com.google.inject.{Guice, Injector}
 import de.htwg.codebreaker.controller.{Controller, ControllerInterface}
 import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.persistence.{FileIOInterface, FileIOJSON}
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class CodebreakerModuleSpec extends AnyWordSpec with Matchers {
 
@@ -18,7 +18,7 @@ class CodebreakerModuleSpec extends AnyWordSpec with Matchers {
 
     "bind Game to GameProvider" in {
       val injector = Guice.createInjector(new CodebreakerModule())
-      val game = injector.getInstance(classOf[Game])
+      val game     = injector.getInstance(classOf[Game])
 
       game shouldBe a[Game]
       game.model.players should not be empty
@@ -27,20 +27,20 @@ class CodebreakerModuleSpec extends AnyWordSpec with Matchers {
 
     "bind FileIOInterface to FileIOJSON" in {
       val injector = Guice.createInjector(new CodebreakerModule())
-      val fileIO = injector.getInstance(classOf[FileIOInterface])
+      val fileIO   = injector.getInstance(classOf[FileIOInterface])
 
       fileIO shouldBe a[FileIOJSON]
     }
 
     "bind ControllerInterface to Controller" in {
-      val injector = Guice.createInjector(new CodebreakerModule())
+      val injector   = Guice.createInjector(new CodebreakerModule())
       val controller = injector.getInstance(classOf[ControllerInterface])
 
       controller shouldBe a[Controller]
     }
 
     "provide Controller as singleton" in {
-      val injector = Guice.createInjector(new CodebreakerModule())
+      val injector    = Guice.createInjector(new CodebreakerModule())
       val controller1 = injector.getInstance(classOf[ControllerInterface])
       val controller2 = injector.getInstance(classOf[ControllerInterface])
 
@@ -50,8 +50,8 @@ class CodebreakerModuleSpec extends AnyWordSpec with Matchers {
 
     "provide new Game instances on each request" in {
       val injector = Guice.createInjector(new CodebreakerModule())
-      val game1 = injector.getInstance(classOf[Game])
-      val game2 = injector.getInstance(classOf[Game])
+      val game1    = injector.getInstance(classOf[Game])
+      val game2    = injector.getInstance(classOf[Game])
 
       // Different instances (not singleton)
       game1 should not be theSameInstanceAs(game2)
@@ -65,15 +65,15 @@ class CodebreakerModuleSpec extends AnyWordSpec with Matchers {
 
     "provide new FileIO instances on each request" in {
       val injector = Guice.createInjector(new CodebreakerModule())
-      val fileIO1 = injector.getInstance(classOf[FileIOInterface])
-      val fileIO2 = injector.getInstance(classOf[FileIOInterface])
+      val fileIO1  = injector.getInstance(classOf[FileIOInterface])
+      val fileIO2  = injector.getInstance(classOf[FileIOInterface])
 
       // Should be different instances (not singleton)
       fileIO1 should not be theSameInstanceAs(fileIO2)
     }
 
     "wire all dependencies correctly for Controller" in {
-      val injector = Guice.createInjector(new CodebreakerModule())
+      val injector   = Guice.createInjector(new CodebreakerModule())
       val controller = injector.getInstance(classOf[ControllerInterface])
 
       // Controller should have a game

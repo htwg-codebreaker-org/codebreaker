@@ -1,23 +1,26 @@
 package de.htwg.codebreaker.controller
 
-import scala.util.{Try, Random}
 import de.htwg.codebreaker.model.game.Game
-import de.htwg.codebreaker.model.{Server, ServerType, Player}
+import de.htwg.codebreaker.model.{Player, Server, ServerType}
 
-/**
- * Command zum Hacken eines Servers durch einen Spieler.
- *
- * Spielmechanik:
- * - Spieler muss auf dem Server-Tile stehen
- * - Kostet CPU und RAM basierend auf Schwierigkeit
- * - Erfolgswahrscheinlichkeit: (100 - difficulty) + (cybersecurity / 2)
- * - Bei Erfolg: Belohnungen und XP, Server wird gehackt und geclaimt
- * - Bei Misserfolg: Ressourcen verloren, kein Gewinn
- *
- * @param serverName Name des zu hackenden Servers
- * @param playerIndex Index des hackenden Spielers
- * @param random Random-Generator (für Testbarkeit)
- */
+import scala.util.{Random, Try}
+
+/** Command zum Hacken eines Servers durch einen Spieler.
+  *
+  * Spielmechanik:
+  *   - Spieler muss auf dem Server-Tile stehen
+  *   - Kostet CPU und RAM basierend auf Schwierigkeit
+  *   - Erfolgswahrscheinlichkeit: (100 - difficulty) + (cybersecurity / 2)
+  *   - Bei Erfolg: Belohnungen und XP, Server wird gehackt und geclaimt
+  *   - Bei Misserfolg: Ressourcen verloren, kein Gewinn
+  *
+  * @param serverName
+  *   Name des zu hackenden Servers
+  * @param playerIndex
+  *   Index des hackenden Spielers
+  * @param random
+  *   Random-Generator (für Testbarkeit)
+  */
 case class HackServerCommand(
   serverName: String,
   playerIndex: Int,
@@ -26,29 +29,34 @@ case class HackServerCommand(
 
   private var previousPlayerState: Option[Player] = None
   private var previousServerState: Option[Server] = None
-  private var hackWasSuccessful: Boolean = false
+  private var hackWasSuccessful: Boolean          = false
 
   override def doStep(game: Game): Try[Game] = Try {
     val player = game.model.players(playerIndex)
-    val server = game.model.servers.find(_.name == serverName)
+    val server = game.model.servers
+      .find(_.name == serverName)
       .getOrElse(throw new IllegalArgumentException(s"Server '$serverName' nicht gefunden"))
 
     // Validierungen
-    require(player.tile == server.tile,
-      s"Spieler muss auf Server-Tile sein (Spieler: ${player.tile}, Server: ${server.tile})")
-    require(!server.hacked,
-      s"Server '${server.name}' wurde bereits gehackt")
-    require(server.serverType != ServerType.Private,
-      "Private Server können nicht gehackt werden")
+    require(
+      player.tile == server.tile,
+      s"Spieler muss auf Server-Tile sein (Spieler: ${player.tile}, Server: ${server.tile})"
+    )
+    require(!server.hacked, s"Server '${server.name}' wurde bereits gehackt")
+    require(server.serverType != ServerType.Private, "Private Server können nicht gehackt werden")
 
     // Kosten berechnen
     val cpuCost = math.max(1, server.difficulty / 2)
     val ramCost = math.max(1, server.difficulty / 3)
 
-    require(player.cpu >= cpuCost,
-      s"Nicht genug CPU (benötigt: $cpuCost, vorhanden: ${player.cpu})")
-    require(player.ram >= ramCost,
-      s"Nicht genug RAM (benötigt: $ramCost, vorhanden: ${player.ram})")
+    require(
+      player.cpu >= cpuCost,
+      s"Nicht genug CPU (benötigt: $cpuCost, vorhanden: ${player.cpu})"
+    )
+    require(
+      player.ram >= ramCost,
+      s"Nicht genug RAM (benötigt: $ramCost, vorhanden: ${player.ram})"
+    )
 
     // Ressourcen abziehen
     val playerAfterCost = player.copy(
@@ -57,7 +65,7 @@ case class HackServerCommand(
     )
 
     // Erfolgswahrscheinlichkeit berechnen
-    val baseChance = 100 - server.difficulty
+    val baseChance    = 100 - server.difficulty
     val securityBonus = player.cybersecurity / 2
     val successChance = math.max(5, math.min(95, baseChance + securityBonus)) // 5-95%
 
@@ -87,14 +95,14 @@ case class HackServerCommand(
 
       // Game aktualisieren
       val newPlayers = game.model.players.updated(playerIndex, updatedPlayer)
-      val newServers = game.model.servers.map(s =>
-        if (s.name == serverName) updatedServer else s
-      )
+      val newServers = game.model.servers.map(s => if (s.name == serverName) updatedServer else s)
 
-      game.copy(model = game.model.copy(
-        players = newPlayers,
-        servers = newServers
-      ))
+      game.copy(model =
+        game.model.copy(
+          players = newPlayers,
+          servers = newServers
+        )
+      )
 
     } else {
       // MISSERFOLG - Ressourcen verloren, kein Gewinn
@@ -114,28 +122,27 @@ case class HackServerCommand(
         val newServers = previousServerState match {
           case Some(oldServer) =>
             // Hack war erfolgreich - Server zurücksetzen
-            game.model.servers.map(s =>
-              if (s.name == serverName) oldServer else s
-            )
-          case None =>
+            game.model.servers.map(s => if (s.name == serverName) oldServer else s)
+          case None            =>
             // Hack war nicht erfolgreich - Server unverändert
             game.model.servers
         }
 
-        game.copy(model = game.model.copy(
-          players = newPlayers,
-          servers = newServers
-        ))
+        game.copy(model =
+          game.model.copy(
+            players = newPlayers,
+            servers = newServers
+          )
+        )
 
       case None =>
         throw new IllegalStateException("Kein vorheriger Spieler-Zustand für Undo gespeichert")
     }
   }
 
-  /**
-   * Berechnet Belohnungen basierend auf Server-Typ
-   */
-  private def calculateRewards(server: Server): HackResult = {
+  /** Berechnet Belohnungen basierend auf Server-Typ
+    */
+  private def calculateRewards(server: Server): HackResult =
     server.serverType match {
       case ServerType.Side     =>
         HackResult(server.rewardCpu, server.rewardRam, 0, 10)
@@ -156,12 +163,10 @@ case class HackServerCommand(
         // Sollte nicht passieren (wird vorher abgefangen)
         HackResult(0, 0, 0, 0)
     }
-  }
 }
 
-/**
- * Ergebnis eines Hack-Versuchs
- */
+/** Ergebnis eines Hack-Versuchs
+  */
 case class HackResult(
   cpuGained: Int,
   ramGained: Int,

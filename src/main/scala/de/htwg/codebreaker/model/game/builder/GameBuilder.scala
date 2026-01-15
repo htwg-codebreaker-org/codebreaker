@@ -6,10 +6,10 @@ import de.htwg.codebreaker.model.game._
 import de.htwg.codebreaker.model.game.strategy._
 
 final class GameBuilder private (
-    val numPlayers: Int = 2,
-    val playerStrategy: PlayerGenerationStrategy = RandomPlayerGenerator,
-    val serverStrategy: ServerGenerationStrategy = DefaultServerStrategy,
-    val map: WorldMap = WorldMap.defaultMap
+  val numPlayers: Int = 2,
+  val playerStrategy: PlayerGenerationStrategy = RandomPlayerGenerator,
+  val serverStrategy: ServerGenerationStrategy = DefaultServerStrategy,
+  val map: WorldMap = WorldMap.defaultMap
 ):
 
   def withNumberOfPlayers(n: Int): GameBuilder =
@@ -25,9 +25,9 @@ final class GameBuilder private (
     GameBuilder(numPlayers, playerStrategy, serverStrategy, newMap)
 
   def build(): Game =
-    val servers = serverStrategy.generateServers(map)
+    val servers    = serverStrategy.generateServers(map)
     val takenTiles = servers.map(_.tile)
-    val players = playerStrategy.generatePlayers(numPlayers, map, takenTiles)
+    val players    = playerStrategy.generatePlayers(numPlayers, map, takenTiles)
 
     val model = GameModel(players, servers, map)
 
@@ -41,17 +41,14 @@ final class GameBuilder private (
 
     Game(model, state)
 
-
-
-
 object GameBuilder:
   def apply(): GameBuilder =
     new GameBuilder()
 
   def apply(
-      numPlayers: Int,
-      playerStrategy: PlayerGenerationStrategy,
-      serverStrategy: ServerGenerationStrategy,
-      map: WorldMap
+    numPlayers: Int,
+    playerStrategy: PlayerGenerationStrategy,
+    serverStrategy: ServerGenerationStrategy,
+    map: WorldMap
   ): GameBuilder =
     new GameBuilder(numPlayers, playerStrategy, serverStrategy, map)

@@ -1,7 +1,7 @@
 package de.htwg.codebreaker.model.game
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class PhaseSpec extends AnyWordSpec with Matchers {
 
