@@ -1,6 +1,6 @@
 package de.htwg.codebreaker.controller
 
-import scala.util.{Try, Random}
+import scala.util.{Try, Success, Failure, Random}
 import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.model.{Server, ServerType, Player}
 
@@ -26,29 +26,50 @@ case class HackServerCommand(
 
   private var previousPlayerState: Option[Player] = None
   private var previousServerState: Option[Server] = None
-  private var hackWasSuccessful: Boolean = false
 
-  override def doStep(game: Game): Try[Game] = Try {
+  override def doStep(game: Game): Try[Game] = {
+    if (playerIndex < 0 || playerIndex >= game.model.players.length) {
+      return Failure(new IllegalArgumentException(s"Ungültiger Spieler-Index: $playerIndex"))
+    }
+
     val player = game.model.players(playerIndex)
-    val server = game.model.servers.find(_.name == serverName)
-      .getOrElse(throw new IllegalArgumentException(s"Server '$serverName' nicht gefunden"))
+    
+    val serverOpt = game.model.servers.find(_.name == serverName)
+    if (serverOpt.isEmpty) {
+      return Failure(new IllegalArgumentException(s"Server '$serverName' nicht gefunden"))
+    }
+    val server = serverOpt.get
 
     // Validierungen
-    require(player.tile == server.tile,
-      s"Spieler muss auf Server-Tile sein (Spieler: ${player.tile}, Server: ${server.tile})")
-    require(!server.hacked,
-      s"Server '${server.name}' wurde bereits gehackt")
-    require(server.serverType != ServerType.Private,
-      "Private Server können nicht gehackt werden")
+    if (player.tile != server.tile) {
+      return Failure(new IllegalArgumentException(
+        s"Spieler muss auf Server-Tile sein (Spieler: ${player.tile}, Server: ${server.tile})"))
+    }
+    
+    if (server.hacked) {
+      return Failure(new IllegalArgumentException(s"Server '${server.name}' wurde bereits gehackt"))
+    }
+    
+    if (server.serverType == ServerType.Private) {
+      return Failure(new IllegalArgumentException("Private Server können nicht gehackt werden"))
+    }
 
     // Kosten berechnen
     val cpuCost = math.max(1, server.difficulty / 2)
     val ramCost = math.max(1, server.difficulty / 3)
 
-    require(player.cpu >= cpuCost,
-      s"Nicht genug CPU (benötigt: $cpuCost, vorhanden: ${player.cpu})")
-    require(player.ram >= ramCost,
-      s"Nicht genug RAM (benötigt: $ramCost, vorhanden: ${player.ram})")
+    if (player.cpu < cpuCost) {
+      return Failure(new IllegalArgumentException(
+        s"Nicht genug CPU (benötigt: $cpuCost, vorhanden: ${player.cpu})"))
+    }
+    
+    if (player.ram < ramCost) {
+      return Failure(new IllegalArgumentException(
+        s"Nicht genug RAM (benötigt: $ramCost, vorhanden: ${player.ram})"))
+    }
+
+    // State für Undo speichern
+    previousPlayerState = Some(player)
 
     // Ressourcen abziehen
     val playerAfterCost = player.copy(
@@ -59,12 +80,12 @@ case class HackServerCommand(
     // Erfolgswahrscheinlichkeit berechnen
     val baseChance = 100 - server.difficulty
     val securityBonus = player.cybersecurity / 2
-    val successChance = math.max(5, math.min(95, baseChance + securityBonus)) // 5-95%
+    val successChance = math.max(5, math.min(95, baseChance + securityBonus))
 
     val roll = random.nextInt(100)
-    hackWasSuccessful = roll < successChance
+    val hackSuccessful = roll < successChance
 
-    if (hackWasSuccessful) {
+    if (hackSuccessful) {
       // ERFOLG! Belohnungen berechnen
       val rewards = calculateRewards(server)
 
@@ -78,11 +99,10 @@ case class HackServerCommand(
       val updatedServer = server.copy(
         hacked = true,
         hackedBy = Some(playerIndex),
-        claimedBy = Some(playerIndex) // Besitz beim Hack setzen
+        claimedBy = Some(playerIndex)
       )
 
-      // State für Undo speichern
-      previousPlayerState = Some(player)
+      // Server State für Undo speichern
       previousServerState = Some(server)
 
       // Game aktualisieren
@@ -91,22 +111,19 @@ case class HackServerCommand(
         if (s.name == serverName) updatedServer else s
       )
 
-      game.copy(model = game.model.copy(
+      Success(game.copy(model = game.model.copy(
         players = newPlayers,
         servers = newServers
-      ))
+      )))
 
     } else {
-      // MISSERFOLG - Ressourcen verloren, kein Gewinn
-      previousPlayerState = Some(player)
-      hackWasSuccessful = false
-
+      // MISSERFOLG - nur Ressourcen verloren
       val newPlayers = game.model.players.updated(playerIndex, playerAfterCost)
-      game.copy(model = game.model.copy(players = newPlayers))
+      Success(game.copy(model = game.model.copy(players = newPlayers)))
     }
   }
 
-  override def undoStep(game: Game): Try[Game] = Try {
+  override def undoStep(game: Game): Try[Game] = {
     previousPlayerState match {
       case Some(oldPlayer) =>
         val newPlayers = game.model.players.updated(playerIndex, oldPlayer)
@@ -122,13 +139,13 @@ case class HackServerCommand(
             game.model.servers
         }
 
-        game.copy(model = game.model.copy(
+        Success(game.copy(model = game.model.copy(
           players = newPlayers,
           servers = newServers
-        ))
+        )))
 
       case None =>
-        throw new IllegalStateException("Kein vorheriger Spieler-Zustand für Undo gespeichert")
+        Failure(new IllegalStateException("Kein vorheriger Spieler-Zustand für Undo gespeichert"))
     }
   }
 
@@ -144,16 +161,12 @@ case class HackServerCommand(
       case ServerType.Cloud    =>
         HackResult(server.rewardCpu, server.rewardRam, 0, 30)
       case ServerType.Bank     =>
-        // Bank gibt Code statt CPU/RAM
         HackResult(0, 0, server.rewardCpu, 40)
       case ServerType.Military =>
-        // Military gibt doppelte Belohnungen
         HackResult(server.rewardCpu * 2, server.rewardRam * 2, 0, 50)
       case ServerType.GKS      =>
-        // Endziel - hohe XP-Belohnung
         HackResult(0, 0, 0, 100)
       case ServerType.Private  =>
-        // Sollte nicht passieren (wird vorher abgefangen)
         HackResult(0, 0, 0, 0)
     }
   }
