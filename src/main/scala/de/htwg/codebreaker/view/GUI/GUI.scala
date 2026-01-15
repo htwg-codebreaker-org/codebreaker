@@ -356,9 +356,6 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
 
 
   override def start(): Unit = {
-    mode = GUIMode.Menu
-    val startGameButton = new Button("Spiel starten")
-    startGameButton.onAction = _ => startGame()
     stage = new JFXApp3.PrimaryStage {
       title = "Codebreaker GUI"
       width = 1920
@@ -366,11 +363,10 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
       scene = new Scene {
         root = new VBox {
           spacing = 10
-          children = Seq(
-            new Label("Willkommen zu Codebreaker!"),
-            startGameButton
-          )
         }
       }
     }
+
+    // 🔥 Game sofort starten
+    startGame()
   }
