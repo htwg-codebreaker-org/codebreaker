@@ -1,6 +1,5 @@
 [![Coverage Status](https://coveralls.io/repos/github/htwg-codebreaker-org/codebreaker/badge.svg?branch=main)](https://coveralls.io/github/htwg-codebreaker-org/codebreaker?branch=main)
 [![Scala CI](https://github.com/htwg-codebreaker-org/codebreaker/actions/workflows/scala.yml/badge.svg)](https://github.com/htwg-codebreaker-org/codebreaker/actions/workflows/scala.yml)
-[![Coverage Status](https://coveralls.io/repos/github/htwg-codebreaker-org/codebreaker/badge.svg?branch=main)](https://coveralls.io/github/htwg-codebreaker-org/codebreaker?branch=main)
 
 # Codebreaker: Cyberkrieg
 Unsere Grundlegende Idee lässt sich in folgendem Beitrag finden und wird dort erklärt.
