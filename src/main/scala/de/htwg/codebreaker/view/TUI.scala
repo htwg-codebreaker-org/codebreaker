@@ -49,7 +49,6 @@ class TUI @Inject() (controller: ControllerInterface) extends Observer:
             |  q            → Spiel beenden
             |""".stripMargin)
 
-
       case "hack" =>
         println("Syntax: hack <Servername>")
 
@@ -88,7 +87,6 @@ class TUI @Inject() (controller: ControllerInterface) extends Observer:
         println("Unbekannter Befehl.")
 
 
-
   def show(): Unit =
     val players = controller.getPlayers
     val servers = controller.getServers
@@ -112,13 +110,20 @@ class TUI @Inject() (controller: ControllerInterface) extends Observer:
     val GREEN = "\u001B[32m"
     val RED = "\u001B[31m"
     val RESET = "\u001B[0m"
-    
+
     mapData.map { row =>
       row.map {
-        case PlayerAndServerTile(p, s, _, _) => f"$RED[P$p/S$s]$RESET"
-        case PlayerOnTile(i)                 => f"$BLUE[P$i]$RESET"
-        case ServerOnTile(i, _, _)          => f"$GREEN[$i]-S$RESET"
-        case EmptyTile(cont)                    => f"${cont.short}"
+        case PlayerAndServerTile(p, s, _, _) =>
+          val content = f"P$p%d$s%02d"
+          s"$RED$content$RESET"
+        case PlayerOnTile(i) =>
+          val content = f"P$i%d"
+          s"$BLUE$content$RESET"
+        case ServerOnTile(i, _, _) =>
+          val content = f"$i%02d"
+          s"$GREEN$content$RESET"
+        case EmptyTile(cont) =>
+          cont.short.take(2)
       }.mkString(" ")
     }.mkString("\n")
 

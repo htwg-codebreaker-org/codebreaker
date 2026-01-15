@@ -233,9 +233,10 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
 
     // Ensure UI updates happen on JavaFX application thread
     Platform.runLater {
-      if mode == GUIMode.Game then showWorldMap()
-      canUndoProperty.value = controller.canUndo
-      canRedoProperty.value = controller.canRedo
+      if mode == GUIMode.Game then
+        showWorldMap()
+        if canUndoProperty != null then canUndoProperty.value = controller.canUndo
+        if canRedoProperty != null then canRedoProperty.value = controller.canRedo
     }
   }
 
