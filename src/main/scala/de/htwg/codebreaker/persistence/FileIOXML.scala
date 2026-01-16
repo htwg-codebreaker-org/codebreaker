@@ -39,6 +39,9 @@ class FileIOXML extends FileIOInterface:
         <servers>
           {game.model.servers.map(serverToXML)}
         </servers>
+        <skills>
+          {game.model.skills.map(skillToXML)}
+        </skills>
         <worldMap>
           <width>{game.model.worldMap.width}</width>
           <height>{game.model.worldMap.height}</height>
@@ -56,16 +59,24 @@ class FileIOXML extends FileIOInterface:
     <player>
       <id>{player.id}</id>
       <name>{player.name}</name>
+
       <tile>
         <x>{player.tile.x}</x>
         <y>{player.tile.y}</y>
         <continent>{player.tile.continent.toString}</continent>
       </tile>
+
       <cpu>{player.cpu}</cpu>
       <ram>{player.ram}</ram>
       <code>{player.code}</code>
-      <level>{player.level}</level>
-      <xp>{player.xp}</xp>
+
+      <availableXp>{player.availableXp}</availableXp>
+      <totalXpEarned>{player.totalXpEarned}</totalXpEarned>
+
+      <skills>
+        {player.skills.unlockedSkillIds.map(id => <skill>{id}</skill>)}
+      </skills>
+
       <cybersecurity>{player.cybersecurity}</cybersecurity>
       <movementPoints>{player.movementPoints}</movementPoints>
       <maxMovementPoints>{player.maxMovementPoints}</maxMovementPoints>
@@ -86,6 +97,15 @@ class FileIOXML extends FileIOInterface:
       <hacked>{server.hacked}</hacked>
       <hackedBy>{server.hackedBy.getOrElse(-1)}</hackedBy>
     </server>
+  
+  private def skillToXML(skill: HackSkill): Elem =
+  <skill>
+    <id>{skill.id}</id>
+    <name>{skill.name}</name>
+    <costXp>{skill.costXp}</costXp>
+    <successBonus>{skill.successBonus}</successBonus>
+    <description>{skill.description}</description>
+  </skill>
 
   private def xmlToGame(xml: Node): Game =
     val model = xmlToGameModel((xml \ "model").head)
@@ -96,22 +116,33 @@ class FileIOXML extends FileIOInterface:
     val players = (xml \ "players" \ "player").map(xmlToPlayer).toList
     val servers = (xml \ "servers" \ "server").map(xmlToServer).toList
     val worldMap = xmlToWorldMap((xml \ "worldMap").head)
-    GameModel(players, servers, worldMap)
+    val skills = (xml \ "skills" \ "skill").map(xmlToSkill).toList
+
+    GameModel(players, servers, worldMap, skills)
 
   private def xmlToPlayer(xml: Node): Player =
     Player(
       id = (xml \ "id").text.toInt,
       name = (xml \ "name").text,
       tile = xmlToTile((xml \ "tile").head),
+
       cpu = (xml \ "cpu").text.toInt,
       ram = (xml \ "ram").text.toInt,
       code = (xml \ "code").text.toInt,
-      level = (xml \ "level").text.toInt,
-      xp = (xml \ "xp").text.toInt,
+
+      availableXp = (xml \ "availableXp").text.toInt,
+      totalXpEarned = (xml \ "totalXpEarned").text.toInt,
+
+      skills = PlayerSkillTree(
+        unlockedSkillIds =
+          (xml \ "skills" \ "skill").map(_.text).toSet
+      ),
+
       cybersecurity = (xml \ "cybersecurity").text.toInt,
       movementPoints = (xml \ "movementPoints").text.toInt,
       maxMovementPoints = (xml \ "maxMovementPoints").text.toInt
     )
+
 
   private def xmlToServer(xml: Node): Server =
     val hackedByValue = (xml \ "hackedBy").text.toInt
@@ -125,6 +156,16 @@ class FileIOXML extends FileIOInterface:
       hacked = (xml \ "hacked").text.toBoolean,
       hackedBy = if (hackedByValue == -1) None else Some(hackedByValue)
     )
+
+  private def xmlToSkill(xml: Node): HackSkill =
+    HackSkill(
+      id = (xml \ "id").text,
+      name = (xml \ "name").text,
+      costXp = (xml \ "costXp").text.toInt,
+      successBonus = (xml \ "successBonus").text.toInt,
+      description = (xml \ "description").text
+    )
+
 
   private def xmlToTile(xml: Node): Tile =
     Tile(

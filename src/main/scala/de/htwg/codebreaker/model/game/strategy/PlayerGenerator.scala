@@ -5,6 +5,9 @@ import scala.util.Random
 
 object PlayerGenerator:
 
+  private val initialSkills: Set[String] =
+    Set("script_kiddie")
+
   def generatePlayers(count: Int, map: WorldMap, avoidTiles: List[Tile] = Nil): List[Player] =
     val rng = new Random()
     val validTiles = map.tiles.filter(t => t.continent.isLand && !avoidTiles.contains(t))
@@ -18,8 +21,9 @@ object PlayerGenerator:
         cpu = 100,
         ram = 50,
         code = 10,
-        level = 1,
-        xp = 0,
+        availableXp = 0,
+        totalXpEarned = 0,
+        skills = PlayerSkillTree(initialSkills),
         cybersecurity = 20
       )
     }.toList

@@ -1,17 +1,19 @@
 package de.htwg.codebreaker.module
 
-import com.google.inject.AbstractModule
-import de.htwg.codebreaker.controller.{Controller, ControllerInterface}
-import de.htwg.codebreaker.model.game.Game
-import de.htwg.codebreaker.persistence.{FileIOInterface, FileIOJSON, FileIOXML}
+import com.google.inject.{AbstractModule, Provides}
 import com.google.inject.Scopes
+import de.htwg.codebreaker.controller._
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.persistence._
+
 
 /**
  * Guice Module for the Codebreaker application.
  * Defines all dependency injection bindings between interfaces and implementations.
  *
  * This module:
- * - Binds ControllerInterface to Controller implementation
+ * - Provides ControllerInterface via DI (optionally wrapped with LoggingController)
+ * - Uses a DI flag to enable/disable controller logging
  * - Provides Game instances via GameProvider
  * - Binds FileIOInterface to either JSON or XML implementation (choose one)
  * - Uses singleton scope for shared components (Controller)
@@ -22,6 +24,9 @@ import com.google.inject.Scopes
  */
 class CodebreakerModule extends AbstractModule:
 
+  // 🔁 FLAG – exakt wie in der Vorlesung gemeint
+  private val enableControllerLogging = true
+
   override def configure(): Unit =
     // Bind Game using custom provider
     bind(classOf[Game]).toProvider(classOf[GameProvider])
@@ -30,6 +35,15 @@ class CodebreakerModule extends AbstractModule:
     // Current: JSON (use FileIOXML for XML)
     bind(classOf[FileIOInterface]).to(classOf[FileIOJSON])
 
-    // Bind ControllerInterface to Controller implementation as singleton
-    // Singleton ensures TUI and GUI share the same controller instance
-    bind(classOf[ControllerInterface]).to(classOf[Controller]).in(Scopes.SINGLETON)
+    // Bind the concrete Controller as singleton (shared by TUI and GUI)
+    bind(classOf[Controller]).in(Scopes.SINGLETON)
+
+  // provider method to conditionally wrap Controller with LoggingController
+  @Provides
+  def provideControllerInterface(
+    controller: Controller
+  ): ControllerInterface =
+    if enableControllerLogging then
+      new LoggingController(controller)
+    else
+      controller

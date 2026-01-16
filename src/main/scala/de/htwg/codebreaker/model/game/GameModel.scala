@@ -5,6 +5,7 @@ import de.htwg.codebreaker.model._
 case class GameModel(
   players: List[Player],
   servers: List[Server],
-  worldMap: WorldMap
+  worldMap: WorldMap,
+  skills: List[HackSkill]
 )
 

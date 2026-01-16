@@ -1,6 +1,7 @@
-package de.htwg.codebreaker.controller
+package de.htwg.codebreaker.controller.commands
 
 import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.controller._
 import scala.util.{Try, Success}
 
 case class NextPlayerCommand() extends Command {
