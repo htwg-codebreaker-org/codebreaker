@@ -24,8 +24,9 @@ class FileIOJSONSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     cpu = 100,
     ram = 100,
     code = 1,
-    level = 1,
-    xp = 50,
+    availableXp = 50,
+    totalXpEarned = 50,
+    skills = PlayerSkillTree(Set.empty),
     cybersecurity = 10,
     movementPoints = 5,
     maxMovementPoints = 5
@@ -38,8 +39,9 @@ class FileIOJSONSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     cpu = 80,
     ram = 90,
     code = 2,
-    level = 2,
-    xp = 120,
+    availableXp = 120,
+    totalXpEarned = 120,
+    skills = PlayerSkillTree(Set.empty),
     cybersecurity = 15,
     movementPoints = 3,
     maxMovementPoints = 5
@@ -68,7 +70,7 @@ class FileIOJSONSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
   )
 
   val worldMap = WorldMap.defaultMap
-  val model = GameModel(List(player1, player2), List(server1, server2), worldMap)
+  val model = GameModel(List(player1, player2), List(server1, server2), worldMap, Nil)
   val state = GameState(
     currentPlayerIndex = Some(0),
     status = GameStatus.Running,
@@ -258,8 +260,8 @@ class FileIOJSONSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
         cpu = 42,
         ram = 73,
         code = 5,
-        level = 10,
-        xp = 9999,
+        availableXp = 150,
+        totalXpEarned = 9999,
         cybersecurity = 85,
         movementPoints = 2,
         maxMovementPoints = 8
@@ -274,8 +276,8 @@ class FileIOJSONSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
       loadedPlayer.cpu shouldBe 42
       loadedPlayer.ram shouldBe 73
       loadedPlayer.code shouldBe 5
-      loadedPlayer.level shouldBe 10
-      loadedPlayer.xp shouldBe 9999
+      loadedPlayer.availableXp shouldBe 150
+      loadedPlayer.totalXpEarned shouldBe 9999
       loadedPlayer.cybersecurity shouldBe 85
       loadedPlayer.movementPoints shouldBe 2
       loadedPlayer.maxMovementPoints shouldBe 8

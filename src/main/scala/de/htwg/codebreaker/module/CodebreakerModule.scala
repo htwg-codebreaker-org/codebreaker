@@ -5,6 +5,8 @@ import com.google.inject.Scopes
 import de.htwg.codebreaker.controller._
 import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.persistence._
+import de.htwg.codebreaker.controller.controller.Controller
+import de.htwg.codebreaker.controller.controller.LoggingController
 
 
 /**
@@ -40,6 +42,7 @@ class CodebreakerModule extends AbstractModule:
 
   // provider method to conditionally wrap Controller with LoggingController
   @Provides
+  @com.google.inject.Singleton
   def provideControllerInterface(
     controller: Controller
   ): ControllerInterface =

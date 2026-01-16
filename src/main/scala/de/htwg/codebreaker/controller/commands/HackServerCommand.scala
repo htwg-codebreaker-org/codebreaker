@@ -24,9 +24,11 @@ case class HackServerCommand(
     val player = game.model.players(playerIndex)
 
     // ---- Server finden ----
-    val server = game.model.servers
-      .find(_.name == serverName)
-      .getOrElse(return Failure(new IllegalArgumentException("Server nicht gefunden")))
+    val serverOpt = game.model.servers.find(_.name == serverName)
+    if (serverOpt.isEmpty)
+      return Failure(new IllegalArgumentException("Server nicht gefunden"))
+    
+    val server = serverOpt.get
 
     // ---- Grundvalidierungen ----
     if (player.tile != server.tile)

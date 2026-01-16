@@ -1,0 +1,254 @@
+package de.htwg.codebreaker.model
+
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
+
+class WorldMapSpec extends AnyWordSpec with Matchers:
+
+  "WorldMap" should {
+
+    "be created with width, height and tiles" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Europe),
+        Tile(0, 1, Continent.Asia),
+        Tile(1, 1, Continent.Asia)
+      )
+      val map = WorldMap(2, 2, tiles)
+
+      map.width shouldBe 2
+      map.height shouldBe 2
+      map.tiles should have size 4
+    }
+
+    "find tiles by coordinates" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Asia),
+        Tile(0, 1, Continent.Africa)
+      )
+      val map = WorldMap(2, 2, tiles)
+
+      map.tileAt(0, 0) shouldBe Some(Tile(0, 0, Continent.Europe))
+      map.tileAt(1, 0) shouldBe Some(Tile(1, 0, Continent.Asia))
+      map.tileAt(0, 1) shouldBe Some(Tile(0, 1, Continent.Africa))
+    }
+
+    "return None for invalid coordinates" in {
+      val tiles = Vector(Tile(0, 0, Continent.Ocean))
+      val map = WorldMap(1, 1, tiles)
+
+      map.tileAt(5, 5) shouldBe None
+      map.tileAt(-1, 0) shouldBe None
+      map.tileAt(0, -1) shouldBe None
+    }
+
+    "find continent by coordinates" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Asia)
+      )
+      val map = WorldMap(2, 1, tiles)
+
+      map.continentAt(0, 0) shouldBe Some(Continent.Europe)
+      map.continentAt(1, 0) shouldBe Some(Continent.Asia)
+    }
+
+    "return None for continent at invalid coordinates" in {
+      val map = WorldMap(1, 1, Vector(Tile(0, 0, Continent.Ocean)))
+
+      map.continentAt(10, 10) shouldBe None
+    }
+
+    "filter tiles by continent" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Europe),
+        Tile(2, 0, Continent.Asia),
+        Tile(3, 0, Continent.Europe)
+      )
+      val map = WorldMap(4, 1, tiles)
+
+      val europeTiles = map.tilesOf(Continent.Europe)
+      europeTiles should have size 3
+      europeTiles.forall(_.continent == Continent.Europe) shouldBe true
+    }
+
+    "return empty vector for continent with no tiles" in {
+      val tiles = Vector(Tile(0, 0, Continent.Europe))
+      val map = WorldMap(1, 1, tiles)
+
+      val asiaTiles = map.tilesOf(Continent.Asia)
+      asiaTiles shouldBe empty
+    }
+  }
+
+  "WorldMap.getMapData" should {
+
+    "create map data with empty tiles" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Asia)
+      )
+      val map = WorldMap(2, 1, tiles)
+
+      val mapData = map.getMapData(Nil, Nil)
+      
+      mapData should have size 1
+      mapData(0) should have size 2
+      mapData(0)(0) shouldBe MapObject.EmptyTile(Continent.Europe)
+      mapData(0)(1) shouldBe MapObject.EmptyTile(Continent.Asia)
+    }
+
+    "show player on tile" in {
+      val tiles = Vector(Tile(0, 0, Continent.Europe))
+      val map = WorldMap(1, 1, tiles)
+      val player = Player(
+        0, "Test", Tile(0, 0, Continent.Europe),
+        100, 100, 0, 0, 0, PlayerSkillTree(Set.empty), 50
+      )
+
+      val mapData = map.getMapData(List(player), Nil)
+      
+      mapData(0)(0) shouldBe MapObject.PlayerOnTile(0)
+    }
+
+    "show server on tile" in {
+      val tiles = Vector(Tile(0, 0, Continent.Europe))
+      val map = WorldMap(1, 1, tiles)
+      val server = Server(
+        "TestServer", Tile(0, 0, Continent.Europe),
+        50, 100, 200, false, ServerType.Private
+      )
+
+      val mapData = map.getMapData(Nil, List(server))
+      
+      mapData(0)(0) shouldBe MapObject.ServerOnTile(0, ServerType.Private, Continent.Europe)
+    }
+
+    "show both player and server on same tile" in {
+      val tiles = Vector(Tile(0, 0, Continent.Europe))
+      val map = WorldMap(1, 1, tiles)
+      val player = Player(
+        0, "Test", Tile(0, 0, Continent.Europe),
+        100, 100, 0, 0, 0, PlayerSkillTree(Set.empty), 50
+      )
+      val server = Server(
+        "TestServer", Tile(0, 0, Continent.Europe),
+        50, 100, 200, false, ServerType.Bank
+      )
+
+      val mapData = map.getMapData(List(player), List(server))
+      
+      mapData(0)(0) shouldBe MapObject.PlayerAndServerTile(0, 0, ServerType.Bank, Continent.Europe)
+    }
+
+    "handle multiple players and servers" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Asia)
+      )
+      val map = WorldMap(2, 1, tiles)
+      val player1 = Player(
+        0, "P1", Tile(0, 0, Continent.Europe),
+        100, 100, 0, 0, 0, PlayerSkillTree(Set.empty), 50
+      )
+      val player2 = Player(
+        1, "P2", Tile(1, 0, Continent.Asia),
+        100, 100, 0, 0, 0, PlayerSkillTree(Set.empty), 50
+      )
+      val server = Server(
+        "Server", Tile(0, 0, Continent.Europe),
+        50, 100, 200, false, ServerType.Firm
+      )
+
+      val mapData = map.getMapData(List(player1, player2), List(server))
+      
+      mapData(0)(0) shouldBe MapObject.PlayerAndServerTile(0, 0, ServerType.Firm, Continent.Europe)
+      mapData(0)(1) shouldBe MapObject.PlayerOnTile(1)
+    }
+
+    "throw exception for invalid tile coordinates" in {
+      val tiles = Vector.empty[Tile]
+      val map = WorldMap(1, 1, tiles)
+
+      an[IllegalArgumentException] should be thrownBy {
+        map.getMapData(Nil, Nil)
+      }
+    }
+  }
+
+  "WorldMap.defaultMap" should {
+
+    "create a map with correct dimensions" in {
+      val map = WorldMap.defaultMap
+      
+      map.width shouldBe 80
+      map.height shouldBe 40
+      map.tiles should have size (80 * 40)
+    }
+
+    "assign continents to all tiles" in {
+      val map = WorldMap.defaultMap
+      
+      map.tiles.foreach { tile =>
+        tile.continent should not be null
+      }
+    }
+
+    "contain all continents" in {
+      val map = WorldMap.defaultMap
+      val continents = map.tiles.map(_.continent).toSet
+      
+      continents should contain(Continent.Ocean)
+      // Should contain at least some land
+      continents.exists(_.isLand) shouldBe true
+    }
+
+    "have tiles in correct coordinate range" in {
+      val map = WorldMap.defaultMap
+      
+      map.tiles.foreach { tile =>
+        tile.x should be >= 0
+        tile.x should be < 80
+        tile.y should be >= 0
+        tile.y should be < 40
+      }
+    }
+
+    "have unique coordinates for each tile" in {
+      val map = WorldMap.defaultMap
+      val coordinates = map.tiles.map(t => (t.x, t.y))
+      
+      coordinates.distinct should have size coordinates.size
+    }
+
+    "classify specific coordinates correctly" in {
+      val map = WorldMap.defaultMap
+      
+      // Test some known coordinates from the code
+      // North America
+      map.continentAt(21, 20) shouldBe Some(Continent.NorthAmerica)
+      map.continentAt(20, 18) shouldBe Some(Continent.NorthAmerica)
+      
+      // South America
+      map.continentAt(25, 31) shouldBe Some(Continent.SouthAmerica)
+      map.continentAt(24, 30) shouldBe Some(Continent.SouthAmerica)
+      
+      // Europe
+      map.continentAt(40, 14) shouldBe Some(Continent.Europe)
+      map.continentAt(44, 10) shouldBe Some(Continent.Europe)
+      
+      // Africa
+      map.continentAt(37, 16) shouldBe Some(Continent.Africa)
+      map.continentAt(40, 20) shouldBe Some(Continent.Africa)
+      
+      // Asia
+      map.continentAt(52, 10) shouldBe Some(Continent.Asia)
+      map.continentAt(60, 15) shouldBe Some(Continent.Asia)
+      
+      // Oceania
+      map.continentAt(62, 27) shouldBe Some(Continent.Oceania)
+      map.continentAt(67, 26) shouldBe Some(Continent.Oceania)
+    }
+  }

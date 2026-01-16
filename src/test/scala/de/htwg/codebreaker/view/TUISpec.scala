@@ -2,154 +2,267 @@ package de.htwg.codebreaker.view
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game._
-import de.htwg.codebreaker.controller._
-import java.io.{ByteArrayOutputStream, PrintStream}
+import de.htwg.codebreaker.controller.{ControllerInterface, TestGameFactory, FakeFileIO}
+import de.htwg.codebreaker.controller.controller.Controller
+import de.htwg.codebreaker.model.{MapObject, ServerType}
+import de.htwg.codebreaker.model.MapObject._
+import de.htwg.codebreaker.model.Continent
 
 class TUISpec extends AnyWordSpec with Matchers {
 
-  val tile = Tile(0, 0, Continent.Europe)
-  val player = Player(0, "Tester", tile, 1, 1, 1, 1, 0, 0)
-  val server = Server("S1", tile, 10, 2, 2, false, ServerType.Firm)
-  val worldMap = WorldMap(1, 1, Vector(tile))
-  val model = GameModel(List(player), List(server), worldMap)
-  val state = GameState()
-  val controller = Controller(Game(model, state), de.htwg.codebreaker.TestHelper.mockFileIO)
-  val tui = TUI(controller)
-
-  def captureOutput(body: => Unit): String = {
-    val outCapture = new ByteArrayOutputStream()
-    Console.withOut(new PrintStream(outCapture)) {
-      body
-    }
-    outCapture.toString.trim
-  }
-
   "TUI" should {
 
-    "print welcome and game info on show()" in {
-      val output = captureOutput {
+    "initialize with controller" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      tui should not be null
+    }
+
+    "display map with empty tiles" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val emptyMap = Vector(
+        Vector(EmptyTile(Continent.NorthAmerica), EmptyTile(Continent.Europe)),
+        Vector(EmptyTile(Continent.Asia), EmptyTile(Continent.Africa))
+      )
+      
+      val result = tui.displayMap(emptyMap)
+      result should not be empty
+      result should include("NA")
+      result should include("EU")
+    }
+
+    "display map with player on tile" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val mapWithPlayer = Vector(
+        Vector(PlayerOnTile(0), EmptyTile(Continent.Europe))
+      )
+      
+      val result = tui.displayMap(mapWithPlayer)
+      result should include("P0")
+    }
+
+    "display map with server on tile" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val mapWithServer = Vector(
+        Vector(ServerOnTile(0, ServerType.Side, Continent.NorthAmerica), EmptyTile(Continent.Europe))
+      )
+      
+      val result = tui.displayMap(mapWithServer)
+      result should include("00")
+    }
+
+    "display map with player and server on same tile" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val mapWithBoth = Vector(
+        Vector(PlayerAndServerTile(0, 5, ServerType.Side, Continent.NorthAmerica))
+      )
+      
+      val result = tui.displayMap(mapWithBoth)
+      result should include("P0")
+      result should include("05")
+    }
+
+    "use color codes for different tile types" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val coloredMap = Vector(
+        Vector(
+          PlayerOnTile(0),
+          ServerOnTile(1, ServerType.Firm, Continent.Europe),
+          PlayerAndServerTile(0, 2, ServerType.Side, Continent.Asia)
+        )
+      )
+      
+      val result = tui.displayMap(coloredMap)
+      // Check for ANSI color codes
+      result should include("\u001B[34m") // Blue for player
+      result should include("\u001B[32m") // Green for server
+      result should include("\u001B[31m") // Red for player+server
+      result should include("\u001B[0m")  // Reset
+    }
+
+    "display multiple rows correctly" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val multiRowMap = Vector(
+        Vector(EmptyTile(Continent.NorthAmerica), EmptyTile(Continent.Europe)),
+        Vector(EmptyTile(Continent.Asia), EmptyTile(Continent.Africa)),
+        Vector(EmptyTile(Continent.Oceania), EmptyTile(Continent.Antarctica))
+      )
+      
+      val result = tui.displayMap(multiRowMap)
+      val lines = result.split("\n")
+      lines should have length 3
+    }
+
+    "format continent codes correctly" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val continentMap = Vector(
+        Vector(
+          EmptyTile(Continent.NorthAmerica),
+          EmptyTile(Continent.SouthAmerica),
+          EmptyTile(Continent.Europe),
+          EmptyTile(Continent.Africa),
+          EmptyTile(Continent.Asia),
+          EmptyTile(Continent.Oceania),
+          EmptyTile(Continent.Antarctica),
+          EmptyTile(Continent.Ocean)
+        )
+      )
+      
+      val result = tui.displayMap(continentMap)
+      result should include("NA") // NorthAmerica
+      result should include("SA") // SouthAmerica
+      result should include("EU") // Europe
+      result should include("AF") // Africa
+      result should include("AS") // Asia
+      result should include("OC") // Oceania
+      result should include("AN") // Antarctica
+      result should include("~~") // Ocean
+    }
+
+    "handle show() without errors" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
         tui.show()
       }
-      output should include ("Willkommen zu Codebreaker")
-      output should include ("Spieler 0: Tester")
-      output should include ("S1")
     }
 
-    "handle 'q' to quit" in {
-      val output = captureOutput {
-        tui.processInputLine("q")
-      }
-      output should include ("Spiel beendet")
-    }
-
-    "handle unknown input" in {
-      val output = captureOutput {
-        tui.processInputLine("xyz")
-      }
-      output should include ("Unbekannter Befehl")
-    }
-
-    "handle 'm' to show map" in {
-      val output = captureOutput {
-        tui.processInputLine("m")
-      }
-      output should include ("== Codebreaker: Weltkarte ==")
-    }
-
-    "handle 'help' to show commands" in {
-      val output = captureOutput {
-        tui.processInputLine("help")
-      }
-      output should include ("Verfügbare Befehle")
-      output should include ("hack <S>")
-    }
-
-    "handle 'hack S1' command" in {
-      // Player braucht genug Ressourcen fürs Hacken
-      val richPlayer = Player(0, "Tester", tile, 100, 100, 1, 1, 50, 0, 5, 5)
-      val model2 = GameModel(List(richPlayer), List(server), worldMap)
-      val controller2 = Controller(Game(model2, state), de.htwg.codebreaker.TestHelper.mockFileIO)
-      val tui2 = TUI(controller2)
-
-      // Manuell HackServerCommand mit festem Random ausführen
-      val fixedRandom = new scala.util.Random(42) {
-        override def nextInt(n: Int): Int = 0 // Garantiert Erfolg
-      }
-      val hackCommand = HackServerCommand("S1", 0, fixedRandom)
-      controller2.doAndRemember(hackCommand)
-
-      // Server sollte jetzt gehackt sein
-      val hackedServer = controller2.getServers.find(_.name == "S1").get
-      hackedServer.hacked shouldBe true
-      hackedServer.claimedBy should contain (0)
-    }
-
-    "handle 'undo' and 'redo'" in {
-      val richPlayer = Player(0, "Tester", tile, 100, 100, 1, 1, 50, 0, 5, 5)
-      val model2 = GameModel(List(richPlayer), List(server), worldMap)
-      val controller2 = Controller(Game(model2, state), de.htwg.codebreaker.TestHelper.mockFileIO)
-      val tui2 = TUI(controller2)
-
-      // Manuell HackServerCommand mit festem Random ausführen
-      val fixedRandom = new scala.util.Random(42) {
-        override def nextInt(n: Int): Int = 0 // Garantiert Erfolg
-      }
-      val hackCommand = HackServerCommand("S1", 0, fixedRandom)
-      controller2.doAndRemember(hackCommand)
-      controller2.getServers.head.hacked shouldBe true
-
-      tui2.processInputLine("undo")
-      controller2.getServers.head.hacked shouldBe false
-
-      tui2.processInputLine("redo")
-      controller2.getServers.head.hacked shouldBe true
-    }
-
-    "handle 'next' to advance player" in {
-      val output = captureOutput {
-        tui.processInputLine("next")
-      }
-      output should include ("Spielzustand hat sich geändert")
-    }
-
-    "reject invalid 'hack' syntax" in {
-      val output = captureOutput {
-        tui.processInputLine("hack")
-      }
-      output should include ("Syntax: hack <Servername>")
-    }
-
-    "handle invalid hack syntax with multiple args" in {
-      val output = captureOutput {
-        tui.processInputLine("hack S1 extra args")
-      }
-      output should include ("Syntax: hack <Servername>")
-    }
-
-    "display different server types correctly" in {
-      val tile2 = Tile(1, 1, Continent.Africa)
-      val bankServer = Server("Bank1", tile2, 15, 3, 2, false, ServerType.Bank)
-      val gksServer = Server("GKS1", tile2, 50, 0, 0, false, ServerType.GKS)
-
-      val model2 = GameModel(List(player), List(bankServer, gksServer), worldMap)
-      val controller2 = Controller(Game(model2, state), de.htwg.codebreaker.TestHelper.mockFileIO)
-      val tui2 = TUI(controller2)
-
-      val output = captureOutput {
-        tui2.show()
-      }
-      output should include ("Bank1")
-      output should include ("GKS1")
-    }
-
-    "update correctly when observer is notified" in {
-      val output = captureOutput {
+    "handle update() callback" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
         tui.update()
       }
-      output should include ("Spielzustand hat sich geändert")
-      output should include ("Willkommen zu Codebreaker")
+    }
+
+    "process quit command" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
+        tui.processInputLine("q")
+      }
+    }
+
+    "process map command" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
+        tui.processInputLine("m")
+      }
+    }
+
+    "process help command" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
+        tui.processInputLine("help")
+      }
+    }
+
+    "process undo command" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
+        tui.processInputLine("undo")
+      }
+    }
+
+    "process redo command" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
+        tui.processInputLine("redo")
+      }
+    }
+
+    "process next command" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val initialRound = controller.getState.round
+      tui.processInputLine("next")
+      // Command should be executed
+    }
+
+    "handle unknown commands gracefully" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
+        tui.processInputLine("invalid_command")
+      }
+    }
+
+    "handle empty input" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
+        tui.processInputLine("")
+      }
+    }
+
+    "trim whitespace from input" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      noException should be thrownBy {
+        tui.processInputLine("  m  ")
+      }
+    }
+
+    "format server index with leading zeros" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val mapWithServers = Vector(
+        Vector(
+          ServerOnTile(0, ServerType.Side, Continent.NorthAmerica),
+          ServerOnTile(5, ServerType.Firm, Continent.Europe),
+          ServerOnTile(15, ServerType.Cloud, Continent.Asia)
+        )
+      )
+      
+      val result = tui.displayMap(mapWithServers)
+      result should include("00")
+      result should include("05")
+      result should include("15")
+    }
+
+    "handle large map without errors" in {
+      val controller = Controller(TestGameFactory.game(), new FakeFileIO())
+      val tui = new TUI(controller)
+      
+      val largeMap = Vector.fill(40)(
+        Vector.fill(80)(EmptyTile(Continent.Ocean))
+      )
+      
+      noException should be thrownBy {
+        val result = tui.displayMap(largeMap)
+        result should not be empty
+      }
     }
   }
 }

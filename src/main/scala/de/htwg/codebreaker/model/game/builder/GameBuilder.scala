@@ -40,7 +40,7 @@ final class GameBuilder private (
       currentPlayerIndex = Some(0),
       status = GameStatus.Running,
       phase = Phase.AwaitingInput,
-      round = 1
+      round = 0
     )
 
     Game(model, state)
@@ -56,7 +56,7 @@ object GameBuilder:
       numPlayers: Int,
       playerStrategy: PlayerGenerationStrategy,
       serverStrategy: ServerGenerationStrategy,
-      skillTree: SkillTreeGenerationStrategy,
+      skillStrategy: SkillTreeGenerationStrategy,
       map: WorldMap
   ): GameBuilder =
-    new GameBuilder(numPlayers, playerStrategy, serverStrategy, skillTree ,map)
+    new GameBuilder(numPlayers, playerStrategy, serverStrategy, skillStrategy ,map)
