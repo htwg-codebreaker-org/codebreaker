@@ -18,6 +18,7 @@ object GameFactory {
       .withNumberOfPlayers(2)
       .withServerStrategy(DefaultServerStrategy)
       .withMap(WorldMap.defaultMap)
+      .withSkills(DefaultSkillTreeGenerator)
       .build()
 
   def hard(): Game =
@@ -25,6 +26,7 @@ object GameFactory {
       .withNumberOfPlayers(2)
       .withServerStrategy(DefaultServerStrategy)
       .withMap(WorldMap.defaultMap)
+      .withSkills(DefaultSkillTreeGenerator)
       .build()
 }
 

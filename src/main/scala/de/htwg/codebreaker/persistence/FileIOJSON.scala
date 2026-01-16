@@ -38,7 +38,10 @@ class FileIOJSON extends FileIOInterface:
 
   implicit val tileFormat: Format[Tile] = Json.format[Tile]
   implicit val playerFormat: Format[Player] = Json.format[Player]
+  implicit val playerSkillTreeFormat: Format[PlayerSkillTree] = Json.format[PlayerSkillTree]
   implicit val serverFormat: Format[Server] = Json.format[Server]
+  implicit val hackSkillFormat: Format[HackSkill] = Json.format[HackSkill]
+
 
   implicit val worldMapFormat: Format[WorldMap] = new Format[WorldMap] {
     def reads(json: JsValue): JsResult[WorldMap] = {

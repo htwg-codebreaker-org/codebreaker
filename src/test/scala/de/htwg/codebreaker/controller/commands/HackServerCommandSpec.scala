@@ -1,0 +1,316 @@
+package de.htwg.codebreaker.controller.commands
+
+import scala.util.{Success, Failure, Random}
+
+import de.htwg.codebreaker.model.{Server, ServerType, PlayerSkillTree, Tile, Continent, HackSkill}
+import de.htwg.codebreaker.model.game.{Game, GameFactory}
+
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
+
+
+class HackServerCommandSpec extends AnyWordSpec with Matchers {
+
+  val baseGame = GameFactory.default()
+
+  "HackServerCommand" should {
+
+    "hack a server successfully" in {
+      val game = baseGame
+      val server = game.model.servers.find(s =>
+        !s.hacked && s.serverType != ServerType.Private
+      ).get
+
+      val skill = game.model.skills.head
+
+      val preparedPlayer = game.model.players.head.copy(
+        tile = server.tile,
+        cpu = 1000,
+        ram = 1000,
+        cybersecurity = 0,
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+
+      val preparedGame = game.copy(
+        model = game.model.copy(
+          players = game.model.players.updated(0, preparedPlayer)
+        )
+      )
+
+      val alwaysSuccessRandom = new Random {
+        override def nextInt(bound: Int): Int = 0
+      }
+
+      val cmd = HackServerCommand(
+        server.name,
+        0,
+        skill,
+        alwaysSuccessRandom
+      )
+
+      val result = cmd.doStep(preparedGame).get
+
+      val hackedServer = result.model.servers.find(_.name == server.name).get
+      hackedServer.hacked shouldBe true
+      hackedServer.hackedBy shouldBe Some(0)
+      hackedServer.claimedBy shouldBe Some(0)
+    }
+
+    "fail when player index is invalid" in {
+      val game = baseGame
+      val server = game.model.servers.head
+      val skill = game.model.skills.head
+
+      val cmd = HackServerCommand(server.name, 999, skill, Random(0))
+      val result = cmd.doStep(game)
+
+      result shouldBe a[Failure[?]]
+      result.failed.get.getMessage should include("Ungültiger Spieler")
+    }
+
+    "fail when server not found" in {
+      val game = baseGame
+      val skill = game.model.skills.head
+
+      val cmd = HackServerCommand("NonExistentServer", 0, skill, Random(0))
+      val result = cmd.doStep(game)
+
+      result shouldBe a[Failure[?]]
+      result.failed.get.getMessage should include("Server nicht gefunden")
+    }
+
+    "fail when player not on server tile" in {
+      val game = baseGame
+      val server = game.model.servers.head
+      val skill = game.model.skills.head
+      
+      val differentTile = Tile(999, 999, Continent.Antarctica)
+      val player = game.model.players.head.copy(
+        tile = differentTile,
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+      
+      val preparedGame = game.copy(
+        model = game.model.copy(players = List(player))
+      )
+
+      val cmd = HackServerCommand(server.name, 0, skill, Random(0))
+      val result = cmd.doStep(preparedGame)
+
+      result shouldBe a[Failure[?]]
+      result.failed.get.getMessage should include("nicht auf Server-Tile")
+    }
+
+    "fail when server already hacked" in {
+      val game = baseGame
+      val server = game.model.servers.head.copy(hacked = true)
+      val skill = game.model.skills.head
+
+      val player = game.model.players.head.copy(
+        tile = server.tile,
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+
+      val preparedGame = game.copy(
+        model = game.model.copy(
+          players = List(player),
+          servers = game.model.servers.updated(0, server)
+        )
+      )
+
+      val cmd = HackServerCommand(server.name, 0, skill, Random(0))
+      val result = cmd.doStep(preparedGame)
+
+      result shouldBe a[Failure[?]]
+      result.failed.get.getMessage should include("bereits gehackt")
+    }
+
+    "fail when trying to hack private server" in {
+      val game = baseGame
+      val privateServer = game.model.servers.head.copy(serverType = ServerType.Private)
+      val skill = game.model.skills.head
+
+      val player = game.model.players.head.copy(
+        tile = privateServer.tile,
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+
+      val preparedGame = game.copy(
+        model = game.model.copy(
+          players = List(player),
+          servers = game.model.servers.updated(0, privateServer)
+        )
+      )
+
+      val cmd = HackServerCommand(privateServer.name, 0, skill, Random(0))
+      val result = cmd.doStep(preparedGame)
+
+      result shouldBe a[Failure[?]]
+      result.failed.get.getMessage should include("Private Server")
+    }
+
+    "fail when skill not unlocked" in {
+      val game = baseGame
+      val server = game.model.servers.head
+      val skill = game.model.skills.head
+
+      val player = game.model.players.head.copy(
+        tile = server.tile,
+        skills = PlayerSkillTree(Set.empty) // No skills
+      )
+
+      val preparedGame = game.copy(
+        model = game.model.copy(players = List(player))
+      )
+
+      val cmd = HackServerCommand(server.name, 0, skill, Random(0))
+      val result = cmd.doStep(preparedGame)
+
+      result shouldBe a[Failure[?]]
+      result.failed.get.getMessage should include("nicht freigeschaltet")
+    }
+
+    "fail when not enough CPU" in {
+      val game = baseGame
+      val server = game.model.servers.head.copy(difficulty = 100)
+      val skill = game.model.skills.head
+
+      val player = game.model.players.head.copy(
+        tile = server.tile,
+        cpu = 1, // Not enough
+        ram = 1000,
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+
+      val preparedGame = game.copy(
+        model = game.model.copy(
+          players = List(player),
+          servers = game.model.servers.updated(0, server)
+        )
+      )
+
+      val cmd = HackServerCommand(server.name, 0, skill, Random(0))
+      val result = cmd.doStep(preparedGame)
+
+      result shouldBe a[Failure[?]]
+      result.failed.get.getMessage should include("Nicht genug Ressourcen")
+    }
+
+    "fail when not enough RAM" in {
+      val game = baseGame
+      val server = game.model.servers.head.copy(difficulty = 100)
+      val skill = game.model.skills.head
+
+      val player = game.model.players.head.copy(
+        tile = server.tile,
+        cpu = 1000,
+        ram = 1, // Not enough
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+
+      val preparedGame = game.copy(
+        model = game.model.copy(
+          players = List(player),
+          servers = game.model.servers.updated(0, server)
+        )
+      )
+
+      val cmd = HackServerCommand(server.name, 0, skill, Random(0))
+      val result = cmd.doStep(preparedGame)
+
+      result shouldBe a[Failure[?]]
+      result.failed.get.getMessage should include("Nicht genug Ressourcen")
+    }
+
+    "handle failed hack attempt (consume resources but no rewards)" in {
+      val game = baseGame
+      val server = game.model.servers.find(!_.hacked).get
+      val skill = game.model.skills.head
+
+      val player = game.model.players.head.copy(
+        tile = server.tile,
+        cpu = 1000,
+        ram = 1000,
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+
+      val preparedGame = game.copy(
+        model = game.model.copy(players = List(player))
+      )
+
+      val alwaysFailRandom = new Random {
+        override def nextInt(bound: Int): Int = 99 // Always fail
+      }
+
+      val cmd = HackServerCommand(server.name, 0, skill, alwaysFailRandom)
+      val result = cmd.doStep(preparedGame).get
+
+      val updatedPlayer = result.model.players.head
+      updatedPlayer.cpu should be < 1000 // Resources consumed
+      updatedPlayer.ram should be < 1000
+
+      val updatedServer = result.model.servers.find(_.name == server.name).get
+      updatedServer.hacked shouldBe false // Not hacked
+    }
+
+    "grant correct rewards for different server types" in {
+      val game = baseGame
+      val skill = game.model.skills.head
+      val alwaysSuccessRandom = new Random {
+        override def nextInt(bound: Int): Int = 0
+      }
+
+      // Test Bank server (gives code)
+      val bankServer = game.model.servers.find(_.serverType == ServerType.Bank).get
+      val playerForBank = game.model.players.head.copy(
+        tile = bankServer.tile,
+        cpu = 1000,
+        ram = 1000,
+        code = 0,
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+
+      val gameWithBank = game.copy(
+        model = game.model.copy(players = List(playerForBank))
+      )
+
+      val cmdBank = HackServerCommand(bankServer.name, 0, skill, alwaysSuccessRandom)
+      val resultBank = cmdBank.doStep(gameWithBank).get
+      
+      resultBank.model.players.head.code should be > 0
+    }
+
+    "support undo operation" in {
+      val game = baseGame
+      val server = game.model.servers.find(!_.hacked).get
+      val skill = game.model.skills.head
+
+      val player = game.model.players.head.copy(
+        tile = server.tile,
+        cpu = 1000,
+        ram = 1000,
+        skills = PlayerSkillTree(Set(skill.id))
+      )
+
+      val preparedGame = game.copy(
+        model = game.model.copy(players = List(player))
+      )
+
+      val alwaysSuccessRandom = new Random {
+        override def nextInt(bound: Int): Int = 0
+      }
+
+      val cmd = HackServerCommand(server.name, 0, skill, alwaysSuccessRandom)
+      val hackedGame = cmd.doStep(preparedGame).get
+      val undoneGame = cmd.undoStep(hackedGame).get
+
+      undoneGame.model.players.head.cpu shouldBe 1000
+      undoneGame.model.players.head.ram shouldBe 1000
+      
+      val restoredServer = undoneGame.model.servers.find(_.name == server.name).get
+      restoredServer.hacked shouldBe false
+    }
+
+  }
+}
+

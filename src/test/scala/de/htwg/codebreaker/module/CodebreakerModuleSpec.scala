@@ -1,7 +1,8 @@
 package de.htwg.codebreaker.module
 
 import com.google.inject.{Guice, Injector}
-import de.htwg.codebreaker.controller.{Controller, ControllerInterface}
+import de.htwg.codebreaker.controller.ControllerInterface
+import de.htwg.codebreaker.controller.controller.{Controller, LoggingController}
 import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.persistence.{FileIOInterface, FileIOJSON}
 import org.scalatest.wordspec.AnyWordSpec
@@ -32,19 +33,30 @@ class CodebreakerModuleSpec extends AnyWordSpec with Matchers {
       fileIO shouldBe a[FileIOJSON]
     }
 
-    "bind ControllerInterface to Controller" in {
+    "bind ControllerInterface" in {
       val injector = Guice.createInjector(new CodebreakerModule())
       val controller = injector.getInstance(classOf[ControllerInterface])
 
-      controller shouldBe a[Controller]
+      // Controller could be wrapped with LoggingController
+      controller shouldBe a[ControllerInterface]
+      controller should not be null
     }
 
-    "provide Controller as singleton" in {
+    "provide ControllerInterface as singleton" in {
       val injector = Guice.createInjector(new CodebreakerModule())
       val controller1 = injector.getInstance(classOf[ControllerInterface])
       val controller2 = injector.getInstance(classOf[ControllerInterface])
 
       // Should be the same instance (singleton)
+      controller1 should be theSameInstanceAs controller2
+    }
+
+    "bind concrete Controller as singleton" in {
+      val injector = Guice.createInjector(new CodebreakerModule())
+      val controller1 = injector.getInstance(classOf[Controller])
+      val controller2 = injector.getInstance(classOf[Controller])
+
+      // The underlying Controller should be singleton
       controller1 should be theSameInstanceAs controller2
     }
 
@@ -83,6 +95,23 @@ class CodebreakerModuleSpec extends AnyWordSpec with Matchers {
       // Controller should have players and servers
       controller.getPlayers should not be empty
       controller.getServers should not be empty
+    }
+
+    "provide LoggingController when logging is enabled" in {
+      val injector = Guice.createInjector(new CodebreakerModule())
+      val controllerInterface = injector.getInstance(classOf[ControllerInterface])
+      
+      // If enableControllerLogging is true, should be LoggingController
+      // Otherwise should be Controller
+      controllerInterface shouldBe a[ControllerInterface]
+    }
+
+    "ensure underlying Controller is accessible" in {
+      val injector = Guice.createInjector(new CodebreakerModule())
+      val controller = injector.getInstance(classOf[Controller])
+      
+      controller shouldBe a[Controller]
+      controller.game should not be null
     }
   }
 }

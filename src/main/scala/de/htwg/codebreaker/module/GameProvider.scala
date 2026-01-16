@@ -9,4 +9,4 @@ import de.htwg.codebreaker.model.game.{Game, GameFactory}
  */
 class GameProvider extends Provider[Game]:
   override def get(): Game =
-    GameFactory("default")
+    GameFactory.default()
