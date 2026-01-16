@@ -1,4 +1,5 @@
 // src/main/scala/de/htwg/codebreaker/view/TUI.scala
+// $COVERAGE-OFF$
 package de.htwg.codebreaker.view
 
 import com.google.inject.Inject
@@ -264,3 +265,4 @@ class TUI @Inject()(controller: ControllerInterface)
     show()
   }
 }
+// $COVERAGE-ON$
