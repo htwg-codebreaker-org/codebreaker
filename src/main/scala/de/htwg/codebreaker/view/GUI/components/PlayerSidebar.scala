@@ -80,10 +80,10 @@ class PlayerSidebar(
     new HBox {
       spacing = config.spacing
       children = Seq(
-        new Label(s"Level: ${player.level}") {
+        new Label(s"Total XP: ${player.totalXpEarned}") {
           style = s"-fx-text-fill: #ccc; -fx-font-size: ${config.fontSizeSmall}px;"
         },
-        new Label(s"XP: ${player.xp}") {
+        new Label(s"Available XP: ${player.availableXp}") {
           style = s"-fx-text-fill: #ffb84d; -fx-font-size: ${config.fontSizeSmall}px;"
         }
       )

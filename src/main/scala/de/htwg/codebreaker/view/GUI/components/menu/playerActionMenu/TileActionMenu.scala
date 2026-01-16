@@ -1,6 +1,9 @@
 package de.htwg.codebreaker.view.gui.components.menu.playeractionmenu
 
-import de.htwg.codebreaker.controller.{ControllerInterface, MovePlayerCommand, HackServerCommand}
+import de.htwg.codebreaker.controller.commands.{MovePlayerCommand}
+import de.htwg.codebreaker.view.gui.components.menu.hack.AttackSelectionWindow
+import de.htwg.codebreaker.model._
+import de.htwg.codebreaker.controller.{ControllerInterface}
 import de.htwg.codebreaker.model.Tile
 import scalafx.scene.control.{ContextMenu, MenuItem}
 import scala.util.{Success, Failure}
@@ -36,21 +39,22 @@ class TileActionMenu(
       .find(_.tile == tile)
       .foreach { server =>
         
-        val hackCommand = HackServerCommand(server.name, playerIndex)
-        val hackResult = hackCommand.doStep(controller.game)
-        
-        val hackItem = hackResult match {
-          case Success(_) =>
-            val item = new MenuItem(s"💻 ${server.name} hacken")
-            item.onAction = _ => controller.doAndRemember(hackCommand)
-            item
-            
-          case Failure(e) =>
-            val item = new MenuItem(s"💻 ${server.name} (${extractShortReason(e.getMessage)})")
-            item.disable = true
-            item
+        val hackItem = new MenuItem(s"💻 ${server.name} hacken")
+
+        // einfache Vorvalidierung (ohne Skill)
+        if (server.hacked || server.serverType == ServerType.Private) {
+          hackItem.text = s"💻 ${server.name} (nicht möglich)"
+          hackItem.disable = true
+        } else {
+          hackItem.onAction = _ => {
+            new AttackSelectionWindow(
+              controller = controller,
+              server = server,
+              playerIndex = playerIndex
+            ).show()
+          }
         }
-        
+
         menu.items.add(hackItem)
       }
 

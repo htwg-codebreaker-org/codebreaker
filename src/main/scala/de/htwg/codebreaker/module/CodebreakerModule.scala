@@ -25,7 +25,7 @@ import de.htwg.codebreaker.persistence._
 class CodebreakerModule extends AbstractModule:
 
   // 🔁 FLAG – exakt wie in der Vorlesung gemeint
-  private val enableControllerLogging = false
+  private val enableControllerLogging = true
 
   override def configure(): Unit =
     // Bind Game using custom provider

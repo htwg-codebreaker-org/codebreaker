@@ -1,6 +1,6 @@
 package de.htwg.codebreaker.view.gui.components
 
-import de.htwg.codebreaker.controller.{ControllerInterface, MovePlayerCommand}
+import de.htwg.codebreaker.controller.{ControllerInterface}
 import de.htwg.codebreaker.model.{Continent, ServerType, WorldMap}
 import de.htwg.codebreaker.view.gui.components.menu.playeractionmenu.{TileActionMenu}
 import scalafx.scene.layout.{StackPane, Pane}

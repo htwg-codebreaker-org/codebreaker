@@ -60,7 +60,8 @@ class NotificationHandler {
       "CPU" -> (newPlayer.cpu - oldPlayer.cpu),
       "RAM" -> (newPlayer.ram - oldPlayer.ram),
       "Code" -> (newPlayer.code - oldPlayer.code),
-      "XP" -> (newPlayer.xp - oldPlayer.xp)
+      "New Available XP" -> (newPlayer.availableXp - oldPlayer.availableXp),
+      "New Total XP" -> (newPlayer.totalXpEarned - oldPlayer.totalXpEarned)
     ).filter(_._2 > 0)
   }
   

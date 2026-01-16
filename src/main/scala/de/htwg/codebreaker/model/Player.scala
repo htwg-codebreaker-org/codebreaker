@@ -20,8 +20,9 @@ case class Player(
   cpu: Int,
   ram: Int,
   code: Int,
-  level: Int,
-  xp: Int,
+  availableXp: Int,
+  totalXpEarned: Int,
+  skills: PlayerSkillTree,
   cybersecurity: Int,
   movementPoints: Int = 5,
   maxMovementPoints: Int = 5

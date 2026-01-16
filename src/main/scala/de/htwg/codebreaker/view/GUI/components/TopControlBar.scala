@@ -1,11 +1,14 @@
 package de.htwg.codebreaker.view.gui.components
 
-import de.htwg.codebreaker.controller.{ControllerInterface, NextPlayerCommand}
+import de.htwg.codebreaker.controller.{ControllerInterface}
+import de.htwg.codebreaker.controller.commands.{NextPlayerCommand}
 import de.htwg.codebreaker.view.gui.components.menu.pauseMenu.{PauseMenu}
 import scalafx.scene.layout.{HBox, Region, Priority}
 import scalafx.scene.control.{Button, Label}
 import scalafx.beans.property.BooleanProperty
 import de.htwg.codebreaker.view.gui.components.menu.pauseMenu.PauseMenu
+import de.htwg.codebreaker.view.gui.components.menu.skilltree.SkillTreeWindow
+
 
 /**
  * Obere Steuerungsleiste mit Status-Informationen und Aktionsbuttons.
@@ -22,6 +25,7 @@ class TopControlBar(
     new HBox {
       style = s"-fx-background-color: #222; -fx-padding: ${config.spacing}; -fx-spacing: ${config.spacing * 2}; -fx-alignment: center-left;"
       children = Seq(
+        createSkillTreeButton(),
         createRoundLabel(),
         createCurrentPlayerLabel(),
         createSpacer(),
@@ -32,6 +36,17 @@ class TopControlBar(
       )
     }
   }
+
+  private def createSkillTreeButton(): Button = {
+    new Button("🌳 Skills") {
+      onAction = _ => {
+        new SkillTreeWindow(controller).show()
+      }
+      style =
+        s"-fx-background-color: #8844cc; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: ${config.fontSizeSmall}px;"
+    }
+  }
+
   
   private def createRoundLabel(): Label = {
     new Label(s"Runde: ${controller.getState.round}") {

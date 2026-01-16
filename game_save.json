@@ -1,44 +1,50 @@
 {
   "model" : {
     "players" : [ {
-      "ram" : 50,
+      "totalXpEarned" : 0,
+      "ram" : 4,
       "code" : 10,
-      "cybersecurity" : 20,
-      "cpu" : 100,
-      "maxMovementPoints" : 5,
-      "movementPoints" : 5,
-      "name" : "Spieler 1",
-      "xp" : 0,
       "id" : 1,
+      "cybersecurity" : 20,
+      "cpu" : 30,
+      "availableXp" : 0,
+      "skills" : {
+        "unlockedSkillIds" : [ "script_kiddie" ]
+      },
+      "maxMovementPoints" : 5,
       "tile" : {
-        "x" : 56,
-        "y" : 17,
+        "x" : 65,
+        "y" : 13,
         "continent" : "Asia"
       },
-      "level" : 1
+      "movementPoints" : 2,
+      "name" : "Spieler 1"
     }, {
-      "ram" : 51,
+      "totalXpEarned" : 10,
+      "ram" : 13,
       "code" : 10,
-      "cybersecurity" : 20,
-      "cpu" : 86,
-      "maxMovementPoints" : 5,
-      "movementPoints" : 0,
-      "name" : "Spieler 2",
-      "xp" : 20,
       "id" : 2,
-      "tile" : {
-        "x" : 31,
-        "y" : 6,
-        "continent" : "NorthAmerica"
+      "cybersecurity" : 20,
+      "cpu" : 33,
+      "availableXp" : 10,
+      "skills" : {
+        "unlockedSkillIds" : [ "script_kiddie" ]
       },
-      "level" : 1
+      "maxMovementPoints" : 5,
+      "tile" : {
+        "x" : 56,
+        "y" : 11,
+        "continent" : "Asia"
+      },
+      "movementPoints" : 2,
+      "name" : "Spieler 2"
     } ],
     "servers" : [ {
-      "rewardRam" : 55,
+      "rewardRam" : 60,
       "name" : "Pentagon",
-      "difficulty" : 85,
+      "difficulty" : 87,
       "hacked" : false,
-      "rewardCpu" : 35,
+      "rewardCpu" : 30,
       "serverType" : "Military",
       "tile" : {
         "x" : 24,
@@ -46,9 +52,9 @@
         "continent" : "NorthAmerica"
       }
     }, {
-      "rewardRam" : 30,
+      "rewardRam" : 26,
       "name" : "Wall Street",
-      "difficulty" : 63,
+      "difficulty" : 75,
       "hacked" : false,
       "rewardCpu" : 21,
       "serverType" : "Bank",
@@ -58,11 +64,11 @@
         "continent" : "NorthAmerica"
       }
     }, {
-      "rewardRam" : 32,
+      "rewardRam" : 33,
       "name" : "Silicon Valley",
-      "difficulty" : 70,
+      "difficulty" : 66,
       "hacked" : false,
-      "rewardCpu" : 19,
+      "rewardCpu" : 18,
       "serverType" : "Cloud",
       "tile" : {
         "x" : 13,
@@ -70,9 +76,9 @@
         "continent" : "NorthAmerica"
       }
     }, {
-      "rewardRam" : 15,
+      "rewardRam" : 25,
       "name" : "Brussels",
-      "difficulty" : 70,
+      "difficulty" : 71,
       "hacked" : false,
       "rewardCpu" : 33,
       "serverType" : "Bank",
@@ -84,9 +90,9 @@
     }, {
       "rewardRam" : 17,
       "name" : "Frankfurt Hub",
-      "difficulty" : 66,
+      "difficulty" : 60,
       "hacked" : false,
-      "rewardCpu" : 27,
+      "rewardCpu" : 28,
       "serverType" : "Bank",
       "tile" : {
         "x" : 40,
@@ -96,9 +102,9 @@
     }, {
       "rewardRam" : 15,
       "name" : "Moscow",
-      "difficulty" : 63,
+      "difficulty" : 67,
       "hacked" : false,
-      "rewardCpu" : 27,
+      "rewardCpu" : 26,
       "serverType" : "Military",
       "tile" : {
         "x" : 46,
@@ -106,11 +112,11 @@
         "continent" : "Europe"
       }
     }, {
-      "rewardRam" : 21,
+      "rewardRam" : 22,
       "name" : "Beijing",
-      "difficulty" : 68,
+      "difficulty" : 71,
       "hacked" : false,
-      "rewardCpu" : 34,
+      "rewardCpu" : 32,
       "serverType" : "Military",
       "tile" : {
         "x" : 61,
@@ -118,11 +124,11 @@
         "continent" : "Asia"
       }
     }, {
-      "rewardRam" : 25,
+      "rewardRam" : 23,
       "name" : "Tokyo Grid",
-      "difficulty" : 63,
+      "difficulty" : 65,
       "hacked" : false,
-      "rewardCpu" : 20,
+      "rewardCpu" : 25,
       "serverType" : "Cloud",
       "tile" : {
         "x" : 66,
@@ -130,11 +136,11 @@
         "continent" : "Asia"
       }
     }, {
-      "rewardRam" : 27,
+      "rewardRam" : 30,
       "name" : "Sydney Core",
-      "difficulty" : 55,
+      "difficulty" : 57,
       "hacked" : false,
-      "rewardCpu" : 22,
+      "rewardCpu" : 21,
       "serverType" : "Cloud",
       "tile" : {
         "x" : 67,
@@ -144,9 +150,9 @@
     }, {
       "rewardRam" : 15,
       "name" : "Cairo",
-      "difficulty" : 53,
+      "difficulty" : 49,
       "hacked" : false,
-      "rewardCpu" : 22,
+      "rewardCpu" : 23,
       "serverType" : "Firm",
       "tile" : {
         "x" : 44,
@@ -156,7 +162,7 @@
     }, {
       "rewardRam" : 0,
       "name" : "GKS",
-      "difficulty" : 97,
+      "difficulty" : 95,
       "hacked" : false,
       "rewardCpu" : 0,
       "serverType" : "GKS",
@@ -166,195 +172,227 @@
         "continent" : "NorthAmerica"
       }
     }, {
-      "rewardRam" : 13,
+      "rewardRam" : 18,
       "name" : "Nebenserver-NA-0",
-      "difficulty" : 36,
-      "hacked" : true,
-      "hackedBy" : 1,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 33,
-        "y" : 7,
-        "continent" : "NorthAmerica"
-      },
-      "claimedBy" : 1,
-      "rewardCpu" : 13
-    }, {
-      "rewardRam" : 15,
-      "name" : "Nebenserver-NA-1",
-      "difficulty" : 48,
-      "hacked" : false,
-      "rewardCpu" : 17,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 16,
-        "y" : 13,
-        "continent" : "NorthAmerica"
-      }
-    }, {
-      "rewardRam" : 19,
-      "name" : "Nebenserver-NA-2",
-      "difficulty" : 47,
-      "hacked" : false,
-      "rewardCpu" : 13,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 27,
-        "y" : 12,
-        "continent" : "NorthAmerica"
-      }
-    }, {
-      "rewardRam" : 11,
-      "name" : "Nebenserver-NA-3",
-      "difficulty" : 41,
-      "hacked" : false,
-      "rewardCpu" : 20,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 25,
-        "y" : 12,
-        "continent" : "NorthAmerica"
-      }
-    }, {
-      "rewardRam" : 14,
-      "name" : "Nebenserver-NA-4",
-      "difficulty" : 21,
-      "hacked" : true,
-      "hackedBy" : 1,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 31,
-        "y" : 6,
-        "continent" : "NorthAmerica"
-      },
-      "claimedBy" : 1,
-      "rewardCpu" : 11
-    }, {
-      "rewardRam" : 19,
-      "name" : "Nebenserver-NA-5",
-      "difficulty" : 30,
-      "hacked" : false,
-      "rewardCpu" : 10,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 5,
-        "y" : 10,
-        "continent" : "NorthAmerica"
-      }
-    }, {
-      "rewardRam" : 15,
-      "name" : "Nebenserver-SA-0",
-      "difficulty" : 23,
-      "hacked" : false,
-      "rewardCpu" : 15,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 26,
-        "y" : 20,
-        "continent" : "SouthAmerica"
-      }
-    }, {
-      "rewardRam" : 16,
-      "name" : "Nebenserver-SA-1",
-      "difficulty" : 33,
-      "hacked" : false,
-      "rewardCpu" : 18,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 30,
-        "y" : 25,
-        "continent" : "SouthAmerica"
-      }
-    }, {
-      "rewardRam" : 16,
-      "name" : "Nebenserver-SA-2",
-      "difficulty" : 47,
-      "hacked" : false,
-      "rewardCpu" : 19,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 28,
-        "y" : 27,
-        "continent" : "SouthAmerica"
-      }
-    }, {
-      "rewardRam" : 17,
-      "name" : "Nebenserver-SA-3",
-      "difficulty" : 27,
-      "hacked" : false,
-      "rewardCpu" : 19,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 30,
-        "y" : 22,
-        "continent" : "SouthAmerica"
-      }
-    }, {
-      "rewardRam" : 15,
-      "name" : "Nebenserver-SA-4",
-      "difficulty" : 26,
-      "hacked" : false,
-      "rewardCpu" : 17,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 24,
-        "y" : 24,
-        "continent" : "SouthAmerica"
-      }
-    }, {
-      "rewardRam" : 19,
-      "name" : "Nebenserver-EU-0",
-      "difficulty" : 48,
-      "hacked" : false,
-      "rewardCpu" : 11,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 47,
-        "y" : 13,
-        "continent" : "Europe"
-      }
-    }, {
-      "rewardRam" : 20,
-      "name" : "Nebenserver-EU-1",
-      "difficulty" : 34,
-      "hacked" : false,
-      "rewardCpu" : 11,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 38,
-        "y" : 13,
-        "continent" : "Europe"
-      }
-    }, {
-      "rewardRam" : 20,
-      "name" : "Nebenserver-EU-2",
-      "difficulty" : 22,
-      "hacked" : false,
-      "rewardCpu" : 12,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 42,
-        "y" : 15,
-        "continent" : "Europe"
-      }
-    }, {
-      "rewardRam" : 14,
-      "name" : "Nebenserver-AF-0",
       "difficulty" : 38,
       "hacked" : false,
       "rewardCpu" : 20,
       "serverType" : "Side",
       "tile" : {
-        "x" : 45,
-        "y" : 19,
-        "continent" : "Africa"
+        "x" : 8,
+        "y" : 9,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Nebenserver-NA-1",
+      "difficulty" : 26,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 28,
+        "y" : 9,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-NA-2",
+      "difficulty" : 37,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 33,
+        "y" : 4,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Nebenserver-NA-3",
+      "difficulty" : 24,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 12,
+        "y" : 11,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-NA-4",
+      "difficulty" : 21,
+      "hacked" : false,
+      "rewardCpu" : 20,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 19,
+        "y" : 6,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-SA-0",
+      "difficulty" : 31,
+      "hacked" : false,
+      "rewardCpu" : 15,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 22,
+        "y" : 22,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-SA-1",
+      "difficulty" : 48,
+      "hacked" : false,
+      "rewardCpu" : 17,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 27,
+        "y" : 26,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-SA-2",
+      "difficulty" : 31,
+      "hacked" : false,
+      "rewardCpu" : 15,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 23,
+        "y" : 21,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 11,
+      "name" : "Nebenserver-SA-3",
+      "difficulty" : 28,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 26,
+        "y" : 27,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 11,
+      "name" : "Nebenserver-SA-4",
+      "difficulty" : 37,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 24,
+        "y" : 22,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-EU-0",
+      "difficulty" : 50,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 48,
+        "y" : 6,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-EU-1",
+      "difficulty" : 40,
+      "hacked" : false,
+      "rewardCpu" : 15,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 41,
+        "y" : 9,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 17,
+      "name" : "Nebenserver-EU-2",
+      "difficulty" : 48,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 39,
+        "y" : 13,
+        "continent" : "Europe"
       }
     }, {
       "rewardRam" : 14,
-      "name" : "Nebenserver-AF-1",
-      "difficulty" : 20,
+      "name" : "Nebenserver-EU-3",
+      "difficulty" : 36,
       "hacked" : false,
-      "rewardCpu" : 15,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 43,
+        "y" : 9,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-EU-4",
+      "difficulty" : 40,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 44,
+        "y" : 11,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 17,
+      "name" : "Nebenserver-EU-5",
+      "difficulty" : 38,
+      "hacked" : false,
+      "rewardCpu" : 14,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 37,
+        "y" : 11,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-AF-0",
+      "difficulty" : 45,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 41,
+        "y" : 26,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-AF-1",
+      "difficulty" : 36,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 45,
+        "y" : 18,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 18,
+      "name" : "Nebenserver-AF-2",
+      "difficulty" : 44,
+      "hacked" : false,
+      "rewardCpu" : 18,
       "serverType" : "Side",
       "tile" : {
         "x" : 39,
@@ -362,111 +400,144 @@
         "continent" : "Africa"
       }
     }, {
-      "rewardRam" : 13,
-      "name" : "Nebenserver-AF-2",
-      "difficulty" : 45,
-      "hacked" : false,
-      "rewardCpu" : 18,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 40,
-        "y" : 18,
-        "continent" : "Africa"
-      }
-    }, {
-      "rewardRam" : 20,
-      "name" : "Nebenserver-AF-3",
-      "difficulty" : 29,
-      "hacked" : false,
-      "rewardCpu" : 12,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 43,
-        "y" : 27,
-        "continent" : "Africa"
-      }
-    }, {
       "rewardRam" : 11,
-      "name" : "Nebenserver-AS-0",
-      "difficulty" : 42,
+      "name" : "Nebenserver-AF-3",
+      "difficulty" : 23,
       "hacked" : false,
-      "rewardCpu" : 16,
+      "rewardCpu" : 20,
       "serverType" : "Side",
       "tile" : {
-        "x" : 53,
-        "y" : 18,
-        "continent" : "Asia"
+        "x" : 38,
+        "y" : 16,
+        "continent" : "Africa"
       }
     }, {
-      "rewardRam" : 10,
-      "name" : "Nebenserver-AS-1",
-      "difficulty" : 34,
+      "rewardRam" : 18,
+      "name" : "Nebenserver-AS-0",
+      "difficulty" : 21,
       "hacked" : false,
       "rewardCpu" : 13,
       "serverType" : "Side",
       "tile" : {
-        "x" : 74,
+        "x" : 61,
         "y" : 7,
         "continent" : "Asia"
       }
     }, {
-      "rewardRam" : 10,
-      "name" : "Nebenserver-AS-2",
-      "difficulty" : 22,
+      "rewardRam" : 12,
+      "name" : "Nebenserver-AS-1",
+      "difficulty" : 49,
       "hacked" : false,
-      "rewardCpu" : 16,
+      "rewardCpu" : 12,
       "serverType" : "Side",
       "tile" : {
-        "x" : 51,
-        "y" : 11,
+        "x" : 63,
+        "y" : 13,
         "continent" : "Asia"
       }
     }, {
-      "rewardRam" : 14,
-      "name" : "Nebenserver-OC-0",
-      "difficulty" : 25,
-      "hacked" : false,
-      "rewardCpu" : 14,
+      "rewardRam" : 13,
+      "name" : "Nebenserver-AS-2",
+      "difficulty" : 32,
+      "hacked" : true,
+      "hackedBy" : 1,
       "serverType" : "Side",
       "tile" : {
-        "x" : 65,
-        "y" : 22,
+        "x" : 56,
+        "y" : 11,
+        "continent" : "Asia"
+      },
+      "claimedBy" : 1,
+      "rewardCpu" : 13
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-AS-3",
+      "difficulty" : 41,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 58,
+        "y" : 20,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-OC-0",
+      "difficulty" : 30,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 72,
+        "y" : 28,
         "continent" : "Oceania"
       }
     }, {
       "rewardRam" : 15,
       "name" : "Nebenserver-OC-1",
-      "difficulty" : 36,
+      "difficulty" : 38,
       "hacked" : false,
-      "rewardCpu" : 11,
+      "rewardCpu" : 17,
       "serverType" : "Side",
       "tile" : {
-        "x" : 65,
-        "y" : 27,
+        "x" : 67,
+        "y" : 22,
         "continent" : "Oceania"
       }
     }, {
-      "rewardRam" : 10,
+      "rewardRam" : 14,
       "name" : "Nebenserver-OC-2",
-      "difficulty" : 32,
+      "difficulty" : 33,
       "hacked" : false,
-      "rewardCpu" : 11,
+      "rewardCpu" : 13,
       "serverType" : "Side",
       "tile" : {
-        "x" : 68,
-        "y" : 26,
+        "x" : 62,
+        "y" : 24,
         "continent" : "Oceania"
       }
     } ],
     "worldMap" : {
       "width" : 80,
       "height" : 40
-    }
+    },
+    "skills" : [ {
+      "name" : "Script Kiddie Attack",
+      "description" : "Kopierte Exploits ohne Verständnis – extrem hohe Entdeckungs- und Fehlschlagrate",
+      "id" : "script_kiddie",
+      "successBonus" : -25,
+      "costXp" : 0
+    }, {
+      "name" : "Brute Force",
+      "description" : "Systematisches Passwort-Raten",
+      "id" : "bruteforce",
+      "successBonus" : 10,
+      "costXp" : 100
+    }, {
+      "name" : "SQL Injection",
+      "description" : "Datenbankzugriff durch Injection",
+      "id" : "sql_injection",
+      "successBonus" : 25,
+      "costXp" : 300
+    }, {
+      "name" : "Phishing",
+      "description" : "Täusche Mitarbeiter",
+      "id" : "phishing",
+      "successBonus" : 30,
+      "costXp" : 350
+    }, {
+      "name" : "Physical Access",
+      "description" : "Vor-Ort Zugriff",
+      "id" : "physical_access",
+      "successBonus" : 40,
+      "costXp" : 600
+    } ]
   },
   "state" : {
     "status" : "Running",
     "phase" : "AwaitingInput",
-    "round" : 2,
+    "round" : 3,
     "currentPlayerIndex" : 0
   }
 }

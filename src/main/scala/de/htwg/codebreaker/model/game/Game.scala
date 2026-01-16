@@ -5,3 +5,4 @@ case class Game(
   model: GameModel,
   state: GameState
 )
+
