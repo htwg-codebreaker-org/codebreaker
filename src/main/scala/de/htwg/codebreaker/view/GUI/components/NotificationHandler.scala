@@ -1,6 +1,7 @@
 package de.htwg.codebreaker.view.gui.components
 
-import de.htwg.codebreaker.model.{Server, Player}
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.model.player.Player
 import scalafx.scene.control.Alert
 import scalafx.scene.control.Alert.AlertType
 import scalafx.application.Platform
@@ -57,9 +58,9 @@ class NotificationHandler {
    */
   private def calculateRewards(oldPlayer: Player, newPlayer: Player): Map[String, Int] = {
     Map(
-      "CPU" -> (newPlayer.cpu - oldPlayer.cpu),
-      "RAM" -> (newPlayer.ram - oldPlayer.ram),
-      "Code" -> (newPlayer.code - oldPlayer.code),
+      "CPU" -> (newPlayer.laptop.hardware.cpu - oldPlayer.laptop.hardware.cpu),
+      "RAM" -> (newPlayer.laptop.hardware.ram - oldPlayer.laptop.hardware.ram),
+      "Code" -> (newPlayer.laptop.hardware.code - oldPlayer.laptop.hardware.code),
       "New Available XP" -> (newPlayer.availableXp - oldPlayer.availableXp),
       "New Total XP" -> (newPlayer.totalXpEarned - oldPlayer.totalXpEarned)
     ).filter(_._2 > 0)

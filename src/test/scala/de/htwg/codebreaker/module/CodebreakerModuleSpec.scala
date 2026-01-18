@@ -3,7 +3,7 @@ package de.htwg.codebreaker.module
 import com.google.inject.{Guice, Injector}
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.controller.controller.{Controller, LoggingController}
-import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.game.game.Game
 import de.htwg.codebreaker.persistence.{FileIOInterface, FileIOJSON}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers

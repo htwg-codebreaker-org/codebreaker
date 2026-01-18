@@ -1,9 +1,10 @@
 package de.htwg.codebreaker.controller.commands
 
 import scala.util.{Try, Success}
-import de.htwg.codebreaker.model.game.Game
-import de.htwg.codebreaker.model.Server
-import de.htwg.codebreaker.controller._
+import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.controller.Command
+
 
 /**
  * Command zum Claimen eines Servers durch einen Spieler.

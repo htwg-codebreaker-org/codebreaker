@@ -1,12 +1,13 @@
 package de.htwg.codebreaker.controller.commands
 
 import scala.util.{Try, Success, Failure}
-import de.htwg.codebreaker.model.{Player, HackSkill, PlayerSkillTree}
-import de.htwg.codebreaker.model.game.Game
-import de.htwg.codebreaker.controller._
+import de.htwg.codebreaker.controller.Command
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.player.skill.{SocialSkill, PlayerSkillTree}
+import de.htwg.codebreaker.model.game.game.Game
 
 /**
- * Command zum Freischalten eines Skills für einen Spieler.
+ * Command zum Freischalten eines Social-Skills für einen Spieler.
  *
  * Regeln:
  * - Spieler-Index muss gültig sein
@@ -14,11 +15,11 @@ import de.htwg.codebreaker.controller._
  * - Spieler muss genug availableXp haben
  *
  * @param playerIndex Index des Spielers
- * @param skill Skill, der freigeschaltet werden soll
+ * @param skill Social-Skill, der freigeschaltet werden soll
  */
-case class UnlockSkillCommand(
+case class UnlockSocialSkillCommand(
   playerIndex: Int,
-  skill: HackSkill
+  skill: SocialSkill
 ) extends Command {
 
   private var previousPlayerState: Option[Player] = None
@@ -36,10 +37,10 @@ case class UnlockSkillCommand(
     val player = players(playerIndex)
 
     // === Skill bereits freigeschaltet? ===
-    if (player.skills.unlockedSkillIds.contains(skill.id)) {
+    if (player.skills.unlockedSocialSkills.contains(skill.id)) {
       return Failure(
         new IllegalArgumentException(
-          s"Skill '${skill.name}' ist bereits freigeschaltet"
+          s"Social-Skill '${skill.name}' ist bereits freigeschaltet"
         )
       )
     }
@@ -59,13 +60,12 @@ case class UnlockSkillCommand(
     // === Player aktualisieren ===
     val updatedPlayer = player.copy(
       availableXp = player.availableXp - skill.costXp,
-      skills = PlayerSkillTree(
-        unlockedSkillIds = player.skills.unlockedSkillIds + skill.id
+      skills = player.skills.copy(
+        unlockedSocialSkills = player.skills.unlockedSocialSkills + skill.id
       )
     )
 
-    val updatedPlayers =
-      players.updated(playerIndex, updatedPlayer)
+    val updatedPlayers = players.updated(playerIndex, updatedPlayer)
 
     Success(
       game.copy(
@@ -78,8 +78,7 @@ case class UnlockSkillCommand(
     previousPlayerState match {
       case Some(oldPlayer) =>
         val players = game.model.players
-        val revertedPlayers =
-          players.updated(playerIndex, oldPlayer)
+        val revertedPlayers = players.updated(playerIndex, oldPlayer)
 
         game.copy(
           model = game.model.copy(players = revertedPlayers)

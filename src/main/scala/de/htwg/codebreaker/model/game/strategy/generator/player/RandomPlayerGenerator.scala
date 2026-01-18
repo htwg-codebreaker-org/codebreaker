@@ -1,7 +1,8 @@
-package de.htwg.codebreaker.model.game.strategy
+package de.htwg.codebreaker.model.game.strategy.player
 
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game.strategy.PlayerGenerator
+import de.htwg.codebreaker.model.map.{WorldMap, Tile}
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.game.strategy.PlayerGenerationStrategy
 
 object RandomPlayerGenerator extends PlayerGenerationStrategy {
   override def generatePlayers(numPlayers: Int, map: WorldMap, avoidTiles: List[Tile]): List[Player] =

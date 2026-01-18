@@ -1,7 +1,7 @@
 package de.htwg.codebreaker.controller
 
 import scala.util.Try
-import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.game.game.Game
 
 /**
  * Funktionales Command Pattern für Undo/Redo.

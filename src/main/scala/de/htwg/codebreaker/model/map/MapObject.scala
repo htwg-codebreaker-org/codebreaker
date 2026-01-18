@@ -1,5 +1,6 @@
 // src/main/scala/de/htwg/codebreaker/model/MapObject.scala
-package de.htwg.codebreaker.model
+package de.htwg.codebreaker.model.map
+import de.htwg.codebreaker.model.server.ServerType
 
 /**
  * Verschiedene Objekte, die auf einer Weltkarten‑Zelle liegen können:

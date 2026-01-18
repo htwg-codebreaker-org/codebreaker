@@ -1,5 +1,9 @@
 // src/main/scala/de/htwg/codebreaker/model/Player.scala
-package de.htwg.codebreaker.model
+package de.htwg.codebreaker.model.player
+
+import de.htwg.codebreaker.model.map.Tile
+import de.htwg.codebreaker.model.player.laptop.Laptop
+import de.htwg.codebreaker.model.player.skill.PlayerSkillTree
 
 /**
  * Ein Spieler im Spiel.
@@ -7,23 +11,20 @@ package de.htwg.codebreaker.model
  * @param id                Eindeutige Spieler‑ID
  * @param name              Name des Spielers
  * @param tile              Position auf der Karte
- * @param cpu, ram, code    Aktuelle Ressourcen
  * @param level, xp         Fortschritt
  * @param cybersecurity     Sicherheits‑Wert
- * @param movementPoints    Verbleibende Bewegungspunkte (Standard: 5)
- * @param maxMovementPoints Maximale Bewegungspunkte pro Runde (Standard: 5)
+ * @param movementPoints    Verbleibende Bewegungspunkte
+ * @param maxMovementPoints Maximale Bewegungspunkte pro Runde
  */
 case class Player(
   id: Int,
   name: String,
   tile: Tile,
-  cpu: Int,
-  ram: Int,
-  code: Int,
+  laptop: Laptop,
   availableXp: Int,
   totalXpEarned: Int,
   skills: PlayerSkillTree,
   cybersecurity: Int,
-  movementPoints: Int = 5,
-  maxMovementPoints: Int = 5
+  movementPoints: Int,
+  maxMovementPoints: Int
 )

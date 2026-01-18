@@ -1,7 +1,9 @@
 package de.htwg.codebreaker.controller
 
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.model.map.{MapObject}
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.game.game.{Game, GameState, GameModel, GameStatus, Phase}
 import de.htwg.codebreaker.util.Observer
 
 /**
@@ -25,6 +27,7 @@ trait ControllerInterface:
 
   // Command execution
   def doAndRemember(cmd: Command): Unit
+  def doAndForget(cmd: Command): Unit
   def undo(): Unit
   def redo(): Unit
 
@@ -33,7 +36,6 @@ trait ControllerInterface:
   def canRedo: Boolean
 
   // Game state manipulation
-  def advanceRound(): Unit
   def setPhase(newPhase: Phase): Unit
   def setStatus(newStatus: GameStatus): Unit
   def setGame(newGame: Game): Unit

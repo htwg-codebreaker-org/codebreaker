@@ -1,5 +1,6 @@
-package de.htwg.codebreaker.model.game.strategy
-import de.htwg.codebreaker.model._
+package de.htwg.codebreaker.model.game.strategy.server
+import de.htwg.codebreaker.model.map.{WorldMap, Tile, Continent}
+import de.htwg.codebreaker.model.server.{ServerType, Server, ServerBlueprint}
 import scala.util.Random
 
 /** 

@@ -2,9 +2,11 @@ package de.htwg.codebreaker.view.gui.components.menu.playeractionmenu
 
 import de.htwg.codebreaker.controller.commands.{MovePlayerCommand}
 import de.htwg.codebreaker.view.gui.components.menu.hack.AttackSelectionWindow
+import de.htwg.codebreaker.view.gui.components.menu.hack.LaptopActionSelectionMenu
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.controller.{ControllerInterface}
-import de.htwg.codebreaker.model.Tile
+import de.htwg.codebreaker.model.map.{Tile}
+import de.htwg.codebreaker.model.server.ServerType
 import scalafx.scene.control.{ContextMenu, MenuItem}
 import scala.util.{Success, Failure}
 
@@ -56,7 +58,25 @@ class TileActionMenu(
         }
 
         menu.items.add(hackItem)
+
+        // === Laptop-Angriff ===
+        val laptopHackItem = new MenuItem(s"💻 ${server.name} angreifen (Laptop)")
+        if (server.hacked || server.serverType == ServerType.Private) {
+          laptopHackItem.text = s"💻 ${server.name} (nicht möglich)"
+          laptopHackItem.disable = true
+        } else {
+          laptopHackItem.onAction = _ => {
+            new LaptopActionSelectionMenu(
+              controller = controller,
+              server = server,
+              playerIndex = playerIndex
+            ).show()
+          }
+        }
+
+        menu.items.add(laptopHackItem)
       }
+
 
     // ℹ Info
     val infoItem = new MenuItem(s"ℹ Feldinfo (${tile.x}, ${tile.y})")

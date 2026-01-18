@@ -1,7 +1,9 @@
-// src/main/scala/de/htwg/codebreaker/model/WorldMap.scala
-package de.htwg.codebreaker.model
+// src/main/scala/de/htwg/codebreaker/model/map/WorldMap.scala
+package de.htwg.codebreaker.model.map
 
 import MapObject._
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.server.Server
 
 /**
  * Repräsentation der Weltkarte als Raster von Tiles.

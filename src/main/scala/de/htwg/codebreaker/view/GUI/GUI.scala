@@ -11,6 +11,7 @@ import scalafx.scene.layout.{VBox, BorderPane}
 import de.htwg.codebreaker.view.gui.components.menu.pauseMenu.*
 import scalafx.beans.property.{BooleanProperty, DoubleProperty}
 import scala.compiletime.uninitialized
+import de.htwg.codebreaker.model.server.Server
 
 /**
  * Refaktorierte Graphical User Interface mit modularer Architektur.
@@ -43,8 +44,8 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   private var mainBorderPane: BorderPane = uninitialized
   
   // Tracking für Hack-Ereignisse
-  private var previousServers: List[de.htwg.codebreaker.model.Server] = controller.getServers
-  private var previousPlayers: List[de.htwg.codebreaker.model.Player] = controller.getPlayers
+  private var previousServers: List[de.htwg.codebreaker.model.server.Server] = controller.getServers
+  private var previousPlayers: List[de.htwg.codebreaker.model.player.Player] = controller.getPlayers
   
   // GUI-Modus
   enum GUIMode {
@@ -151,12 +152,7 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   def startGame(): Unit = {
     canUndoProperty = BooleanProperty(controller.canUndo)
     canRedoProperty = BooleanProperty(controller.canRedo)
-    mode = GUIMode.Game
-    
-    if (controller.getState.currentPlayerIndex.isEmpty) {
-      controller.doAndRemember(NextPlayerCommand())
-    }
-    
+      mode = GUIMode.Game
     showWorldMap()
   }
 

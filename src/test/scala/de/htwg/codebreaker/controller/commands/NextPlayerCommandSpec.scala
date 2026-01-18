@@ -3,7 +3,7 @@ package de.htwg.codebreaker.controller.commands
 import scala.util.Success
 
 import de.htwg.codebreaker.model.game.{Game, GameState}
-import de.htwg.codebreaker.model.game.GameStatus
+import de.htwg.codebreaker.model.game.game.GameStatus
 import de.htwg.codebreaker.model.game.Phase
 
 import org.scalatest.wordspec.AnyWordSpec

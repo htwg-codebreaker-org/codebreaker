@@ -10,7 +10,9 @@ import scalafx.util.Duration
 
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.controller.commands.HackServerCommand
-import de.htwg.codebreaker.model.{Server, HackSkill, Player}
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.player.skill.HackSkill
 
 class AttackSelectionWindow(
   controller: ControllerInterface,
@@ -27,8 +29,8 @@ class AttackSelectionWindow(
     val player: Player = controller.getPlayers(playerIndex)
 
     val availableSkills =
-      controller.game.model.skills.filter { skill =>
-        player.skills.unlockedSkillIds.contains(skill.id)
+      controller.game.model.hackSkills.filter { skill =>
+        player.skills.unlockedHackSkills.contains(skill.id)
       }
 
     val header = new Label(

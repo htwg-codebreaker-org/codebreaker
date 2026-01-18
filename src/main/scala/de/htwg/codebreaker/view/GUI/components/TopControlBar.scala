@@ -85,7 +85,7 @@ class TopControlBar(
   
   private def createNextPlayerButton(): Button = {
     new Button("Runde an nächsten Spieler") {
-      onAction = _ => controller.doAndRemember(NextPlayerCommand())
+      onAction = _ => controller.doAndForget(NextPlayerCommand())
       style = s"-fx-background-color: #4db8ff; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: ${config.fontSizeSmall}px;"
     }
   }

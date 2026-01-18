@@ -2,8 +2,11 @@ package de.htwg.codebreaker.controller.controller
 
 import com.google.inject.Inject
 import de.htwg.codebreaker.util.Observable
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.model.map.{WorldMap, MapObject}
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.game.game.{Game, GameState, Phase, GameStatus}
+
 import de.htwg.codebreaker.persistence.FileIOInterface
 import scala.util.{Try, Success, Failure}
 import de.htwg.codebreaker.controller._
@@ -18,35 +21,38 @@ import de.htwg.codebreaker.controller._
  */
 class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends ControllerInterface with Observable:
 
-  private var currentGame: Game = initialGame
+  private case class ControllerState(
+    currentGame: Game,
+    undoStack: List[HistoryEntry] = Nil,
+    redoStack: List[HistoryEntry] = Nil
+  )
 
-  def game: Game = currentGame
+  private case class HistoryEntry(gameBefore: Game, command: Command)
 
-  def canUndo: Boolean = undoStack.nonEmpty
-  def canRedo: Boolean = redoStack.nonEmpty
+  private var state: ControllerState = ControllerState(initialGame)
 
+  def game: Game = state.currentGame
+
+  def canUndo: Boolean = state.undoStack.nonEmpty
+  def canRedo: Boolean = state.redoStack.nonEmpty
 
   def getPlayers: List[Player] = game.model.players
   def getServers: List[Server] = game.model.servers
   def getMapData(): Vector[Vector[MapObject]] =
-    game.model.worldMap.getMapData(game.model.players, game.model.servers)
+    game.model.map.getMapData(game.model.players, game.model.servers)
   def getState: GameState = game.state
-
-  private case class HistoryEntry(gameBefore: Game, command: Command)
-
-  private var undoStack: List[HistoryEntry] = Nil
-  private var redoStack: List[HistoryEntry] = Nil
 
 
   /** Führt ein Command aus und speichert den alten Zustand für Undo. */
   def doAndRemember(cmd: Command): Unit = {
-    import scala.util.{Success, Failure}
-    cmd.doStep(game) match {
+    cmd.doStep(state.currentGame) match {
       case Success(newGame) =>
-        undoStack = HistoryEntry(game, cmd) :: undoStack
-        redoStack = Nil // Redo wird ungültig bei neuem Schritt
-        currentGame = newGame
-        save() // Auto-save after each command
+        state = state.copy(
+          currentGame = newGame,
+          undoStack = HistoryEntry(state.currentGame, cmd) :: state.undoStack,
+          redoStack = Nil
+        )
+        save()
         notifyObservers
       case Failure(ex) =>
         println(s"Command fehlgeschlagen: ${ex.getMessage}")
@@ -55,13 +61,15 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
 
 
   /** Macht den letzten Schritt rückgängig. */
-  def undo(): Unit = undoStack match {
+  def undo(): Unit = state.undoStack match {
     case HistoryEntry(before, cmd) :: rest =>
-      cmd.undoStep(game) match {
+      cmd.undoStep(state.currentGame) match {
         case Success(revertedGame) =>
-          redoStack = HistoryEntry(game, cmd) :: redoStack // aktueller Zustand in redo
-          currentGame = revertedGame
-          undoStack = rest
+          state = state.copy(
+            currentGame = revertedGame,
+            undoStack = rest,
+            redoStack = HistoryEntry(state.currentGame, cmd) :: state.redoStack
+          )
           notifyObservers
         case Failure(ex) =>
           println(s"Undo fehlgeschlagen: ${ex.getMessage}")
@@ -71,13 +79,15 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
 
 
   /** Stellt einen rückgängig gemachten Schritt wieder her. */
-  def redo(): Unit = redoStack match {
+  def redo(): Unit = state.redoStack match {
     case HistoryEntry(before, cmd) :: rest =>
-      cmd.doStep(game) match {
+      cmd.doStep(state.currentGame) match {
         case Success(redoneGame) =>
-          undoStack = HistoryEntry(game, cmd) :: undoStack // aktueller Zustand in undo
-          currentGame = redoneGame
-          redoStack = rest
+          state = state.copy(
+            currentGame = redoneGame,
+            undoStack = HistoryEntry(state.currentGame, cmd) :: state.undoStack,
+            redoStack = rest
+          )
           notifyObservers
         case Failure(ex) =>
           println(s"Redo fehlgeschlagen: ${ex.getMessage}")
@@ -85,30 +95,47 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
     case Nil => println("Nichts zum Wiederholen.")
   }
 
+    /** Führt ein Command aus und löscht die Undo/Redo-History (für Spieler-/Rundenwechsel). */
+  def doAndForget(cmd: Command): Unit = {
+    cmd.doStep(state.currentGame) match {
+      case Success(newGame) =>
+        state = state.copy(
+          currentGame = newGame,
+          undoStack = Nil,
+          redoStack = Nil
+        )
+        save()
+        notifyObservers
+      case Failure(ex) =>
+        println(s"Command fehlgeschlagen: ${ex.getMessage}")
+    }
+  }
 
-  // Die direkte unclaimServer-Methode wird entfernt, da alles über das Command-Pattern laufen soll
-
-  def advanceRound(): Unit =
-    currentGame = game.copy(state = game.state.advanceRound())
+  def setPhase(newPhase: Phase): Unit = {
+    state = state.copy(
+      currentGame = state.currentGame.copy(
+        state = state.currentGame.state.setPhase(newPhase)
+      )
+    )
     notifyObservers
+  }
 
-
-  def setPhase(newPhase: Phase): Unit =
-    currentGame = game.copy(state = game.state.setPhase(newPhase))
+  def setStatus(newStatus: GameStatus): Unit = {
+    state = state.copy(
+      currentGame = state.currentGame.copy(
+        state = state.currentGame.state.setStatus(newStatus)
+      )
+    )
     notifyObservers
+  }
 
-  def setStatus(newStatus: GameStatus): Unit =
-    currentGame = game.copy(state = game.state.setStatus(newStatus))
+  def setGame(newGame: Game): Unit = {
+    state = ControllerState(newGame)  // ← erstellt neuen State ohne History
     notifyObservers
-
-  def setGame(newGame: Game): Unit =
-    currentGame = newGame
-    undoStack = Nil
-    redoStack = Nil
-    notifyObservers
+  }
 
   def save(): Unit =
-    fileIO.save(game) match {
+    fileIO.save(state.currentGame) match {
       case Success(_) => println("Spiel gespeichert!")
       case Failure(ex) => println(s"Fehler beim Speichern: ${ex.getMessage}")
     }

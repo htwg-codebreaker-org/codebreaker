@@ -1,7 +1,12 @@
 package de.htwg.codebreaker.persistence
 
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.model.game.game.{Game, GameState, GameModel, Phase, GameStatus}
+import de.htwg.codebreaker.model.map.{Continent, Tile, WorldMap}
+import de.htwg.codebreaker.model.server.{Server, ServerType, ServerRoleBlueprint, RoleActionBlueprint, ServerRoleType, RoleActionReward, RoleActionRequirements}
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools, LaptopTool, LaptopAction, LaptopActionType, RunningLaptopAction}
+import de.htwg.codebreaker.model.player.skill.{PlayerSkillTree, HackSkill, SocialSkill}
+
 import scala.util.{Try, Success, Failure}
 import scala.xml._
 import java.io.{File, PrintWriter}
@@ -39,12 +44,24 @@ class FileIOXML extends FileIOInterface:
         <servers>
           {game.model.servers.map(serverToXML)}
         </servers>
-        <skills>
-          {game.model.skills.map(skillToXML)}
-        </skills>
+        <hackSkills>
+          {game.model.hackSkills.map(hackSkillToXML)}
+        </hackSkills>
+        <socialSkills>
+          {game.model.socialSkills.map(socialSkillToXML)}
+        </socialSkills>
+        <roleBlueprints>
+          {game.model.roleBlueprints.map(roleBlueprintToXML)}
+        </roleBlueprints>
+        <actionBlueprints>
+          {game.model.actionBlueprints.map(actionBlueprintToXML)}
+        </actionBlueprints>
+        <laptopTools>
+          {game.model.laptopTools.map(laptopToolToXML)}
+        </laptopTools>
         <worldMap>
-          <width>{game.model.worldMap.width}</width>
-          <height>{game.model.worldMap.height}</height>
+          <width>{game.model.map.width}</width>
+          <height>{game.model.map.height}</height>
         </worldMap>
       </model>
       <state>
@@ -66,21 +83,72 @@ class FileIOXML extends FileIOInterface:
         <continent>{player.tile.continent.toString}</continent>
       </tile>
 
-      <cpu>{player.cpu}</cpu>
-      <ram>{player.ram}</ram>
-      <code>{player.code}</code>
+      <laptop>
+        <hardware>
+          <cpu>{player.laptop.hardware.cpu}</cpu>
+          <ram>{player.laptop.hardware.ram}</ram>
+          <code>{player.laptop.hardware.code}</code>
+          <kerne>{player.laptop.hardware.kerne}</kerne>
+        </hardware>
+        <tools>
+          {player.laptop.tools.installedTools.map(tool => <tool>{tool.id}</tool>)}
+        </tools>
+        <runningActions>
+          {player.laptop.runningActions.map(runningActionToXML)}
+        </runningActions>
+      </laptop>
 
       <availableXp>{player.availableXp}</availableXp>
       <totalXpEarned>{player.totalXpEarned}</totalXpEarned>
 
       <skills>
-        {player.skills.unlockedSkillIds.map(id => <skill>{id}</skill>)}
+        <hackSkills>
+          {player.skills.unlockedHackSkills.map(id => <skill>{id}</skill>)}
+        </hackSkills>
+        <socialSkills>
+          {player.skills.unlockedSocialSkills.map(id => <skill>{id}</skill>)}
+        </socialSkills>
       </skills>
 
       <cybersecurity>{player.cybersecurity}</cybersecurity>
       <movementPoints>{player.movementPoints}</movementPoints>
       <maxMovementPoints>{player.maxMovementPoints}</maxMovementPoints>
     </player>
+
+  private def runningActionToXML(action: RunningLaptopAction): Elem =
+    <runningAction>
+      <actionId>{action.action.id}</actionId>
+      <startRound>{action.startRound}</startRound>
+      <completionRound>{action.completionRound}</completionRound>
+      <targetServer>{action.targetServer}</targetServer>
+      <coresReleased>{action.coresReleased}</coresReleased>
+    </runningAction>
+
+  private def laptopToolToXML(tool: LaptopTool): Elem =
+    <laptopTool>
+      <id>{tool.id}</id>
+      <name>{tool.name}</name>
+      <hackBonus>{tool.hackBonus}</hackBonus>
+      <stealthBonus>{tool.stealthBonus}</stealthBonus>
+      <speedBonus>{tool.speedBonus}</speedBonus>
+      <description>{tool.description}</description>
+      <availableActions>
+        {tool.availableActions.map(laptopActionToXML)}
+      </availableActions>
+    </laptopTool>
+
+  private def laptopActionToXML(action: LaptopAction): Elem =
+    <action>
+      <id>{action.id}</id>
+      <name>{action.name}</name>
+      <actionType>{action.actionType.toString}</actionType>
+      <durationRounds>{action.durationRounds}</durationRounds>
+      <coreCost>{action.coreCost}</coreCost>
+      <cpuCost>{action.cpuCost}</cpuCost>
+      <ramCost>{action.ramCost}</ramCost>
+      <description>{action.description}</description>
+      <toolId>{action.toolId}</toolId>
+    </action>
 
   private def serverToXML(server: Server): Elem =
     <server>
@@ -98,14 +166,58 @@ class FileIOXML extends FileIOInterface:
       <hackedBy>{server.hackedBy.getOrElse(-1)}</hackedBy>
     </server>
   
-  private def skillToXML(skill: HackSkill): Elem =
-  <skill>
-    <id>{skill.id}</id>
-    <name>{skill.name}</name>
-    <costXp>{skill.costXp}</costXp>
-    <successBonus>{skill.successBonus}</successBonus>
-    <description>{skill.description}</description>
-  </skill>
+  private def hackSkillToXML(skill: HackSkill): Elem =
+    <skill>
+      <id>{skill.id}</id>
+      <name>{skill.name}</name>
+      <costXp>{skill.costXp}</costXp>
+      <successBonus>{skill.successBonus}</successBonus>
+      <description>{skill.description}</description>
+    </skill>
+
+  private def socialSkillToXML(skill: SocialSkill): Elem =
+    <skill>
+      <id>{skill.id}</id>
+      <name>{skill.name}</name>
+      <costXp>{skill.costXp}</costXp>
+      <successBonus>{skill.successBonus}</successBonus>
+      <description>{skill.description}</description>
+    </skill>
+
+  private def roleBlueprintToXML(blueprint: ServerRoleBlueprint): Elem =
+    <blueprint>
+      <roleType>{blueprint.roleType.toString}</roleType>
+      <name>{blueprint.name}</name>
+      <setupDurationRounds>{blueprint.setupDurationRounds}</setupDurationRounds>
+      <baseDetectionRisk>{blueprint.baseDetectionRisk}</baseDetectionRisk>
+      <availableActionIds>
+        {blueprint.availableActionIds.map(id => <actionId>{id}</actionId>)}
+      </availableActionIds>
+      <description>{blueprint.description}</description>
+    </blueprint>
+
+  private def actionBlueprintToXML(blueprint: RoleActionBlueprint): Elem =
+    <blueprint>
+      <id>{blueprint.id}</id>
+      <name>{blueprint.name}</name>
+      <roleType>{blueprint.roleType.toString}</roleType>
+      <durationRounds>{blueprint.durationRounds}</durationRounds>
+      <detectionRiskIncrease>{blueprint.detectionRiskIncrease}</detectionRiskIncrease>
+      <rewards>
+        <bitcoin>{blueprint.rewards.bitcoin}</bitcoin>
+        <credits>{blueprint.rewards.credits}</credits>
+        <code>{blueprint.rewards.code}</code>
+        <cpu>{blueprint.rewards.cpu}</cpu>
+        <ram>{blueprint.rewards.ram}</ram>
+      </rewards>
+      <requirements>
+        <minCpu>{blueprint.requirements.minCpu}</minCpu>
+        <minRam>{blueprint.requirements.minRam}</minRam>
+        <minCode>{blueprint.requirements.minCode}</minCode>
+        <minCredits>{blueprint.requirements.minCredits}</minCredits>
+      </requirements>
+      <description>{blueprint.description}</description>
+    </blueprint>
 
   private def xmlToGame(xml: Node): Game =
     val model = xmlToGameModel((xml \ "model").head)
@@ -113,29 +225,46 @@ class FileIOXML extends FileIOInterface:
     Game(model, state)
 
   private def xmlToGameModel(xml: Node): GameModel =
-    val players = (xml \ "players" \ "player").map(xmlToPlayer).toList
+    val laptopTools = (xml \ "laptopTools" \ "laptopTool").map(xmlToLaptopTool).toList
+    val players = (xml \ "players" \ "player").map(n => xmlToPlayer(n, laptopTools)).toList
     val servers = (xml \ "servers" \ "server").map(xmlToServer).toList
     val worldMap = xmlToWorldMap((xml \ "worldMap").head)
-    val skills = (xml \ "skills" \ "skill").map(xmlToSkill).toList
+    val hackSkills = (xml \ "hackSkills" \ "skill").map(xmlToHackSkill).toList
+    val socialSkills = (xml \ "socialSkills" \ "skill").map(xmlToSocialSkill).toList
+    val roleBlueprints = (xml \ "roleBlueprints" \ "blueprint").map(xmlToRoleBlueprint).toList
+    val actionBlueprints = (xml \ "actionBlueprints" \ "blueprint").map(xmlToActionBlueprint).toList
 
-    GameModel(players, servers, worldMap, skills)
+    GameModel(players, servers, worldMap, hackSkills, socialSkills, roleBlueprints, actionBlueprints, laptopTools)
 
-  private def xmlToPlayer(xml: Node): Player =
+  private def xmlToPlayer(xml: Node, laptopTools: List[LaptopTool]): Player =
     Player(
       id = (xml \ "id").text.toInt,
       name = (xml \ "name").text,
       tile = xmlToTile((xml \ "tile").head),
 
-      cpu = (xml \ "cpu").text.toInt,
-      ram = (xml \ "ram").text.toInt,
-      code = (xml \ "code").text.toInt,
+      laptop = Laptop(
+        hardware = LaptopHardware(
+          cpu = (xml \ "laptop" \ "hardware" \ "cpu").text.toInt,
+          ram = (xml \ "laptop" \ "hardware" \ "ram").text.toInt,
+          code = (xml \ "laptop" \ "hardware" \ "code").text.toInt,
+          kerne = (xml \ "laptop" \ "hardware" \ "kerne").text.toInt
+        ),
+        tools = LaptopInstalledTools(
+          installedTools = (xml \ "laptop" \ "tools" \ "tool")
+            .map(n => laptopTools.find(_.id == n.text).get)
+            .toList
+        ),
+        runningActions = (xml \ "laptop" \ "runningActions" \ "runningAction")
+          .map(n => xmlToRunningLaptopAction(n, laptopTools))
+          .toList
+      ),
 
       availableXp = (xml \ "availableXp").text.toInt,
       totalXpEarned = (xml \ "totalXpEarned").text.toInt,
 
       skills = PlayerSkillTree(
-        unlockedSkillIds =
-          (xml \ "skills" \ "skill").map(_.text).toSet
+        unlockedHackSkills = (xml \ "skills" \ "hackSkills" \ "skill").map(_.text).toSet,
+        unlockedSocialSkills = (xml \ "skills" \ "socialSkills" \ "skill").map(_.text).toSet
       ),
 
       cybersecurity = (xml \ "cybersecurity").text.toInt,
@@ -143,6 +272,44 @@ class FileIOXML extends FileIOInterface:
       maxMovementPoints = (xml \ "maxMovementPoints").text.toInt
     )
 
+  private def xmlToRunningLaptopAction(xml: Node, laptopTools: List[LaptopTool]): RunningLaptopAction =
+    val actionId = (xml \ "actionId").text
+    val action = laptopTools
+      .flatMap(_.availableActions)
+      .find(_.id == actionId)
+      .getOrElse(throw new Exception(s"Action with id $actionId not found"))
+    
+    RunningLaptopAction(
+      action = action,
+      startRound = (xml \ "startRound").text.toInt,
+      completionRound = (xml \ "completionRound").text.toInt,
+      targetServer = (xml \ "targetServer").text,
+      coresReleased = (xml \ "coresReleased").text.toBoolean
+    )
+
+  private def xmlToLaptopTool(xml: Node): LaptopTool =
+    LaptopTool(
+      id = (xml \ "id").text,
+      name = (xml \ "name").text,
+      hackBonus = (xml \ "hackBonus").text.toInt,
+      stealthBonus = (xml \ "stealthBonus").text.toInt,
+      speedBonus = (xml \ "speedBonus").text.toInt,
+      description = (xml \ "description").text,
+      availableActions = (xml \ "availableActions" \ "action").map(xmlToLaptopAction).toList
+    )
+
+  private def xmlToLaptopAction(xml: Node): LaptopAction =
+    LaptopAction(
+      id = (xml \ "id").text,
+      name = (xml \ "name").text,
+      actionType = LaptopActionType.valueOf((xml \ "actionType").text),
+      durationRounds = (xml \ "durationRounds").text.toInt,
+      coreCost = (xml \ "coreCost").text.toInt,
+      cpuCost = (xml \ "cpuCost").text.toInt,
+      ramCost = (xml \ "ramCost").text.toInt,
+      description = (xml \ "description").text,
+      toolId = (xml \ "toolId").text
+    )
 
   private def xmlToServer(xml: Node): Server =
     val hackedByValue = (xml \ "hackedBy").text.toInt
@@ -157,7 +324,7 @@ class FileIOXML extends FileIOInterface:
       hackedBy = if (hackedByValue == -1) None else Some(hackedByValue)
     )
 
-  private def xmlToSkill(xml: Node): HackSkill =
+  private def xmlToHackSkill(xml: Node): HackSkill =
     HackSkill(
       id = (xml \ "id").text,
       name = (xml \ "name").text,
@@ -166,6 +333,47 @@ class FileIOXML extends FileIOInterface:
       description = (xml \ "description").text
     )
 
+  private def xmlToSocialSkill(xml: Node): SocialSkill =
+    SocialSkill(
+      id = (xml \ "id").text,
+      name = (xml \ "name").text,
+      costXp = (xml \ "costXp").text.toInt,
+      successBonus = (xml \ "successBonus").text.toInt,
+      description = (xml \ "description").text
+    )
+
+  private def xmlToRoleBlueprint(xml: Node): ServerRoleBlueprint =
+    ServerRoleBlueprint(
+      roleType = ServerRoleType.valueOf((xml \ "roleType").text),
+      name = (xml \ "name").text,
+      setupDurationRounds = (xml \ "setupDurationRounds").text.toInt,
+      baseDetectionRisk = (xml \ "baseDetectionRisk").text.toInt,
+      availableActionIds = (xml \ "availableActionIds" \ "actionId").map(_.text).toList,
+      description = (xml \ "description").text
+    )
+
+  private def xmlToActionBlueprint(xml: Node): RoleActionBlueprint =
+    RoleActionBlueprint(
+      id = (xml \ "id").text,
+      name = (xml \ "name").text,
+      roleType = ServerRoleType.valueOf((xml \ "roleType").text),
+      durationRounds = (xml \ "durationRounds").text.toInt,
+      detectionRiskIncrease = (xml \ "detectionRiskIncrease").text.toInt,
+      rewards = RoleActionReward(
+        bitcoin = (xml \ "rewards" \ "bitcoin").text.toInt,
+        credits = (xml \ "rewards" \ "credits").text.toInt,
+        code = (xml \ "rewards" \ "code").text.toInt,
+        cpu = (xml \ "rewards" \ "cpu").text.toInt,
+        ram = (xml \ "rewards" \ "ram").text.toInt
+      ),
+      requirements = RoleActionRequirements(
+        minCpu = (xml \ "requirements" \ "minCpu").text.toInt,
+        minRam = (xml \ "requirements" \ "minRam").text.toInt,
+        minCode = (xml \ "requirements" \ "minCode").text.toInt,
+        minCredits = (xml \ "requirements" \ "minCredits").text.toInt
+      ),
+      description = (xml \ "description").text
+    )
 
   private def xmlToTile(xml: Node): Tile =
     Tile(

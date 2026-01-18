@@ -1,5 +1,5 @@
 // src/main/scala/de/htwg/codebreaker/model/HackSkill.scala
-package de.htwg.codebreaker.model
+package de.htwg.codebreaker.model.player.skill
 
 /**
  * Definition eines Hack-Skills (reine Daten).

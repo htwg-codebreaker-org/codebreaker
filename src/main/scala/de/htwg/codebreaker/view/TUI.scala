@@ -6,10 +6,11 @@ import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
 
 import de.htwg.codebreaker.controller.ControllerInterface
-import de.htwg.codebreaker.controller.commands._
-import de.htwg.codebreaker.model.{Server, ServerType, Continent}
-import de.htwg.codebreaker.model.MapObject
-import de.htwg.codebreaker.model.MapObject._
+import de.htwg.codebreaker.controller.commands.{MovePlayerCommand, HackServerCommand, NextPlayerCommand, UnlockHackSkillCommand, UnlockSocialSkillCommand}
+import de.htwg.codebreaker.model.map.{MapObject, Tile}
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.model.map.MapObject._
+
 import de.htwg.codebreaker.util.Observer
 
 import scala.io.StdIn
@@ -32,35 +33,104 @@ class TUI @Inject()(controller: ControllerInterface)
   // =========================
 
   def processInputLine(input: String): Unit =
-    input.trim match {
+  input.trim match {
 
-      case "q" =>
-        println("Spiel beendet.")
+    case "q" =>
+      println("Spiel beendet.")
 
-      case "m" =>
-        show()
+    case "m" =>
+      show()
 
-      case "help" =>
-        printHelp()
+    case "help" =>
+      printHelp()
 
-      case "undo" =>
-        controller.undo()
+    case "undo" =>
+      controller.undo()
 
-      case "redo" =>
-        controller.redo()
+    case "redo" =>
+      controller.redo()
 
-      case "next" =>
-        controller.doAndRemember(NextPlayerCommand())
+    case "next" =>
+      controller.doAndForget(NextPlayerCommand())
 
-      case s if s.startsWith("move ") =>
-        handleMove(s)
+    case "skills" =>  // ← NEU!
+      showSkillMenu()
 
-      case s if s.startsWith("tile ") =>
-        handleTileMenu(s)
+    case s if s.startsWith("move ") =>
+      handleMove(s)
 
-      case _ =>
-        println("Unbekannter Befehl. 'help' für Hilfe.")
+    case s if s.startsWith("tile ") =>
+      handleTileMenu(s)
+
+    case _ =>
+      println("Unbekannter Befehl. 'help' für Hilfe.")
+  }
+
+  // =========================
+  // SKILL MENU
+  // =========================
+
+  private def showSkillMenu(): Unit = {
+    val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+    val player = controller.getPlayers(playerIndex)
+    val allHackSkills = controller.game.model.hackSkills
+    val allSocialSkills = controller.game.model.socialSkills
+
+    println("\n" + "=" * 60)
+    println(s"${player.name} – Skilltree (XP: ${player.availableXp})")
+    println("=" * 60)
+
+    // === HACK SKILLS ===
+    println("\n💻 HACK SKILLS:")
+    println("-" * 60)
+    allHackSkills.zipWithIndex.foreach { case (skill, idx) =>
+      val unlocked = player.skills.unlockedHackSkills.contains(skill.id)
+      val status = if (unlocked) "✔" else if (player.availableXp >= skill.costXp) "🔓" else "❌"
+      // ← GEÄNDERT: Verwende s"..." statt f"..."
+      println(s"${(idx + 1).toString.padTo(2, ' ')} $status ${skill.name.padTo(20, ' ')} | XP: ${skill.costXp.toString.padTo(3, ' ')} | Bonus: +${skill.successBonus}%%")
+      println(s"    ${skill.description}")
     }
+
+    // === SOCIAL SKILLS ===
+    val socialOffset = allHackSkills.length
+    println("\n🗣️ SOCIAL SKILLS:")
+    println("-" * 60)
+    allSocialSkills.zipWithIndex.foreach { case (skill, idx) =>
+      val unlocked = player.skills.unlockedSocialSkills.contains(skill.id)
+      val status = if (unlocked) "✔" else if (player.availableXp >= skill.costXp) "🔓" else "❌"
+      println(s"${(socialOffset + idx + 1).toString.padTo(2, ' ')} $status ${skill.name.padTo(20, ' ')} | XP: ${skill.costXp.toString.padTo(3, ' ')} | Bonus: +${skill.successBonus}%%")
+      println(s"    ${skill.description}")
+    }
+
+    println("\n" + "=" * 60)
+    println("Wähle einen Skill zum Freischalten (Nummer) oder 0 zum Abbrechen:")
+    print("> ")
+
+    StdIn.readLine() match {
+      case "0" => 
+        println("Abgebrochen.")
+      
+      case input =>
+        try {
+          val choice = input.toInt - 1
+          
+          if (choice >= 0 && choice < allHackSkills.length) {
+            // Hack Skill ausgewählt
+            val skill = allHackSkills(choice)
+            controller.doAndRemember(UnlockHackSkillCommand(playerIndex, skill))
+          } else if (choice >= socialOffset && choice < socialOffset + allSocialSkills.length) {
+            // Social Skill ausgewählt
+            val skill = allSocialSkills(choice - socialOffset)
+            controller.doAndRemember(UnlockSocialSkillCommand(playerIndex, skill))
+          } else {
+            println("Ungültige Auswahl.")
+          }
+        } catch {
+          case _: NumberFormatException =>
+            println("Ungültige Eingabe.")
+        }
+    }
+  }
 
   // =========================
   // TILE MENU
@@ -80,7 +150,7 @@ class TUI @Inject()(controller: ControllerInterface)
       val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
       val player = controller.getPlayers(playerIndex)
 
-      controller.game.model.worldMap.tileAt(x, y) match {
+      controller.game.model.map.tileAt(x, y) match {
         case None =>
           println("Ungültiges Tile.")
 
@@ -137,8 +207,8 @@ class TUI @Inject()(controller: ControllerInterface)
     val player = controller.getPlayers(playerIndex)
 
     val unlockedSkills =
-      controller.game.model.skills
-        .filter(s => player.skills.unlockedSkillIds.contains(s.id))
+      controller.game.model.hackSkills
+        .filter(s => player.skills.unlockedHackSkills.contains(s.id))
 
     if (unlockedSkills.isEmpty) {
       println("❌ Keine Skills freigeschaltet.")
@@ -190,7 +260,7 @@ class TUI @Inject()(controller: ControllerInterface)
       val y = parts(2).toInt
       val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
 
-      controller.game.model.worldMap.tileAt(x, y) match {
+      controller.game.model.map.tileAt(x, y) match {
         case Some(tile) =>
           controller.doAndRemember(
             MovePlayerCommand(playerIndex, tile)
@@ -219,9 +289,10 @@ class TUI @Inject()(controller: ControllerInterface)
     players.zipWithIndex.foreach { case (p, i) =>
       println(s"Spieler $i: ${p.name}")
       println(s"  Position: (${p.tile.x}, ${p.tile.y})")
-      println(s"  CPU: ${p.cpu} | RAM: ${p.ram} | Code: ${p.code}")
+      println(s"  CPU: ${p.laptop.hardware.cpu} | RAM: ${p.laptop.hardware.ram} | Code: ${p.laptop.hardware.code}")
       println(s"  XP: ${p.availableXp} | Total XP: ${p.totalXpEarned}")
-      println(s"  Skills: ${p.skills.unlockedSkillIds.mkString(", ")}")
+      println(s"  HackSkills: ${p.skills.unlockedHackSkills.mkString(", ")}")
+      println(s"  SocialSkills: ${p.skills.unlockedSocialSkills.mkString(", ")}")
       println("-" * 30)
     }
   }
@@ -254,6 +325,7 @@ class TUI @Inject()(controller: ControllerInterface)
         |  m                 → Karte anzeigen
         |  tile <x> <y>      → Aktionen für Tile
         |  move <x> <y>      → Spieler bewegen
+        |  skills            → Skilltree öffnen
         |  undo / redo
         |  next              → Nächster Spieler
         |  q                 → Beenden

@@ -1,9 +1,11 @@
 package de.htwg.codebreaker.controller.commands
 
 import scala.util.{Try, Success, Failure, Random}
-import de.htwg.codebreaker.model.game.Game
-import de.htwg.codebreaker.model.{Server, ServerType, Player, HackSkill}
-import de.htwg.codebreaker.controller._
+import de.htwg.codebreaker.controller.Command
+import de.htwg.codebreaker.model.server.{Server, ServerType}
+import de.htwg.codebreaker.model.player.skill.HackSkill
+import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.player.Player
 
 case class HackServerCommand(
   serverName: String,
@@ -41,22 +43,27 @@ case class HackServerCommand(
       return Failure(new IllegalArgumentException("Private Server"))
 
     // ---- Skill validieren ----
-    if (!player.skills.unlockedSkillIds.contains(skill.id))
+    if (!player.skills.unlockedHackSkills.contains(skill.id))
       return Failure(new IllegalArgumentException("Skill nicht freigeschaltet"))
 
     // ---- Kosten ----
     val cpuCost = math.max(1, server.difficulty / 2)
     val ramCost = math.max(1, server.difficulty / 3)
 
-    if (player.cpu < cpuCost || player.ram < ramCost)
+    if (player.laptop.hardware.cpu < cpuCost || player.laptop.hardware.ram < ramCost)
       return Failure(new IllegalArgumentException("Nicht genug Ressourcen"))
 
     // ---- Undo-State ----
     previousPlayerState = Some(player)
 
     val playerAfterCost = player.copy(
-      cpu = player.cpu - cpuCost,
-      ram = player.ram - ramCost
+      laptop = player.laptop.copy(
+        hardware = player.laptop.hardware.copy(
+          cpu = player.laptop.hardware.cpu - cpuCost,
+          ram = player.laptop.hardware.ram - ramCost,
+          code = player.laptop.hardware.code
+        )
+      )
     )
 
     // ---- Erfolgschance ----
@@ -73,9 +80,13 @@ case class HackServerCommand(
       val rewards = calculateRewards(server)
 
       val updatedPlayer = playerAfterCost.copy(
-        cpu = playerAfterCost.cpu + rewards.cpuGained,
-        ram = playerAfterCost.ram + rewards.ramGained,
-        code = playerAfterCost.code + rewards.codeGained,
+        laptop = playerAfterCost.laptop.copy(
+          hardware = playerAfterCost.laptop.hardware.copy(
+            cpu = playerAfterCost.laptop.hardware.cpu + rewards.cpuGained,
+            ram = playerAfterCost.laptop.hardware.ram + rewards.ramGained,
+            code = playerAfterCost.laptop.hardware.code + rewards.codeGained
+          )
+        ),
         availableXp = playerAfterCost.availableXp + rewards.xpGained,
         totalXpEarned = playerAfterCost.totalXpEarned + rewards.xpGained
       )

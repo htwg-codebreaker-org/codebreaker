@@ -1,5 +1,5 @@
 // src/main/scala/de/htwg/codebreaker/model/Tile.scala
-package de.htwg.codebreaker.model
+package de.htwg.codebreaker.model.map
 
 /**
  * Eine Kachel auf der Weltkarte.

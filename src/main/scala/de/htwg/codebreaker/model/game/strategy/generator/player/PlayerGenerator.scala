@@ -1,12 +1,37 @@
-package de.htwg.codebreaker.model.game.strategy
+package de.htwg.codebreaker.model.game.strategy.player
 
-import de.htwg.codebreaker.model._
+import de.htwg.codebreaker.model.map.{WorldMap, Tile}
+import de.htwg.codebreaker.model.player.{Player}
+import de.htwg.codebreaker.model.player.skill.PlayerSkillTree
+import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools}
+import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
 import scala.util.Random
 
 object PlayerGenerator:
 
   private val initialSkills: Set[String] =
     Set("script_kiddie")
+
+  private def initialLaptop = {
+    // Generiere alle verfügbaren Tools
+    val allTools = DefaultLaptopToolGenerator.generateLaptopTools()
+    
+    // Wähle einige Starter-Tools aus (z.B. Nmap und Wireshark)
+    val starterTools = allTools.filter(tool => 
+      tool.id == "nmap" || tool.id == "wireshark"
+    )
+    
+    Laptop(
+      hardware = LaptopHardware(
+        cpu = 1000,
+        ram = 1000,
+        code = 1000,
+        kerne = 1
+      ),
+      tools = LaptopInstalledTools(starterTools),
+      runningActions = Nil
+    )
+  }
 
   def generatePlayers(count: Int, map: WorldMap, avoidTiles: List[Tile] = Nil): List[Player] =
     val rng = new Random()
@@ -18,12 +43,12 @@ object PlayerGenerator:
         id = idx + 1,
         name = s"Spieler ${idx + 1}",
         tile = tile,
-        cpu = 100,
-        ram = 50,
-        code = 10,
-        availableXp = 0,
-        totalXpEarned = 0,
+        laptop = initialLaptop,
+        availableXp = 1000,
+        totalXpEarned = 10001000,
         skills = PlayerSkillTree(initialSkills),
-        cybersecurity = 20
+        cybersecurity = 1000,
+        movementPoints = 1000,
+        maxMovementPoints = 1000
       )
     }.toList

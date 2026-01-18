@@ -1,5 +1,5 @@
 // === src/main/scala/de/htwg/codebreaker/model/game/GameState.scala ===
-package de.htwg.codebreaker.model.game
+package de.htwg.codebreaker.model.game.game
 
 enum GameStatus:
   case Running, Paused, GameOver

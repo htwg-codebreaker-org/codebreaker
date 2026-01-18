@@ -1,5 +1,7 @@
-// src/main/scala/de/htwg/codebreaker/model/Server.scala
-package de.htwg.codebreaker.model
+// src/main/scala/de/htwg/codebreaker/model/server/Server.scala
+package de.htwg.codebreaker.model.server
+
+import de.htwg.codebreaker.model.map.Tile
 
 /**
  * Typen von Servern im Spiel.
@@ -29,7 +31,9 @@ case class Server(
   hacked: Boolean,
   serverType: ServerType,
   hackedBy: Option[Int] = None,
-  claimedBy: Option[Int] = None
+  claimedBy: Option[Int] = None,
+  blockedUntilRound: Option[Int] = None,
+  installedRole: Option[InstalledServerRole] = None
 )
 
 /**
@@ -43,6 +47,22 @@ case class ServerBlueprint(
   difficultyRange: (Int, Int),
   rewardCpuRange: (Int, Int),
   rewardRamRange: (Int, Int)
+)
+
+case class InstalledServerRole(
+  roleType: ServerRoleType,
+  installStartRound: Int,
+  isActive: Boolean = false,
+  detectionRisk: Int = 0,
+  runningActions: List[RunningRoleAction] = Nil
+)
+
+case class RunningRoleAction(
+  actionId: String,
+  startRound: Int,
+  completionRound: Int,
+  detectionIncrease: Int,
+  expectedRewards: RoleActionReward
 )
 
 object Server:

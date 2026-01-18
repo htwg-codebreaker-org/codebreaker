@@ -1,9 +1,10 @@
 package de.htwg.codebreaker.controller.commands
 
 import scala.util.{Try, Success, Failure}
-import de.htwg.codebreaker.model.game.Game
-import de.htwg.codebreaker.model.{Player, Tile}
-import de.htwg.codebreaker.controller._
+import de.htwg.codebreaker.controller.Command
+import de.htwg.codebreaker.model.map.Tile
+import de.htwg.codebreaker.model.game.game.Game
+  
 
 /**
  * Command zum Bewegen eines Spielers zu einem neuen Tile.

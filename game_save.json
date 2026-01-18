@@ -1,0 +1,1146 @@
+{
+  "model" : {
+    "roleBlueprints" : [ {
+      "availableActionIds" : [ "mine_bitcoin", "optimize_mining", "pool_connect" ],
+      "baseDetectionRisk" : 20,
+      "name" : "Bitcoin Miner",
+      "description" : "Generiert Bitcoin durch Mining",
+      "setupDurationRounds" : 2,
+      "roleType" : "BitcoinMiner"
+    }, {
+      "availableActionIds" : [ "host_marketplace", "run_hidden_service", "launder_money" ],
+      "baseDetectionRisk" : 45,
+      "name" : "Darknet Host",
+      "description" : "Hostet illegale Services im Darknet",
+      "setupDurationRounds" : 3,
+      "roleType" : "DarknetHost"
+    }, {
+      "availableActionIds" : [ "extract_data", "sell_data", "analyze_patterns" ],
+      "baseDetectionRisk" : 30,
+      "name" : "Data Trader",
+      "description" : "Verkauft gestohlene Daten",
+      "setupDurationRounds" : 2,
+      "roleType" : "DataTrader"
+    }, {
+      "availableActionIds" : [ "launch_ddos", "spread_malware", "command_bots" ],
+      "baseDetectionRisk" : 60,
+      "name" : "Botnet Node",
+      "description" : "Command & Control für Botnet",
+      "setupDurationRounds" : 4,
+      "roleType" : "BotnetNode"
+    }, {
+      "availableActionIds" : [ ],
+      "baseDetectionRisk" : 5,
+      "name" : "Inactive",
+      "description" : "Server ist claimed, aber nicht aktiv",
+      "setupDurationRounds" : 0,
+      "roleType" : "Inactive"
+    } ],
+    "actionBlueprints" : [ {
+      "durationRounds" : 2,
+      "name" : "Mine Bitcoin",
+      "description" : "Standard Bitcoin Mining über 2 Runden",
+      "rewards" : {
+        "bitcoin" : 50,
+        "ram" : 0,
+        "credits" : 0,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "mine_bitcoin",
+      "requirements" : {
+        "minCpu" : 20,
+        "minRam" : 0,
+        "minCode" : 0,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 10,
+      "roleType" : "BitcoinMiner"
+    }, {
+      "durationRounds" : 3,
+      "name" : "Optimize Mining",
+      "description" : "Optimiertes Mining für höhere Ausbeute",
+      "rewards" : {
+        "bitcoin" : 100,
+        "ram" : 0,
+        "credits" : 0,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "optimize_mining",
+      "requirements" : {
+        "minCpu" : 40,
+        "minRam" : 0,
+        "minCode" : 20,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 5,
+      "roleType" : "BitcoinMiner"
+    }, {
+      "durationRounds" : 1,
+      "name" : "Connect to Pool",
+      "description" : "Schnelles Mining durch Pool-Verbindung",
+      "rewards" : {
+        "bitcoin" : 30,
+        "ram" : 0,
+        "credits" : 0,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "pool_connect",
+      "requirements" : {
+        "minCpu" : 0,
+        "minRam" : 0,
+        "minCode" : 0,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 15,
+      "roleType" : "BitcoinMiner"
+    }, {
+      "durationRounds" : 3,
+      "name" : "Host Marketplace",
+      "description" : "Hoste illegalen Marktplatz für 3 Runden",
+      "rewards" : {
+        "bitcoin" : 0,
+        "ram" : 0,
+        "credits" : 80,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "host_marketplace",
+      "requirements" : {
+        "minCpu" : 0,
+        "minRam" : 30,
+        "minCode" : 0,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 25,
+      "roleType" : "DarknetHost"
+    }, {
+      "durationRounds" : 2,
+      "name" : "Run Hidden Service",
+      "description" : "Betreibe versteckten Onion-Service",
+      "rewards" : {
+        "bitcoin" : 0,
+        "ram" : 0,
+        "credits" : 50,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "run_hidden_service",
+      "requirements" : {
+        "minCpu" : 0,
+        "minRam" : 20,
+        "minCode" : 0,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 20,
+      "roleType" : "DarknetHost"
+    }, {
+      "durationRounds" : 4,
+      "name" : "Launder Money",
+      "description" : "Geldwäsche über Mixer-Services",
+      "rewards" : {
+        "bitcoin" : 150,
+        "ram" : 0,
+        "credits" : 100,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "launder_money",
+      "requirements" : {
+        "minCpu" : 0,
+        "minRam" : 0,
+        "minCode" : 30,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 35,
+      "roleType" : "DarknetHost"
+    }, {
+      "durationRounds" : 2,
+      "name" : "Extract Data",
+      "description" : "Extrahiere wertvolle Daten vom Server",
+      "rewards" : {
+        "bitcoin" : 0,
+        "ram" : 0,
+        "credits" : 0,
+        "code" : 40,
+        "cpu" : 0
+      },
+      "id" : "extract_data",
+      "requirements" : {
+        "minCpu" : 15,
+        "minRam" : 0,
+        "minCode" : 0,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 15,
+      "roleType" : "DataTrader"
+    }, {
+      "durationRounds" : 1,
+      "name" : "Sell Data",
+      "description" : "Verkaufe gestohlene Daten auf dem Schwarzmarkt",
+      "rewards" : {
+        "bitcoin" : 0,
+        "ram" : 0,
+        "credits" : 60,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "sell_data",
+      "requirements" : {
+        "minCpu" : 0,
+        "minRam" : 0,
+        "minCode" : 20,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 10,
+      "roleType" : "DataTrader"
+    }, {
+      "durationRounds" : 3,
+      "name" : "Analyze Patterns",
+      "description" : "Analysiere Daten für wertvolle Insights",
+      "rewards" : {
+        "bitcoin" : 0,
+        "ram" : 0,
+        "credits" : 40,
+        "code" : 60,
+        "cpu" : 0
+      },
+      "id" : "analyze_patterns",
+      "requirements" : {
+        "minCpu" : 25,
+        "minRam" : 0,
+        "minCode" : 15,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 5,
+      "roleType" : "DataTrader"
+    }, {
+      "durationRounds" : 1,
+      "name" : "Launch DDoS",
+      "description" : "Starte koordinierten DDoS-Angriff",
+      "rewards" : {
+        "bitcoin" : 0,
+        "ram" : 0,
+        "credits" : 100,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "launch_ddos",
+      "requirements" : {
+        "minCpu" : 30,
+        "minRam" : 25,
+        "minCode" : 0,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 40,
+      "roleType" : "BotnetNode"
+    }, {
+      "durationRounds" : 3,
+      "name" : "Spread Malware",
+      "description" : "Verbreite Malware über das Botnet",
+      "rewards" : {
+        "bitcoin" : 0,
+        "ram" : 0,
+        "credits" : 80,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "spread_malware",
+      "requirements" : {
+        "minCpu" : 0,
+        "minRam" : 0,
+        "minCode" : 40,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 30,
+      "roleType" : "BotnetNode"
+    }, {
+      "durationRounds" : 2,
+      "name" : "Command Bots",
+      "description" : "Kontrolliere und kommandiere Zombie-PCs",
+      "rewards" : {
+        "bitcoin" : 0,
+        "ram" : 0,
+        "credits" : 120,
+        "code" : 0,
+        "cpu" : 0
+      },
+      "id" : "command_bots",
+      "requirements" : {
+        "minCpu" : 35,
+        "minRam" : 30,
+        "minCode" : 0,
+        "minCredits" : 0
+      },
+      "detectionRiskIncrease" : 25,
+      "roleType" : "BotnetNode"
+    } ],
+    "players" : [ {
+      "totalXpEarned" : 10001000,
+      "laptop" : {
+        "hardware" : {
+          "cpu" : 980,
+          "ram" : 979,
+          "code" : 1000,
+          "kerne" : 0
+        },
+        "tools" : {
+          "installedTools" : [ {
+            "name" : "Nmap",
+            "hackBonus" : 5,
+            "id" : "nmap",
+            "availableActions" : [ {
+              "durationRounds" : 1,
+              "name" : "Quick Scan",
+              "toolId" : "nmap",
+              "cpuCost" : 5,
+              "description" : "Schneller Port-Scan",
+              "actionType" : "PortScan",
+              "ramCost" : 3,
+              "coreCost" : 1,
+              "id" : "nmap_quick_scan"
+            }, {
+              "durationRounds" : 3,
+              "name" : "Deep Scan",
+              "toolId" : "nmap",
+              "cpuCost" : 15,
+              "description" : "Gründlicher Port-Scan mit Schwachstellen-Analyse",
+              "actionType" : "PortScan",
+              "ramCost" : 10,
+              "coreCost" : 2,
+              "id" : "nmap_deep_scan"
+            } ],
+            "speedBonus" : 0,
+            "description" : "Network Scanner für Port-Scans",
+            "stealthBonus" : 10
+          }, {
+            "name" : "Wireshark",
+            "hackBonus" : 0,
+            "id" : "wireshark",
+            "availableActions" : [ {
+              "durationRounds" : 2,
+              "name" : "Data Extraction",
+              "toolId" : "wireshark",
+              "cpuCost" : 10,
+              "description" : "Extrahiert Daten von einem Server",
+              "actionType" : "DataExtraction",
+              "ramCost" : 15,
+              "coreCost" : 1,
+              "id" : "wireshark_data_extraction"
+            } ],
+            "speedBonus" : 0,
+            "description" : "Paket-Sniffer für Netzwerk-Analyse",
+            "stealthBonus" : 20
+          } ]
+        },
+        "runningActions" : [ {
+          "coresReleased" : false,
+          "targetServer" : "Nebenserver-NA-4",
+          "startRound" : 5,
+          "completionRound" : 6,
+          "action" : {
+            "durationRounds" : 1,
+            "name" : "Quick Scan",
+            "toolId" : "nmap",
+            "cpuCost" : 5,
+            "description" : "Schneller Port-Scan",
+            "actionType" : "PortScan",
+            "ramCost" : 3,
+            "coreCost" : 1,
+            "id" : "nmap_quick_scan"
+          }
+        } ]
+      },
+      "id" : 1,
+      "cybersecurity" : 1000,
+      "availableXp" : 1000,
+      "skills" : {
+        "unlockedHackSkills" : [ "script_kiddie" ],
+        "unlockedSocialSkills" : [ ]
+      },
+      "maxMovementPoints" : 1000,
+      "tile" : {
+        "x" : 9,
+        "y" : 9,
+        "continent" : "NorthAmerica"
+      },
+      "movementPoints" : 1000,
+      "name" : "Spieler 1"
+    }, {
+      "totalXpEarned" : 10001000,
+      "laptop" : {
+        "hardware" : {
+          "cpu" : 990,
+          "ram" : 994,
+          "code" : 1000,
+          "kerne" : 1
+        },
+        "tools" : {
+          "installedTools" : [ {
+            "name" : "Nmap",
+            "hackBonus" : 5,
+            "id" : "nmap",
+            "availableActions" : [ {
+              "durationRounds" : 1,
+              "name" : "Quick Scan",
+              "toolId" : "nmap",
+              "cpuCost" : 5,
+              "description" : "Schneller Port-Scan",
+              "actionType" : "PortScan",
+              "ramCost" : 3,
+              "coreCost" : 1,
+              "id" : "nmap_quick_scan"
+            }, {
+              "durationRounds" : 3,
+              "name" : "Deep Scan",
+              "toolId" : "nmap",
+              "cpuCost" : 15,
+              "description" : "Gründlicher Port-Scan mit Schwachstellen-Analyse",
+              "actionType" : "PortScan",
+              "ramCost" : 10,
+              "coreCost" : 2,
+              "id" : "nmap_deep_scan"
+            } ],
+            "speedBonus" : 0,
+            "description" : "Network Scanner für Port-Scans",
+            "stealthBonus" : 10
+          }, {
+            "name" : "Wireshark",
+            "hackBonus" : 0,
+            "id" : "wireshark",
+            "availableActions" : [ {
+              "durationRounds" : 2,
+              "name" : "Data Extraction",
+              "toolId" : "wireshark",
+              "cpuCost" : 10,
+              "description" : "Extrahiert Daten von einem Server",
+              "actionType" : "DataExtraction",
+              "ramCost" : 15,
+              "coreCost" : 1,
+              "id" : "wireshark_data_extraction"
+            } ],
+            "speedBonus" : 0,
+            "description" : "Paket-Sniffer für Netzwerk-Analyse",
+            "stealthBonus" : 20
+          } ]
+        },
+        "runningActions" : [ ]
+      },
+      "id" : 2,
+      "cybersecurity" : 1000,
+      "availableXp" : 1000,
+      "skills" : {
+        "unlockedHackSkills" : [ "script_kiddie" ],
+        "unlockedSocialSkills" : [ ]
+      },
+      "maxMovementPoints" : 1000,
+      "tile" : {
+        "x" : 57,
+        "y" : 17,
+        "continent" : "Asia"
+      },
+      "movementPoints" : 1000,
+      "name" : "Spieler 2"
+    } ],
+    "map" : {
+      "width" : 80,
+      "height" : 40
+    },
+    "socialSkills" : [ {
+      "name" : "Überzeugungskraft",
+      "description" : "Erhöhe deine Erfolgschance bei Social Engineering",
+      "id" : "persuasion",
+      "successBonus" : 5,
+      "costXp" : 50
+    }, {
+      "name" : "Verkleidung",
+      "description" : "Tarnung für physische Infiltration",
+      "id" : "disguise",
+      "successBonus" : 10,
+      "costXp" : 100
+    }, {
+      "name" : "Imitation",
+      "description" : "Gebe dich als autorisierte Person aus",
+      "id" : "impersonation",
+      "successBonus" : 15,
+      "costXp" : 150
+    }, {
+      "name" : "Vorwand",
+      "description" : "Erstelle glaubwürdige Vorwände für Informationen",
+      "id" : "pretexting",
+      "successBonus" : 20,
+      "costXp" : 200
+    }, {
+      "name" : "Hinterherlaufen",
+      "description" : "Schleiche dich hinter autorisierte Personen",
+      "id" : "tailgating",
+      "successBonus" : 7,
+      "costXp" : 75
+    } ],
+    "hackSkills" : [ {
+      "name" : "Script Kiddie",
+      "description" : "Basis-Angriff, immer verfügbar",
+      "id" : "script_kiddie",
+      "successBonus" : 0,
+      "costXp" : 0
+    }, {
+      "name" : "Password Cracking",
+      "description" : "Verbessere deine Fähigkeit, Passwörter zu knacken",
+      "id" : "password_cracking",
+      "successBonus" : 2,
+      "costXp" : 20
+    }, {
+      "name" : "Network Sniffing",
+      "description" : "Erhöhe deine Erfolgschance beim Abhören von Netzwerken",
+      "id" : "network_sniffing",
+      "successBonus" : 3,
+      "costXp" : 30
+    }, {
+      "name" : "Malware Deployment",
+      "description" : "Steigere deine Fähigkeit, Malware zu installieren",
+      "id" : "malware_deployment",
+      "successBonus" : 4,
+      "costXp" : 40
+    }, {
+      "name" : "DDoS Attack",
+      "description" : "Verbessere deine Fähigkeit, Dienste lahmzulegen",
+      "id" : "DDoS_attack",
+      "successBonus" : 6,
+      "costXp" : 60
+    }, {
+      "name" : "Brute Force",
+      "description" : "Erhöhe deine Erfolgschance bei Passwort-Angriffen",
+      "id" : "bruteforce",
+      "successBonus" : 5,
+      "costXp" : 50
+    }, {
+      "name" : "Phishing",
+      "description" : "Täusche Mitarbeiter, um Zugang zu erhalten",
+      "id" : "phishing",
+      "successBonus" : 10,
+      "costXp" : 100
+    }, {
+      "name" : "SQL Injection",
+      "description" : "Greife Datenbanken direkt an",
+      "id" : "sql_injection",
+      "successBonus" : 15,
+      "costXp" : 150
+    } ],
+    "servers" : [ {
+      "rewardRam" : 53,
+      "name" : "Pentagon",
+      "difficulty" : 85,
+      "hacked" : false,
+      "rewardCpu" : 32,
+      "serverType" : "Military",
+      "tile" : {
+        "x" : 24,
+        "y" : 14,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 27,
+      "name" : "Wall Street",
+      "difficulty" : 63,
+      "hacked" : false,
+      "rewardCpu" : 21,
+      "serverType" : "Bank",
+      "tile" : {
+        "x" : 23,
+        "y" : 14,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 33,
+      "name" : "Silicon Valley",
+      "difficulty" : 70,
+      "hacked" : false,
+      "rewardCpu" : 16,
+      "serverType" : "Cloud",
+      "tile" : {
+        "x" : 13,
+        "y" : 15,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 18,
+      "name" : "Brussels",
+      "difficulty" : 74,
+      "hacked" : false,
+      "rewardCpu" : 39,
+      "serverType" : "Bank",
+      "tile" : {
+        "x" : 39,
+        "y" : 11,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 17,
+      "name" : "Frankfurt Hub",
+      "difficulty" : 69,
+      "hacked" : false,
+      "rewardCpu" : 25,
+      "serverType" : "Bank",
+      "tile" : {
+        "x" : 40,
+        "y" : 12,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 18,
+      "name" : "Moscow",
+      "difficulty" : 70,
+      "hacked" : false,
+      "rewardCpu" : 29,
+      "serverType" : "Military",
+      "tile" : {
+        "x" : 46,
+        "y" : 11,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 25,
+      "name" : "Beijing",
+      "difficulty" : 66,
+      "hacked" : false,
+      "rewardCpu" : 30,
+      "serverType" : "Military",
+      "tile" : {
+        "x" : 61,
+        "y" : 15,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 25,
+      "name" : "Tokyo Grid",
+      "difficulty" : 67,
+      "hacked" : false,
+      "rewardCpu" : 24,
+      "serverType" : "Cloud",
+      "tile" : {
+        "x" : 66,
+        "y" : 15,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 23,
+      "name" : "Sydney Core",
+      "difficulty" : 50,
+      "hacked" : false,
+      "rewardCpu" : 23,
+      "serverType" : "Cloud",
+      "tile" : {
+        "x" : 67,
+        "y" : 27,
+        "continent" : "Oceania"
+      }
+    }, {
+      "rewardRam" : 11,
+      "name" : "Cairo",
+      "difficulty" : 56,
+      "hacked" : false,
+      "rewardCpu" : 22,
+      "serverType" : "Firm",
+      "tile" : {
+        "x" : 44,
+        "y" : 16,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 0,
+      "name" : "GKS",
+      "difficulty" : 90,
+      "hacked" : false,
+      "rewardCpu" : 0,
+      "serverType" : "GKS",
+      "tile" : {
+        "x" : 11,
+        "y" : 8,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 11,
+      "name" : "Nebenserver-NA-0",
+      "difficulty" : 35,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 24,
+        "y" : 7,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Nebenserver-NA-1",
+      "difficulty" : 45,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 19,
+        "y" : 10,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 17,
+      "name" : "Nebenserver-NA-2",
+      "difficulty" : 25,
+      "hacked" : false,
+      "rewardCpu" : 15,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 19,
+        "y" : 4,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Nebenserver-NA-3",
+      "difficulty" : 26,
+      "hacked" : false,
+      "rewardCpu" : 14,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 18,
+        "y" : 15,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 15,
+      "name" : "Nebenserver-NA-4",
+      "difficulty" : 21,
+      "hacked" : false,
+      "rewardCpu" : 20,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 9,
+        "y" : 9,
+        "continent" : "NorthAmerica"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Nebenserver-SA-0",
+      "difficulty" : 23,
+      "hacked" : false,
+      "rewardCpu" : 16,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 29,
+        "y" : 23,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 17,
+      "name" : "Nebenserver-SA-1",
+      "difficulty" : 47,
+      "hacked" : false,
+      "rewardCpu" : 15,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 28,
+        "y" : 24,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 17,
+      "name" : "Nebenserver-SA-2",
+      "difficulty" : 49,
+      "hacked" : false,
+      "rewardCpu" : 17,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 26,
+        "y" : 26,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-SA-3",
+      "difficulty" : 31,
+      "hacked" : false,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 27,
+        "y" : 23,
+        "continent" : "SouthAmerica"
+      }
+    }, {
+      "rewardRam" : 18,
+      "name" : "Nebenserver-EU-0",
+      "difficulty" : 25,
+      "hacked" : false,
+      "rewardCpu" : 20,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 41,
+        "y" : 11,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 11,
+      "name" : "Nebenserver-EU-1",
+      "difficulty" : 47,
+      "hacked" : false,
+      "rewardCpu" : 14,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 43,
+        "y" : 10,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-EU-2",
+      "difficulty" : 37,
+      "hacked" : false,
+      "rewardCpu" : 17,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 50,
+        "y" : 9,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-EU-3",
+      "difficulty" : 26,
+      "hacked" : false,
+      "rewardCpu" : 18,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 45,
+        "y" : 9,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-EU-4",
+      "difficulty" : 20,
+      "hacked" : false,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 39,
+        "y" : 9,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-EU-5",
+      "difficulty" : 30,
+      "hacked" : false,
+      "rewardCpu" : 14,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 46,
+        "y" : 13,
+        "continent" : "Europe"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-AF-0",
+      "difficulty" : 30,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 44,
+        "y" : 26,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-AF-1",
+      "difficulty" : 43,
+      "hacked" : false,
+      "rewardCpu" : 15,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 42,
+        "y" : 24,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-AF-2",
+      "difficulty" : 26,
+      "hacked" : false,
+      "rewardCpu" : 18,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 38,
+        "y" : 15,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-AF-3",
+      "difficulty" : 23,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 48,
+        "y" : 24,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-AF-4",
+      "difficulty" : 38,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 43,
+        "y" : 22,
+        "continent" : "Africa"
+      }
+    }, {
+      "rewardRam" : 13,
+      "name" : "Nebenserver-AS-0",
+      "difficulty" : 50,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 53,
+        "y" : 14,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 14,
+      "name" : "Nebenserver-AS-1",
+      "difficulty" : 25,
+      "hacked" : false,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 57,
+        "y" : 17,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 15,
+      "name" : "Nebenserver-AS-2",
+      "difficulty" : 32,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 69,
+        "y" : 9,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 20,
+      "name" : "Nebenserver-AS-3",
+      "difficulty" : 49,
+      "hacked" : false,
+      "rewardCpu" : 18,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 69,
+        "y" : 7,
+        "continent" : "Asia"
+      }
+    }, {
+      "rewardRam" : 19,
+      "name" : "Nebenserver-OC-0",
+      "difficulty" : 26,
+      "hacked" : false,
+      "rewardCpu" : 16,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 62,
+        "y" : 26,
+        "continent" : "Oceania"
+      }
+    }, {
+      "rewardRam" : 10,
+      "name" : "Nebenserver-OC-1",
+      "difficulty" : 50,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 66,
+        "y" : 24,
+        "continent" : "Oceania"
+      }
+    }, {
+      "rewardRam" : 11,
+      "name" : "Nebenserver-OC-2",
+      "difficulty" : 31,
+      "hacked" : false,
+      "rewardCpu" : 20,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 67,
+        "y" : 23,
+        "continent" : "Oceania"
+      }
+    }, {
+      "rewardRam" : 16,
+      "name" : "Nebenserver-OC-3",
+      "difficulty" : 40,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 67,
+        "y" : 29,
+        "continent" : "Oceania"
+      }
+    } ],
+    "laptopTools" : [ {
+      "name" : "Nmap",
+      "hackBonus" : 5,
+      "id" : "nmap",
+      "availableActions" : [ {
+        "durationRounds" : 1,
+        "name" : "Quick Scan",
+        "toolId" : "nmap",
+        "cpuCost" : 5,
+        "description" : "Schneller Port-Scan",
+        "actionType" : "PortScan",
+        "ramCost" : 3,
+        "coreCost" : 1,
+        "id" : "nmap_quick_scan"
+      }, {
+        "durationRounds" : 3,
+        "name" : "Deep Scan",
+        "toolId" : "nmap",
+        "cpuCost" : 15,
+        "description" : "Gründlicher Port-Scan mit Schwachstellen-Analyse",
+        "actionType" : "PortScan",
+        "ramCost" : 10,
+        "coreCost" : 2,
+        "id" : "nmap_deep_scan"
+      } ],
+      "speedBonus" : 0,
+      "description" : "Network Scanner für Port-Scans",
+      "stealthBonus" : 10
+    }, {
+      "name" : "Metasploit Framework",
+      "hackBonus" : 15,
+      "id" : "metasploit",
+      "availableActions" : [ {
+        "durationRounds" : 1,
+        "name" : "Quick Exploit",
+        "toolId" : "metasploit",
+        "cpuCost" : 15,
+        "description" : "Schneller Exploit-Angriff",
+        "actionType" : "Exploit",
+        "ramCost" : 10,
+        "coreCost" : 2,
+        "id" : "metasploit_quick_exploit"
+      }, {
+        "durationRounds" : 3,
+        "name" : "Advanced Exploit",
+        "toolId" : "metasploit",
+        "cpuCost" : 30,
+        "description" : "Komplexer Exploit mit höherer Erfolgsrate",
+        "actionType" : "Exploit",
+        "ramCost" : 25,
+        "coreCost" : 3,
+        "id" : "metasploit_advanced_exploit"
+      } ],
+      "speedBonus" : 1,
+      "description" : "Exploit-Framework für Server-Angriffe",
+      "stealthBonus" : 0
+    }, {
+      "name" : "Wireshark",
+      "hackBonus" : 0,
+      "id" : "wireshark",
+      "availableActions" : [ {
+        "durationRounds" : 2,
+        "name" : "Data Extraction",
+        "toolId" : "wireshark",
+        "cpuCost" : 10,
+        "description" : "Extrahiert Daten von einem Server",
+        "actionType" : "DataExtraction",
+        "ramCost" : 15,
+        "coreCost" : 1,
+        "id" : "wireshark_data_extraction"
+      } ],
+      "speedBonus" : 0,
+      "description" : "Paket-Sniffer für Netzwerk-Analyse",
+      "stealthBonus" : 20
+    }, {
+      "name" : "John the Ripper",
+      "hackBonus" : 10,
+      "id" : "john_the_ripper",
+      "availableActions" : [ {
+        "durationRounds" : 2,
+        "name" : "BruteForce Attack",
+        "toolId" : "john_the_ripper",
+        "cpuCost" : 10,
+        "description" : "Klassischer Brute Force Angriff",
+        "actionType" : "BruteForce",
+        "ramCost" : 5,
+        "coreCost" : 1,
+        "id" : "john_bruteforce"
+      }, {
+        "durationRounds" : 1,
+        "name" : "Dictionary Attack",
+        "toolId" : "john_the_ripper",
+        "cpuCost" : 20,
+        "description" : "Dictionary-basierter Angriff (schneller aber weniger effektiv)",
+        "actionType" : "BruteForce",
+        "ramCost" : 10,
+        "coreCost" : 2,
+        "id" : "john_dictionary"
+      } ],
+      "speedBonus" : 0,
+      "description" : "Password Cracker",
+      "stealthBonus" : -10
+    }, {
+      "name" : "Burp Suite",
+      "hackBonus" : 8,
+      "id" : "burpsuite",
+      "availableActions" : [ {
+        "durationRounds" : 2,
+        "name" : "Web Vulnerability Scan",
+        "toolId" : "burpsuite",
+        "cpuCost" : 12,
+        "description" : "Scannt Web-Anwendungen nach Schwachstellen",
+        "actionType" : "PortScan",
+        "ramCost" : 8,
+        "coreCost" : 2,
+        "id" : "burp_web_scan"
+      } ],
+      "speedBonus" : 0,
+      "description" : "Web Application Security Testing",
+      "stealthBonus" : 5
+    }, {
+      "name" : "SQLMap",
+      "hackBonus" : 12,
+      "id" : "sqlmap",
+      "availableActions" : [ {
+        "durationRounds" : 2,
+        "name" : "SQL Injection Attack",
+        "toolId" : "sqlmap",
+        "cpuCost" : 18,
+        "description" : "Automatisierter SQL Injection Angriff",
+        "actionType" : "Exploit",
+        "ramCost" : 12,
+        "coreCost" : 2,
+        "id" : "sqlmap_injection"
+      } ],
+      "speedBonus" : 1,
+      "description" : "Automatisches SQL Injection Tool",
+      "stealthBonus" : -5
+    } ]
+  },
+  "state" : {
+    "status" : "Running",
+    "phase" : "AwaitingInput",
+    "round" : 5,
+    "currentPlayerIndex" : 1
+  }
+}
