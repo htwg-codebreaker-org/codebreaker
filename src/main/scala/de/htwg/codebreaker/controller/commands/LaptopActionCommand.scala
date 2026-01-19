@@ -96,51 +96,22 @@ case class StartLaptopActionCommand(
   }
 }
 
-// ==================== SCHRITT 2: Actions verarbeiten (automatisch) ====================
+// ==================== SCHRITT 2: Actions verarbeiten (Placeholder) ====================
 
 /**
  * Wird automatisch bei NextPlayerCommand aufgerufen.
- * Gibt Kerne von fertigen Actions frei.
+ * Macht momentan nichts - Actions bleiben bis sie mit CollectLaptopActionResultCommand abgeholt werden.
+ * Kerne werden erst freigegeben wenn man die Belohnung abholt!
  */
 case class ProcessLaptopActionsCommand(currentRound: Int) extends Command {
 
-  private var previousPlayers: Option[List[Player]] = None
-
   override def doStep(game: Game): Try[Game] = {
-    previousPlayers = Some(game.model.players)
-
-    val updatedPlayers = game.model.players.map { player =>
-      // Filtere fertige Actions
-      val (completed, stillRunning) = player.laptop.runningActions.partition { running =>
-        running.completionRound <= currentRound
-      }
-
-      // Kerne wieder freigeben von fertigen Actions
-      val releasedCores = completed.map(_.action.coreCost).sum
-      
-      val updatedHardware = player.laptop.hardware.copy(
-        kerne = player.laptop.hardware.kerne + releasedCores
-      )
-
-      player.copy(
-        laptop = player.laptop.copy(
-          hardware = updatedHardware,
-          runningActions = stillRunning
-        )
-      )
-    }
-
-    Success(game.copy(
-      model = game.model.copy(players = updatedPlayers)
-    ))
+    // Actions werden NICHT gelöscht - bleiben bis CollectLaptopActionResultCommand sie abholt
+    Success(game)
   }
 
   override def undoStep(game: Game): Try[Game] = Try {
-    previousPlayers match {
-      case Some(oldPlayers) =>
-        game.copy(model = game.model.copy(players = oldPlayers))
-      case None => game
-    }
+    game
   }
 }
 
@@ -185,9 +156,13 @@ case class CollectLaptopActionResultCommand(
     val success = random.nextInt(100) < successChance
 
     if (!success) {
-      // Fehlgeschlagen - nur Action entfernen
+      // Fehlgeschlagen - Action entfernen UND Kerne freigeben
+      val releasedCores = completedAction.action.coreCost
       val updatedLaptop = player.laptop.copy(
-        runningActions = player.laptop.runningActions.filterNot(_.targetServer == targetServerName)
+        runningActions = player.laptop.runningActions.filterNot(_.targetServer == targetServerName),
+        hardware = player.laptop.hardware.copy(
+          kerne = player.laptop.hardware.kerne + releasedCores
+        )
       )
       val updatedPlayer = player.copy(laptop = updatedLaptop)
 
@@ -201,13 +176,15 @@ case class CollectLaptopActionResultCommand(
     // Erfolgreich! Rewards berechnen
     val rewards = calculateRewards(server, claimServer)
 
-    // Action aus runningActions entfernen
+    // Action aus runningActions entfernen + Kerne freigeben
+    val releasedCores = completedAction.action.coreCost
     val updatedLaptop = player.laptop.copy(
       runningActions = player.laptop.runningActions.filterNot(_.targetServer == targetServerName),
       hardware = player.laptop.hardware.copy(
         cpu = player.laptop.hardware.cpu + rewards.cpuGained,
         ram = player.laptop.hardware.ram + rewards.ramGained,
-        code = player.laptop.hardware.code + rewards.codeGained
+        code = player.laptop.hardware.code + rewards.codeGained,
+        kerne = player.laptop.hardware.kerne + releasedCores
       )
     )
 

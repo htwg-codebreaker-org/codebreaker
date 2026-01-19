@@ -8,13 +8,16 @@ import de.htwg.codebreaker.model.game.strategy.skilltree.DefaultSkillTreeGenerat
 import de.htwg.codebreaker.model.game.builder.GameBuilder
 import de.htwg.codebreaker.model.game.strategy.server.DefaultServerRoleGenerator
 import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
+import de.htwg.codebreaker.model.game.strategy.PlayerGenerationStrategy
+import de.htwg.codebreaker.model.game.strategy.player.RandomPlayerGenerator
+import de.htwg.codebreaker.model.game.strategy.player.RandomPlayerGeneratorUnlockAll
 
 
 object GameFactory {
 
   def apply(kind: String): Game = kind match {
     case "easy" => default()
-    case "hard" => hard()
+    case "unlockAll" => unlockAll()
     case _      => default() // fallback
   }
 
@@ -28,9 +31,10 @@ object GameFactory {
       .withLaptopTools(DefaultLaptopToolGenerator)
       .build()
 
-  def hard(): Game =
+  def unlockAll(): Game =
     GameBuilder()
       .withNumberOfPlayers(2)
+      .withPlayerStrategy(RandomPlayerGeneratorUnlockAll)
       .withServerStrategy(DefaultServerGenerator)
       .withMap(WorldMap.defaultMap)
       .withSkills(DefaultSkillTreeGenerator)

@@ -3,6 +3,7 @@ package de.htwg.codebreaker.controller
 import de.htwg.codebreaker.model.map.{MapObject}
 import de.htwg.codebreaker.model.server.Server
 import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
 import de.htwg.codebreaker.model.game.game.{Game, GameState, GameModel, GameStatus, Phase}
 import de.htwg.codebreaker.util.Observer
 
@@ -24,6 +25,7 @@ trait ControllerInterface:
   def getServers: List[Server]
   def getMapData(): Vector[Vector[MapObject]]
   def getState: GameState
+  def getCompletedActionsForCurrentPlayer(): List[RunningLaptopAction]
 
   // Command execution
   def doAndRemember(cmd: Command): Unit

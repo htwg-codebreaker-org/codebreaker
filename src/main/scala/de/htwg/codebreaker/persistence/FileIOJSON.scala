@@ -10,7 +10,7 @@ import de.htwg.codebreaker.model.server.{
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.laptop.{
   Laptop, LaptopHardware, LaptopInstalledTools, LaptopTool,
-  LaptopAction, LaptopActionType, RunningLaptopAction
+  LaptopAction, LaptopActionType, RunningLaptopAction, ActionRewards
 }
 import de.htwg.codebreaker.model.player.skill.{PlayerSkillTree, HackSkill, SocialSkill}
 
@@ -65,6 +65,7 @@ class FileIOJSON extends FileIOInterface:
   
   // Laptop actions - WICHTIG: Reihenfolge beachten!
   implicit val laptopActionFormat: Format[LaptopAction] = Json.format[LaptopAction]
+  implicit val actionRewardsFormat: Format[ActionRewards] = Json.format[ActionRewards]
   implicit val laptopToolFormat: Format[LaptopTool] = Json.format[LaptopTool]
   implicit val runningLaptopActionFormat: Format[RunningLaptopAction] = Json.format[RunningLaptopAction]
   

@@ -14,12 +14,7 @@ case class NextPlayerCommand() extends Command {
     val roundInc  = if (currentIndex == totalPlayers - 1) 1 else 0
     val newRound  = game.state.round + roundInc
 
-    // Check if current player has completed tasks (for UI notifications etc.)
-    val currentPlayer = game.model.players(currentIndex)
-    val hasCompletedActions = currentPlayer.laptop.runningActions.exists(_.completionRound <= newRound)
-    println(s"Player ${currentPlayer.id} completed actions: $hasCompletedActions")
-
-    // 1️⃣ Laptop-Actions verarbeiten (funktional!)
+    // 1️⃣ Laptop-Actions verarbeiten (nur Kerne freigeben!)
     ProcessLaptopActionsCommand(newRound).doStep(game).map { processedGame =>
 
       // 2️⃣ Bewegungspunkte für nächsten Spieler
@@ -42,5 +37,5 @@ case class NextPlayerCommand() extends Command {
   }
 
   override def undoStep(game: Game): Try[Game] =
-    Success(game) // Controller setzt ohnehin gameBefore
+    Success(game)
 }

@@ -1,11 +1,12 @@
 package de.htwg.codebreaker.model.player.laptop
 
+import com.fasterxml.jackson.databind.JsonSerializable.Base
+
 case class RunningLaptopAction(
   action: LaptopAction,
   startRound: Int,
   completionRound: Int,
   targetServer: String,
-  coresReleased: Boolean = false  // Flag: Wurden Kerne schon freigegeben?
 )
 
 case class LaptopAction(
@@ -17,7 +18,8 @@ case class LaptopAction(
   cpuCost: Int,
   ramCost: Int,
   description: String,
-  toolId: String           // Zu welchem Tool gehört diese Action?
+  toolId: String,         // Zu welchem Tool gehört diese Action?
+  Rewards: ActionRewards
 )
 
 case class ActionRewards(

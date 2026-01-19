@@ -35,7 +35,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 5,
         ramCost = 3,
         description = "Schneller Port-Scan",
-        toolId = "nmap"
+        toolId = "nmap",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 10
+        )
       ),
       LaptopAction(
         id = "nmap_deep_scan",
@@ -46,7 +52,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 15,
         ramCost = 10,
         description = "Gründlicher Port-Scan mit Schwachstellen-Analyse",
-        toolId = "nmap"
+        toolId = "nmap",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 20
+        )
       )
     )
   )
@@ -68,7 +80,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 15,
         ramCost = 10,
         description = "Schneller Exploit-Angriff",
-        toolId = "metasploit"
+        toolId = "metasploit",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 15
+        )
       ),
       LaptopAction(
         id = "metasploit_advanced_exploit",
@@ -79,7 +97,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 30,
         ramCost = 25,
         description = "Komplexer Exploit mit höherer Erfolgsrate",
-        toolId = "metasploit"
+        toolId = "metasploit",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 25
+        )
       )
     )
   )
@@ -101,7 +125,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 10,
         ramCost = 15,
         description = "Extrahiert Daten von einem Server",
-        toolId = "wireshark"
+        toolId = "wireshark",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 15
+        )
       )
     )
   )
@@ -123,7 +153,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 10,
         ramCost = 5,
         description = "Klassischer Brute Force Angriff",
-        toolId = "john_the_ripper"
+        toolId = "john_the_ripper",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 15
+        )
       ),
       LaptopAction(
         id = "john_dictionary",
@@ -134,7 +170,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 20,
         ramCost = 10,
         description = "Dictionary-basierter Angriff (schneller aber weniger effektiv)",
-        toolId = "john_the_ripper"
+        toolId = "john_the_ripper",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 15
+        )
       )
     )
   )
@@ -156,7 +198,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 12,
         ramCost = 8,
         description = "Scannt Web-Anwendungen nach Schwachstellen",
-        toolId = "burpsuite"
+        toolId = "burpsuite",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 10
+        )
       )
     )
   )
@@ -178,7 +226,13 @@ object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {
         cpuCost = 18,
         ramCost = 12,
         description = "Automatisierter SQL Injection Angriff",
-        toolId = "sqlmap"
+        toolId = "sqlmap",
+        Rewards = ActionRewards(
+          cpuGained = 0,
+          ramGained = 0,
+          codeGained = 0,
+          xpGained = 20
+        )
       )
     )
   )

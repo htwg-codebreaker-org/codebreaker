@@ -8,6 +8,7 @@ import de.htwg.codebreaker.model.server.Server
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.game.game.{Game, GameState, Phase, GameStatus}
 import de.htwg.codebreaker.controller.Command
+import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
 
 class LoggingController(inner: ControllerInterface)
   extends ControllerInterface
@@ -37,6 +38,9 @@ class LoggingController(inner: ControllerInterface)
 
   override def getState: GameState =
     inner.getState
+
+  override def getCompletedActionsForCurrentPlayer(): List[RunningLaptopAction] =
+    inner.getCompletedActionsForCurrentPlayer()
 
   override def canUndo: Boolean =
     inner.canUndo

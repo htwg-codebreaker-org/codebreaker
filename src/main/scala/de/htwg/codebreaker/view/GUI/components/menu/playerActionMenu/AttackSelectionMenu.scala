@@ -1,4 +1,4 @@
-package de.htwg.codebreaker.view.gui.components.menu.hack
+package de.htwg.codebreaker.view.gui.components.menu.playerActionMenu
 
 import scalafx.scene.Scene
 import scalafx.scene.control.{Button, Label, ProgressIndicator}

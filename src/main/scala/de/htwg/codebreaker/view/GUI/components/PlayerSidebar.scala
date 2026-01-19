@@ -4,8 +4,9 @@ import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.server.Server
 import de.htwg.codebreaker.view.gui.components.ViewConfig
+import de.htwg.codebreaker.view.gui.components.menu.playerActionMenu.LaptopMainMenu
 import scalafx.scene.layout.{VBox, HBox}
-import scalafx.scene.control.Label
+import scalafx.scene.control.{Label, Button}
 import scalafx.geometry.Insets
 
 /**
@@ -45,7 +46,7 @@ class PlayerSidebar(
         createMovementLabel(player),
         createLevelXpRow(player),
         createSecurityLabel(player),
-        createLaptopRow(player)
+        createLaptopButton(index)
       )
     }
   }
@@ -93,17 +94,14 @@ class PlayerSidebar(
     }
   }
   
-  private def createLaptopRow(player: Player): HBox = {
-    new HBox {
-      spacing = config.spacing
-      children = Seq(
-        new Label(s"Kerne: ${player.laptop.hardware.kerne}") {
-          style = s"-fx-text-fill: #ff99ff; -fx-font-size: ${config.fontSizeSmall}px;"
-        },
-        new Label(s"Actions: ${player.laptop.runningActions.length}") {
-          style = s"-fx-text-fill: #ffcc99; -fx-font-size: ${config.fontSizeSmall}px;"
-        }
-      )
+  private def createLaptopButton(playerIndex: Int): Button = {
+    new Button("💻 Laptop öffnen") {
+      style = "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #7b68ee; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-cursor: hand;"
+      maxWidth = Double.MaxValue
+      onAction = _ => {
+        // Öffne das neue Laptop Hauptmenü
+        new LaptopMainMenu(controller, playerIndex).show()
+      }
     }
   }
   

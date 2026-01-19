@@ -4,7 +4,7 @@ import de.htwg.codebreaker.model.game.game.{Game, GameState, GameModel, Phase, G
 import de.htwg.codebreaker.model.map.{Continent, Tile, WorldMap}
 import de.htwg.codebreaker.model.server.{Server, ServerType, ServerRoleBlueprint, RoleActionBlueprint, ServerRoleType, RoleActionReward, RoleActionRequirements}
 import de.htwg.codebreaker.model.player.Player
-import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools, LaptopTool, LaptopAction, LaptopActionType, RunningLaptopAction}
+import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools, LaptopTool, LaptopAction, LaptopActionType, RunningLaptopAction, ActionRewards}
 import de.htwg.codebreaker.model.player.skill.{PlayerSkillTree, HackSkill, SocialSkill}
 
 import scala.util.{Try, Success, Failure}
@@ -121,7 +121,6 @@ class FileIOXML extends FileIOInterface:
       <startRound>{action.startRound}</startRound>
       <completionRound>{action.completionRound}</completionRound>
       <targetServer>{action.targetServer}</targetServer>
-      <coresReleased>{action.coresReleased}</coresReleased>
     </runningAction>
 
   private def laptopToolToXML(tool: LaptopTool): Elem =
@@ -284,7 +283,6 @@ class FileIOXML extends FileIOInterface:
       startRound = (xml \ "startRound").text.toInt,
       completionRound = (xml \ "completionRound").text.toInt,
       targetServer = (xml \ "targetServer").text,
-      coresReleased = (xml \ "coresReleased").text.toBoolean
     )
 
   private def xmlToLaptopTool(xml: Node): LaptopTool =
@@ -308,7 +306,13 @@ class FileIOXML extends FileIOInterface:
       cpuCost = (xml \ "cpuCost").text.toInt,
       ramCost = (xml \ "ramCost").text.toInt,
       description = (xml \ "description").text,
-      toolId = (xml \ "toolId").text
+      toolId = (xml \ "toolId").text,
+      Rewards = ActionRewards(
+        cpuGained = (xml \ "rewards" \ "cpuGained").text.toInt,
+        ramGained = (xml \ "rewards" \ "ramGained").text.toInt,
+        codeGained = (xml \ "rewards" \ "codeGained").text.toInt,
+        xpGained = (xml \ "rewards" \ "xpGained").text.toInt
+      )
     )
 
   private def xmlToServer(xml: Node): Server =

@@ -6,6 +6,7 @@ import de.htwg.codebreaker.model.map.{WorldMap, MapObject}
 import de.htwg.codebreaker.model.server.Server
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.game.game.{Game, GameState, Phase, GameStatus}
+import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
 
 import de.htwg.codebreaker.persistence.FileIOInterface
 import scala.util.{Try, Success, Failure}
@@ -41,6 +42,15 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
   def getMapData(): Vector[Vector[MapObject]] =
     game.model.map.getMapData(game.model.players, game.model.servers)
   def getState: GameState = game.state
+
+  def getCompletedActionsForCurrentPlayer(): List[RunningLaptopAction] = {
+    game.state.currentPlayerIndex match {
+      case Some(idx) if idx >= 0 && idx < game.model.players.length =>
+        val player = game.model.players(idx)
+        player.laptop.runningActions.filter(_.completionRound <= game.state.round)
+      case _ => Nil
+    }
+  }
 
 
   /** Führt ein Command aus und speichert den alten Zustand für Undo. */

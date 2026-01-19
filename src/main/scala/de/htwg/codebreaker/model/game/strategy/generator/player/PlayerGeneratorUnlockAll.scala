@@ -7,7 +7,7 @@ import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopIn
 import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
 import scala.util.Random
 
-object PlayerGenerator:
+object PlayerGeneratorUnlockAll:
 
   private val initialSkills: Set[String] =
     Set("script_kiddie")
@@ -23,9 +23,9 @@ object PlayerGenerator:
     
     Laptop(
       hardware = LaptopHardware(
-        cpu = 20,
-        ram = 20,
-        code = 20,
+        cpu = 1000,
+        ram = 1000,
+        code = 1000,
         kerne = 1
       ),
       tools = LaptopInstalledTools(starterTools),
@@ -44,11 +44,11 @@ object PlayerGenerator:
         name = s"Spieler ${idx + 1}",
         tile = tile,
         laptop = initialLaptop,
-        availableXp = 0,
-        totalXpEarned = 0,
+        availableXp = 1000,
+        totalXpEarned = 10001000,
         skills = PlayerSkillTree(initialSkills),
-        cybersecurity = 0,
-        movementPoints = 5,
-        maxMovementPoints = 5
+        cybersecurity = 1000,
+        movementPoints = 1000,
+        maxMovementPoints = 1000
       )
     }.toList
