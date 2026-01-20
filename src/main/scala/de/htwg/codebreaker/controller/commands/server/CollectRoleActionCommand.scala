@@ -47,10 +47,18 @@ case class CollectRoleActionCommand(
     val detected = random.nextInt(100) < detectionChance
 
     if (detected) {
-      // DETECTED! Role zerstört, Server geblockt
+      // DETECTED! Server geblockt, aber Role bleibt bestehen
+      // Detection Risk wird erhöht als Strafe
+      val updatedRole = role.copy(
+        detectionRisk = math.min(100, role.detectionRisk + 20), // +20% Detection Risk
+        runningActions = role.runningActions.filterNot(a =>
+          a.actionId == actionId && a.completionRound == completedAction.completionRound
+        )
+      )
+
       val updatedServer = server.copy(
-        installedRole = None,
-        blockedUntilRound = Some(game.state.round + 5)
+        installedRole = Some(updatedRole),
+        blockedUntilRound = Some(game.state.round + 3) // Server 3 Runden geblockt
       )
 
       val updatedServers = game.model.servers.map {
@@ -76,14 +84,13 @@ case class CollectRoleActionCommand(
 
     val updatedPlayer = player.copy(laptop = updatedLaptop)
 
-    // ✅ FIX: Nur DIE EINE Action entfernen, nicht alle!
+    // Action entfernen und Rewards anwenden
     val updatedRole = role.copy(
       networkRange = role.networkRange + rewards.networkRangeBonus,
       runningActions = role.runningActions.filterNot(a =>
         a.actionId == actionId && a.completionRound == completedAction.completionRound
       )
     )
-
 
     val updatedServer = server.copy(installedRole = Some(updatedRole))
 

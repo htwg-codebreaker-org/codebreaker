@@ -5,5 +5,6 @@ case class Laptop(
   hardware: LaptopHardware,
   tools: LaptopInstalledTools,
   runningActions: List[RunningLaptopAction],
+  runningInternetSearch: Option[RunningInternetSearch], 
   cybersecurity: Int,
 )

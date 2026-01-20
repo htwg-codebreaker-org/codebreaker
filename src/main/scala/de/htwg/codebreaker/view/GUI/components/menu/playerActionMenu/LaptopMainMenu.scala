@@ -84,7 +84,6 @@ class LaptopMainMenu(
     parentStage: Stage
   ): VBox = {
     
-    // Laptop Hardware Info
     val hardwareInfo = new VBox {
       style = "-fx-background-color: #2a2a2a; -fx-padding: 10; -fx-border-radius: 5; -fx-background-radius: 5;"
       spacing = 5
@@ -118,7 +117,6 @@ class LaptopMainMenu(
       )
     }
 
-    
     val upgradeButton = new Button(s"⬆️ Upgrade Cores\n($currentCores → ${currentCores + 1}) [$upgradeCost CPU]") {
       style = if (canAffordUpgrade) 
         "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;"
@@ -131,6 +129,15 @@ class LaptopMainMenu(
         controller.doAndRemember(UpgradeCoresCommand(playerIndex))
         parentStage.close()
         show()
+      }
+    }
+
+    val internetSearchButton = new Button("🌐 Internet durchsuchen") {
+      style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #1e90ff; -fx-text-fill: white; -fx-font-weight: bold;"
+      maxWidth = Double.MaxValue
+      onAction = _ => {
+        parentStage.close()
+        new InternetSearchMenu(controller, playerIndex).show()
       }
     }
 
@@ -170,6 +177,7 @@ class LaptopMainMenu(
         },
         hardwareInfo,
         upgradeButton,
+        internetSearchButton,
         attackButton,
         runningButton,
         completedButton,
@@ -186,11 +194,13 @@ class LaptopMainMenu(
     val player = controller.getPlayers(playerIndex)
     val playerTile = player.tile
     
-    // Server nur auf aktuellem Tile (später: +WLAN Reichweite)
-    val inRangeServers = controller.getServers.filter(_.tile == playerTile)
+    val inRangeServers = controller.getServers.filter { server =>
+      val dx = math.abs(playerTile.x - server.tile.x)
+      val dy = math.abs(playerTile.y - server.tile.y)
+      math.max(dx, dy) <= player.laptop.hardware.networkRange
+    }
 
     if (inRangeServers.isEmpty) {
-      // Info-Fenster: Kein Server in Reichweite
       val stage = new Stage {
         title = "⚠️ Kein Server in Reichweite"
         width = 400
@@ -223,10 +233,8 @@ class LaptopMainMenu(
       )
       stage.show()
     } else if (inRangeServers.size == 1) {
-      // Nur ein Server: direkt öffnen
       new LaptopActionSelectionMenu(controller, inRangeServers.head, playerIndex).show()
     } else {
-      // Mehrere Server: Auswahl anzeigen
       val stage = new Stage {
         title = "🔨 Server wählen"
         width = 600
@@ -271,9 +279,9 @@ class LaptopMainMenu(
     }
   }
 
-// ==========================================
-// RECHTE SPALTE: GECLAIMTE SERVER MIT ROLLEN
-// ==========================================
+  // ==========================================
+  // RECHTE SPALTE: GECLAIMTE SERVER MIT ROLLEN
+  // ==========================================
 
   private def createClaimedServersColumn(): VBox = {
     val claimedServers = controller.getServers.filter(_.claimedBy.contains(playerIndex))
@@ -340,10 +348,8 @@ class LaptopMainMenu(
       )
     }
 
-    // ═══ ROLE STATUS ═══
     val roleSection = s.installedRole match {
       case None =>
-        // Kein Role installiert - Button zum Installieren
         val installButton = new Button("⚙️ Install Role") {
           style = "-fx-font-size: 10px; -fx-padding: 5;"
           maxWidth = Double.MaxValue
@@ -360,15 +366,13 @@ class LaptopMainMenu(
         }
 
       case Some(role) if !role.isActive =>
-        // Role wird installiert - prüfe ob fertig
         val currentRound = controller.game.state.round
         val roundsLeft = s.blockedUntilRound.getOrElse(currentRound) - currentRound
         
         if (roundsLeft <= 0) {
-          // ✅ FERTIG! Zeige verfügbare Actions
           val availableActions = controller.game.model.actionBlueprints
             .filter(_.roleType == role.roleType)
-            .take(2)  // Nur die ersten 2 Actions anzeigen (Platzersparnis)
+            .take(2)
 
           val actionButtons = availableActions.map { blueprint =>
             new Button(s"▶ ${blueprint.name}") {
@@ -396,7 +400,6 @@ class LaptopMainMenu(
             ) ++ actionButtons :+ moreActionsButton
           }
         } else {
-          // ⏳ Noch nicht fertig
           new VBox {
             spacing = 3
             children = Seq(
@@ -411,7 +414,6 @@ class LaptopMainMenu(
         }
 
       case Some(role) =>
-        // Role ist aktiv
         val currentRound = controller.game.state.round
         val runningActions = role.runningActions.filter(_.completionRound > currentRound)
         val completedActions = role.runningActions.filter(_.completionRound <= currentRound)
@@ -731,6 +733,7 @@ class LaptopMainMenu(
 
     stage.show()
   }
+
   // ==========================================
   // ROLE SELECTION WINDOW
   // ==========================================
@@ -755,11 +758,10 @@ class LaptopMainMenu(
         maxWidth = Double.MaxValue
         prefHeight = 80
         onAction = _ => {
-          stage.close()
           controller.doAndRemember(
             InstallServerRoleCommand(playerIndex, server.name, blueprint.roleType)
           )
-          show() // Refresh main menu
+          stage.close()
         }
       }
     }
@@ -810,7 +812,6 @@ class LaptopMainMenu(
 
     val currentRound = controller.game.state.round
 
-    // === HEADER ===
     val header = new VBox {
       spacing = 5
       padding = Insets(10)
@@ -826,7 +827,6 @@ class LaptopMainMenu(
       )
     }
 
-    // === RUNNING ACTIONS SECTION ===
     val runningActions = role.runningActions.filter(_.completionRound > currentRound)
     val runningSection = if (runningActions.isEmpty) {
       new VBox {
@@ -849,7 +849,6 @@ class LaptopMainMenu(
       }
     }
 
-    // === COMPLETED ACTIONS SECTION ===
     val completedActions = role.runningActions.filter(_.completionRound <= currentRound)
     val completedSection = if (completedActions.isEmpty) {
       new VBox {
@@ -864,21 +863,58 @@ class LaptopMainMenu(
       new VBox {
         spacing = 5
         children = completedActions.map { action =>
+          val rewards = action.expectedRewards
+          
           new HBox {
             spacing = 10
             alignment = Pos.CenterLeft
             children = Seq(
-              new Label(s"✓ ${action.actionId}") {
-                style = "-fx-font-size: 11px; -fx-text-fill: #32cd32; -fx-font-weight: bold;"
+              new VBox {
+                spacing = 3
+                children = Seq(
+                  new Label(s"✓ ${action.actionId}") {
+                    style = "-fx-font-size: 11px; -fx-text-fill: #32cd32; -fx-font-weight: bold;"
+                  },
+                  new Label(s"Rewards: CPU +${rewards.cpu} | RAM +${rewards.ram} | Code +${rewards.code}") {
+                    style = "-fx-font-size: 9px; -fx-text-fill: #888;"
+                  }
+                )
               },
               new Button("📦 Collect") {
                 style = "-fx-font-size: 10px; -fx-padding: 5;"
                 onAction = _ => {
-                  stage.close()
+                  val oldPlayer = controller.getPlayers(playerIndex)
+                  val oldCpu = oldPlayer.laptop.hardware.cpu
+                  val oldRam = oldPlayer.laptop.hardware.ram
+                  val oldCode = oldPlayer.laptop.hardware.code
+                  
                   controller.doAndRemember(
                     CollectRoleActionCommand(playerIndex, server.name, action.actionId)
                   )
-                  show() // Refresh main menu
+                  
+                  stage.close()
+                  
+                  val newPlayer = controller.getPlayers(playerIndex)
+                  val updatedServer = controller.getServers.find(_.name == server.name)
+                  
+                  val wasDetected = updatedServer.flatMap(_.installedRole) match {
+                    case Some(updatedRole) => updatedRole.detectionRisk > role.detectionRisk
+                    case None => false
+                  }
+                  
+                  if (wasDetected) {
+                    showDetectedNotification(server.name)
+                  } else {
+                    val cpuGained = newPlayer.laptop.hardware.cpu - oldCpu
+                    val ramGained = newPlayer.laptop.hardware.ram - oldRam
+                    val codeGained = newPlayer.laptop.hardware.code - oldCode
+                    
+                    showRewardsNotification(cpuGained, ramGained, codeGained)
+                  }
+                  
+                  updatedServer.flatMap(_.installedRole).foreach { updatedRole =>
+                    showRoleManagementWindow(updatedServer.get, updatedRole)
+                  }
                 }
               }
             )
@@ -887,30 +923,33 @@ class LaptopMainMenu(
       }
     }
 
-    // === AVAILABLE ACTIONS SECTION ===
     val availableActions = controller.game.model.actionBlueprints
       .filter(_.roleType == role.roleType)
 
     val actionButtons = availableActions.map { blueprint =>
       val durationText = s"Duration: ${blueprint.durationRounds} rounds"
       val riskText = s"Risk: +${blueprint.detectionRiskIncrease}%"
+      val rewardText = s"Rewards: CPU +${blueprint.rewards.cpu} | RAM +${blueprint.rewards.ram} | Code +${blueprint.rewards.code}"
       
-      new Button(s"▶ ${blueprint.name}\n$durationText | $riskText\n${blueprint.description}") {
+      new Button(s"▶ ${blueprint.name}\n$durationText | $riskText\n$rewardText\n${blueprint.description}") {
         style = "-fx-font-size: 11px; -fx-padding: 10; -fx-wrap-text: true;"
         wrapText = true
         maxWidth = Double.MaxValue
-        prefHeight = 80
+        prefHeight = 100
         onAction = _ => {
-          stage.close()
           controller.doAndRemember(
             StartRoleActionCommand(playerIndex, server.name, blueprint.id)
           )
-          show() // Refresh main menu
+          stage.close()
+          
+          val updatedServer = controller.getServers.find(_.name == server.name)
+          updatedServer.flatMap(_.installedRole).foreach { updatedRole =>
+            showRoleManagementWindow(updatedServer.get, updatedRole)
+          }
         }
       }
     }
 
-    // === MAIN CONTENT ===
     val scrollPane = new ScrollPane {
       content = new VBox {
         spacing = 15
@@ -943,6 +982,109 @@ class LaptopMainMenu(
         top = header
         center = scrollPane
         bottom = closeButton
+      }
+    )
+
+    stage.show()
+  }
+
+  // ==========================================
+  // NOTIFICATION WINDOWS
+  // ==========================================
+
+  private def showRewardsNotification(cpu: Int, ram: Int, code: Int): Unit = {
+    val stage = new Stage {
+      title = "✅ Erfolgreich!"
+      width = 400
+      height = 250
+      resizable = false
+    }
+
+    stage.scene = new Scene(
+      new VBox {
+        spacing = 15
+        padding = Insets(20)
+        alignment = Pos.Center
+        style = "-fx-background-color: #1a1a1a;"
+        children = Seq(
+          new Label("✅ Rewards eingesammelt!") {
+            style = "-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #32cd32;"
+          },
+          new VBox {
+            spacing = 8
+            alignment = Pos.Center
+            style = "-fx-background-color: #2a2a2a; -fx-padding: 15; -fx-border-radius: 5; -fx-background-radius: 5;"
+            children = Seq(
+              if (cpu > 0) Some(new Label(s"💚 +$cpu CPU") {
+                style = "-fx-font-size: 14px; -fx-text-fill: #66ff66;"
+              }) else None,
+              if (ram > 0) Some(new Label(s"💙 +$ram RAM") {
+                style = "-fx-font-size: 14px; -fx-text-fill: #66ccff;"
+              }) else None,
+              if (code > 0) Some(new Label(s"💛 +$code Code") {
+                style = "-fx-font-size: 14px; -fx-text-fill: #ffcc66;"
+              }) else None
+            ).flatten
+          },
+          new Button("OK") {
+            style = "-fx-font-size: 13px; -fx-padding: 10; -fx-background-color: #4caf50; -fx-text-fill: white;"
+            maxWidth = 200
+            onAction = _ => stage.close()
+          }
+        )
+      }
+    )
+
+    stage.show()
+  }
+
+  private def showDetectedNotification(serverName: String): Unit = {
+    val stage = new Stage {
+      title = "⚠️ Entdeckt!"
+      width = 450
+      height = 250
+      resizable = false
+    }
+
+    stage.scene = new Scene(
+      new VBox {
+        spacing = 15
+        padding = Insets(20)
+        alignment = Pos.Center
+        style = "-fx-background-color: #1a1a1a;"
+        children = Seq(
+          new Label("⚠️ ENTDECKT!") {
+            style = "-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #ff6666;"
+          },
+          new Label(s"Deine Action auf $serverName wurde entdeckt!") {
+            style = "-fx-font-size: 14px; -fx-text-fill: #ccc;"
+            wrapText = true
+          },
+          new VBox {
+            spacing = 5
+            alignment = Pos.Center
+            style = "-fx-background-color: #2a2a2a; -fx-padding: 15; -fx-border-radius: 5; -fx-background-radius: 5;"
+            children = Seq(
+              new Label("Konsequenzen:") {
+                style = "-fx-font-size: 12px; -fx-text-fill: #ff8c00; -fx-font-weight: bold;"
+              },
+              new Label("• Detection Risk +20%") {
+                style = "-fx-font-size: 11px; -fx-text-fill: #ff6666;"
+              },
+              new Label("• Server 3 Runden geblockt") {
+                style = "-fx-font-size: 11px; -fx-text-fill: #ff6666;"
+              },
+              new Label("• Keine Rewards erhalten") {
+                style = "-fx-font-size: 11px; -fx-text-fill: #ff6666;"
+              }
+            )
+          },
+          new Button("OK") {
+            style = "-fx-font-size: 13px; -fx-padding: 10; -fx-background-color: #dc143c; -fx-text-fill: white;"
+            maxWidth = 200
+            onAction = _ => stage.close()
+          }
+        )
       }
     )
 

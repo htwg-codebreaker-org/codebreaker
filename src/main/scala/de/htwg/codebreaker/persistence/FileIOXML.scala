@@ -4,7 +4,7 @@ import de.htwg.codebreaker.model.game.game.{Game, GameState, GameModel, Phase, G
 import de.htwg.codebreaker.model.map.{Continent, Tile, WorldMap}
 import de.htwg.codebreaker.model.server.{Server, ServerType, ServerRoleBlueprint, RoleActionBlueprint, ServerRoleType, RoleActionReward, RoleActionRequirements}
 import de.htwg.codebreaker.model.player.Player
-import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools, LaptopTool, LaptopAction, LaptopActionType, RunningLaptopAction, ActionRewards}
+import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools, LaptopTool, LaptopAction, LaptopActionType, RunningLaptopAction, ActionRewards, RunningInternetSearch}
 import de.htwg.codebreaker.model.player.skill.{PlayerSkillTree, HackSkill, SocialSkill}
 
 import scala.util.{Try, Success, Failure}
@@ -124,6 +124,15 @@ class FileIOXML extends FileIOInterface:
       <completionRound>{action.completionRound}</completionRound>
       <targetServer>{action.targetServer}</targetServer>
     </runningAction>
+
+  private def runningInternetSearchToXML(search: RunningInternetSearch): Elem =
+    <runningInternetSearch>
+      <startRound>{search.startRound}</startRound>
+      <completionRound>{search.completionRound}</completionRound>
+      <foundTools>
+        {search.foundTools.map(tool => <tool>{tool.id}</tool>)}
+      </foundTools>
+    </runningInternetSearch>
 
   private def laptopToolToXML(tool: LaptopTool): Elem =
     <laptopTool>
@@ -288,6 +297,7 @@ class FileIOXML extends FileIOInterface:
             .map(n => laptopTools.find(_.id == n.text).get)
             .toList
         ),
+        runningInternetSearch = (xml \ "laptop" \ "runningInternetSearch").headOption.map(xmlToRunningInternetSearch),
         runningActions = (xml \ "laptop" \ "runningActions" \ "runningAction")
           .map(n => xmlToRunningLaptopAction(n, laptopTools))
           .toList
@@ -325,6 +335,16 @@ class FileIOXML extends FileIOInterface:
       speedBonus = (xml \ "speedBonus").text.toInt,
       description = (xml \ "description").text,
       availableActions = (xml \ "availableActions" \ "action").map(xmlToLaptopAction).toList
+    )
+  
+  private def xmlToRunningInternetSearch(xml: Node): RunningInternetSearch =
+    val foundToolIds = (xml \ "foundTools" \ "tool").map(_.text).toList
+    val foundTools = foundToolIds.map(id => LaptopTool(id, "", 0, 0, 0, "", Nil)) 
+
+    RunningInternetSearch(
+      startRound = (xml \ "startRound").text.toInt,
+      completionRound = (xml \ "completionRound").text.toInt,
+      foundTools = foundTools
     )
 
   private def xmlToLaptopAction(xml: Node): LaptopAction =

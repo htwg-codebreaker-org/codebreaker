@@ -31,6 +31,7 @@ object PlayerGeneratorUnlockAll:
       ),
       tools = LaptopInstalledTools(starterTools),
       runningActions = Nil,
+      runningInternetSearch = None,
       cybersecurity = 1000
     )
   }

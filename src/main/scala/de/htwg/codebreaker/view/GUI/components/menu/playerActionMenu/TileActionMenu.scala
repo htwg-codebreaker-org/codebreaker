@@ -34,32 +34,6 @@ class TileActionMenu(
     }
     menu.items.add(moveItem)
 
-    // 💻 Server auf diesem Tile - Backend fragen ob hackbar
-    controller.getServers
-      .find(_.tile == tile)
-      .foreach { server =>
-        
-        val hackItem = new MenuItem(s"💻 ${server.name} hacken")
-
-        // === Laptop-Angriff ===
-        val laptopHackItem = new MenuItem(s"💻 ${server.name} angreifen (Laptop)")
-        if (server.hacked || server.serverType == ServerType.Private) {
-          laptopHackItem.text = s"💻 ${server.name} (nicht möglich)"
-          laptopHackItem.disable = true
-        } else {
-          laptopHackItem.onAction = _ => {
-            new LaptopActionSelectionMenu(
-              controller = controller,
-              server = server,
-              playerIndex = playerIndex
-            ).show()
-          }
-        }
-
-        menu.items.add(laptopHackItem)
-      }
-
-
     // ℹ Info
     val infoItem = new MenuItem(s"ℹ Feldinfo (${tile.x}, ${tile.y})")
     infoItem.onAction = _ => showTileInfo()

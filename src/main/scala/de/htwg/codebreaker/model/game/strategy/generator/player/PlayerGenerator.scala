@@ -30,6 +30,7 @@ object PlayerGenerator:
         networkRange = 0
       ),
       tools = LaptopInstalledTools(starterTools),
+      runningInternetSearch = None,
       runningActions = Nil,
       cybersecurity = 5
     )

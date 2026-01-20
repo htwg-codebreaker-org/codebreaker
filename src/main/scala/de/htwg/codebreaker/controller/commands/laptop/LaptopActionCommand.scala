@@ -37,9 +37,9 @@ case class StartLaptopActionCommand(
     
     val server = serverOpt.get
 
-    // Validierungen
-    if (player.tile != server.tile)
-      return Failure(new IllegalArgumentException("Spieler nicht auf Server-Tile"))
+    // Prüfe ob Server in Reichweite ist
+    if (!isServerInRange(player, server))
+      return Failure(new IllegalArgumentException("Server nicht in Reichweite"))
 
     if (server.hacked)
       return Failure(new IllegalArgumentException("Server bereits gehackt"))
@@ -94,6 +94,22 @@ case class StartLaptopActionCommand(
         )
       case None => game
     }
+  }
+
+  /**
+   * Prüft ob ein Server in Reichweite des Spielers ist.
+   * networkRange = 0: Nur gleiches Tile
+   * networkRange = 1: Gleiches Tile + alle umliegenden Felder (3x3 Bereich)
+   * networkRange = 2: 5x5 Bereich, etc.
+   */
+  private def isServerInRange(player: Player, server: Server): Boolean = {
+    val range = player.laptop.hardware.networkRange
+    val dx = math.abs(player.tile.x - server.tile.x)
+    val dy = math.abs(player.tile.y - server.tile.y)
+    
+    // Manhattan-Distanz oder Chebyshev-Distanz (max von dx, dy)
+    // Hier verwenden wir Chebyshev für "quadratische" Reichweite
+    math.max(dx, dy) <= range
   }
 }
 
