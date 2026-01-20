@@ -8,3 +8,9 @@ object RandomPlayerGenerator extends PlayerGenerationStrategy {
   override def generatePlayers(numPlayers: Int, map: WorldMap, avoidTiles: List[Tile]): List[Player] =
     PlayerGenerator.generatePlayers(numPlayers, map, avoidTiles)
 }
+
+
+object RandomPlayerGeneratorUnlockAll extends PlayerGenerationStrategy {
+  override def generatePlayers(numPlayers: Int, map: WorldMap, avoidTiles: List[Tile]): List[Player] =
+    PlayerGeneratorUnlockAll.generatePlayers(numPlayers, map, avoidTiles)  // ← UnlockAll!
+}

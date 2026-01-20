@@ -6,7 +6,10 @@ import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
 
 import de.htwg.codebreaker.controller.ControllerInterface
-import de.htwg.codebreaker.controller.commands.{MovePlayerCommand, HackServerCommand, NextPlayerCommand, UnlockHackSkillCommand, UnlockSocialSkillCommand, StartLaptopActionCommand, CollectLaptopActionResultCommand}
+import de.htwg.codebreaker.controller.commands.{MovePlayerCommand, UnlockHackSkillCommand, UnlockSocialSkillCommand}
+import de.htwg.codebreaker.controller.commands.player.NextPlayerCommand
+import de.htwg.codebreaker.controller.commands.laptop.{StartLaptopActionCommand, CollectLaptopActionResultCommand}
+import de.htwg.codebreaker.controller.commands.laptop.UpgradeCoresCommand
 import de.htwg.codebreaker.model.map.{MapObject, Tile}
 import de.htwg.codebreaker.model.player.laptop.LaptopAction
 import de.htwg.codebreaker.model.server.Server
@@ -85,44 +88,169 @@ class TUI @Inject()(controller: ControllerInterface)
 
     val runningCount = player.laptop.runningActions.length
     val completedCount = controller.getCompletedActionsForCurrentPlayer().length
+    
+    val currentCores = player.laptop.hardware.kerne
+    val upgradeCost = UpgradeCoresCommand.calculateCost(currentCores)  // ← Clean!
 
     println(s"\na) 🔨 Attack (neue Action starten)")
     println(s"r) 🔄 Running Tasks ($runningCount)")
     println(s"c) ✅ Completed Tasks ($completedCount)")
+    println(s"u) ⬆️  Upgrade Cores ($currentCores → ${currentCores + 1}) [Kosten: $upgradeCost CPU]")
     println(s"0) Zurück")
     print("> ")
 
     StdIn.readLine() match {
-      case "a" =>
-        showAttackMenu()
-      case "r" =>
-        showRunningActionsMenu()
-      case "c" =>
-        showCompletedActionsMenu()
-      case "0" =>
-        println("Zurück zum Hauptmenü.")
-      case _ =>
-        println("Ungültige Auswahl.")
+      case "a" => showAttackMenu()
+      case "r" => showRunningActionsMenu()
+      case "c" => showCompletedActionsMenu()
+      case "u" => handleCoreUpgrade(playerIndex)  // ← Kein cost parameter mehr nötig
+      case "0" => println("Zurück zum Hauptmenü.")
+      case _ => println("Ungültige Auswahl.")
     }
+  }
+
+  private def handleCoreUpgrade(playerIndex: Int): Unit = {
+    val player = controller.getPlayers(playerIndex)
+    val cost = UpgradeCoresCommand.calculateCost(player.laptop.hardware.kerne)
+    
+    if (player.laptop.hardware.cpu < cost) {
+      println(s"\n❌ Nicht genug CPU! Benötigt: $cost, Verfügbar: ${player.laptop.hardware.cpu}")
+    } else {
+      controller.doAndRemember(UpgradeCoresCommand(playerIndex))
+      println(s"✅ Core-Upgrade erfolgreich! Neue Kerne: ${player.laptop.hardware.kerne + 1}")
+    }
+    showLaptopMenu()
   }
 
   // --- ATTACK: Neue Actions starten ---
   private def showAttackMenu(): Unit = {
     val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
     val player = controller.getPlayers(playerIndex)
+    val playerTile = player.tile
     
-    // Hier könnten verfügbare Actions angezeigt werden
-    // Für jetzt: einfache Platzhalter-Actions
-    println("\n💻 Verfügbare Actions:")
+    // Server nur auf aktuellem Tile
+    val inRangeServers = controller.getServers.filter(_.tile == playerTile)
+
+    if (inRangeServers.isEmpty) {
+      println("\n📡 Kein Server in Reichweite auf diesem Tile!")
+      println(s"Du befindest dich auf (${playerTile.x}, ${playerTile.y})")
+      showLaptopMenu()
+      return
+    }
+
+    // Server auswählen
+    println("\n💻 Server in Reichweite:")
+    println("-" * 60)
+    inRangeServers.zipWithIndex.foreach { case (server, idx) =>
+      println(s"${idx + 1}) ${server.name} (${server.difficulty}%) - ${server.serverType}")
+    }
     println("0) Zurück")
     print("> ")
-    
+
     StdIn.readLine() match {
       case "0" => showLaptopMenu()
-      case _ => 
-        println("Noch keine Actions konfiguriert.")
-        showLaptopMenu()
+      case input =>
+        try {
+          val choice = input.toInt - 1
+          if (choice >= 0 && choice < inRangeServers.length) {
+            val server = inRangeServers(choice)
+            showActionSelectionForServer(playerIndex, server)
+          } else {
+            println("Ungültige Auswahl.")
+            showAttackMenu()
+          }
+        } catch {
+          case _: NumberFormatException =>
+            println("Ungültige Eingabe.")
+            showAttackMenu()
+        }
     }
+  }
+
+  // --- Verfügbare Actions für einen Server auswählen ---
+  private def showActionSelectionForServer(playerIndex: Int, server: Server): Unit = {
+    val player = controller.getPlayers(playerIndex)
+    
+    // Hole alle verfügbaren Actions basierend auf installierten Tools
+    val availableActions = getAvailableActionsForPlayer(player)
+
+    if (availableActions.isEmpty) {
+      println("\n❌ Keine Tools installiert um anzugreifen!")
+      showLaptopMenu()
+      return
+    }
+
+    // Laufende Actions für diesen Server
+    val runningForServer = player.laptop.runningActions.filter(_.targetServer == server.name)
+
+    if (runningForServer.nonEmpty) {
+      println(s"\n⚠️ Bereits laufende Actions für ${server.name}:")
+      runningForServer.foreach { running =>
+        val roundsLeft = running.completionRound - controller.game.state.round
+        println(s"  - ${running.action.name} (noch $roundsLeft Runden)")
+      }
+      println()
+    }
+
+    println("\n💻 Verfügbare Actions für Angriff:")
+    println("-" * 60)
+    availableActions.zipWithIndex.foreach { case (action, idx) =>
+      val canAfford = 
+        player.laptop.hardware.cpu >= action.cpuCost &&
+        player.laptop.hardware.ram >= action.ramCost &&
+        player.laptop.hardware.kerne >= action.coreCost
+      
+      val status = if (canAfford) "✓" else "✗"
+      println(s"${idx + 1}) $status ${action.name} (${action.durationRounds}R)")
+      println(s"   Kosten: ${action.cpuCost} CPU, ${action.ramCost} RAM, ${action.coreCost} Kerne")
+      println(s"   ${action.description}")
+    }
+    println("0) Zurück")
+    print("> ")
+
+    StdIn.readLine() match {
+      case "0" => showLaptopMenu()
+      case input =>
+        try {
+          val choice = input.toInt - 1
+          if (choice >= 0 && choice < availableActions.length) {
+            val action = availableActions(choice)
+            
+            val canAfford = 
+              player.laptop.hardware.cpu >= action.cpuCost &&
+              player.laptop.hardware.ram >= action.ramCost &&
+              player.laptop.hardware.kerne >= action.coreCost
+
+            if (canAfford) {
+              controller.doAndRemember(
+                StartLaptopActionCommand(playerIndex, action, server.name)
+              )
+              println(s"✅ ${action.name} gestartet auf ${server.name}!")
+              showLaptopMenu()
+            } else {
+              println("❌ Nicht genug Ressourcen!")
+              showActionSelectionForServer(playerIndex, server)
+            }
+          } else {
+            println("Ungültige Auswahl.")
+            showActionSelectionForServer(playerIndex, server)
+          }
+        } catch {
+          case _: NumberFormatException =>
+            println("Ungültige Eingabe.")
+            showActionSelectionForServer(playerIndex, server)
+        }
+    }
+  }
+
+  // --- Verfügbare Actions basierend auf installierten Tools ---
+  private def getAvailableActionsForPlayer(player: de.htwg.codebreaker.model.player.Player): List[LaptopAction] = {
+    val installedToolIds = player.laptop.tools.toolIds
+    val allTools = controller.game.model.laptopTools
+    
+    allTools
+      .filter(tool => installedToolIds.contains(tool.id))
+      .flatMap(tool => tool.availableActions)
   }
 
   // --- RUNNING ACTIONS ---
@@ -155,7 +283,7 @@ class TUI @Inject()(controller: ControllerInterface)
     StdIn.readLine() match {
       case "0" => showLaptopMenu()
       case _ => 
-        println("Ungültige Auswahl.")
+        println("Running Tasks - aktuell nur Anzeige.")
         showRunningActionsMenu()
     }
   }
@@ -163,11 +291,11 @@ class TUI @Inject()(controller: ControllerInterface)
   // --- COMPLETED ACTIONS (Mit Claim/Steal Optionen) ---
   private def showCompletedActionsMenu(): Unit = {
     val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+    val player = controller.getPlayers(playerIndex)
     val currentRound = controller.game.state.round
     
     // Nur Actions die fertig sind (completion_round <= currentRound)
-    val completed = controller.getCompletedActionsForCurrentPlayer()
-      .filter(_.completionRound <= currentRound)
+    val completed = player.laptop.runningActions.filter(_.completionRound <= currentRound)
 
     if (completed.isEmpty) {
       println("\n✅ Keine abgeschlossenen Actions.")
@@ -341,82 +469,11 @@ class TUI @Inject()(controller: ControllerInterface)
             case Failure(_) =>
               println("1) ➡ Bewegen (nicht möglich)")
           }
-
-          // ---- HACK OPTION ----
-          controller.getServers.find(_.tile == tile) match {
-            case Some(server) if !server.hacked =>
-              println("2) 💻 Server angreifen")
-            case Some(_) =>
-              println("2) 💻 Server (bereits gehackt)")
-            case None =>
-              println("2) 💻 Kein Server")
-          }
-
-          println("0) Abbrechen")
-          print("> ")
-
-          StdIn.readLine() match {
-            case "1" =>
-              controller.doAndRemember(moveCmd)
-
-            case "2" =>
-              controller.getServers.find(_.tile == tile).foreach { server =>
-                openHackMenu(server, playerIndex)
-              }
-
-            case _ =>
-              println("Abgebrochen.")
-          }
       }
 
     } catch {
       case _: NumberFormatException =>
         println("X und Y müssen Zahlen sein.")
-    }
-  }
-
-  // =========================
-  // HACK MENU (SKILLS)
-  // =========================
-
-  private def openHackMenu(server: Server, playerIndex: Int): Unit = {
-    val player = controller.getPlayers(playerIndex)
-
-    val unlockedSkills =
-      controller.game.model.hackSkills
-        .filter(s => player.skills.unlockedHackSkills.contains(s.id))
-
-    if (unlockedSkills.isEmpty) {
-      println("❌ Keine Skills freigeschaltet.")
-      return
-    }
-
-    println(s"\n💻 Angriff auf ${server.name}")
-    unlockedSkills.zipWithIndex.foreach { case (skill, i) =>
-      val chance =
-        math.min(95, (100 - server.difficulty) + skill.successBonus)
-      println(s"${i + 1}) ${skill.name}  → $chance%")
-    }
-    println("0) Abbrechen")
-    print("> ")
-
-    StdIn.readLine() match {
-      case "0" => println("Abgebrochen.")
-      case s =>
-        try {
-          val idx = s.toInt - 1
-          if (idx >= 0 && idx < unlockedSkills.size) {
-            val skill = unlockedSkills(idx)
-            controller.doAndRemember(
-              HackServerCommand(server.name, playerIndex, skill)
-            )
-          } else {
-            println("Ungültige Auswahl.")
-          }
-        } catch {
-          case _: NumberFormatException =>
-            println("Ungültige Eingabe.")
-        }
     }
   }
 

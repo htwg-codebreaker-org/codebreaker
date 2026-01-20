@@ -26,10 +26,12 @@ object PlayerGenerator:
         cpu = 20,
         ram = 20,
         code = 20,
-        kerne = 1
+        kerne = 1,
+        networkRange = 0
       ),
       tools = LaptopInstalledTools(starterTools),
-      runningActions = Nil
+      runningActions = Nil,
+      cybersecurity = 5
     )
   }
 
@@ -47,8 +49,8 @@ object PlayerGenerator:
         availableXp = 0,
         totalXpEarned = 0,
         skills = PlayerSkillTree(initialSkills),
-        cybersecurity = 0,
         movementPoints = 5,
-        maxMovementPoints = 5
+        maxMovementPoints = 5,
+        arrested = false
       )
     }.toList

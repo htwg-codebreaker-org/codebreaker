@@ -1,4 +1,4 @@
-package de.htwg.codebreaker.controller.commands
+package de.htwg.codebreaker.controller.commands.laptop
 
 import scala.util.{Try, Success, Failure, Random}
 import de.htwg.codebreaker.controller.Command
@@ -6,6 +6,7 @@ import de.htwg.codebreaker.model.game.game.Game
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.laptop.{RunningLaptopAction, LaptopAction}
 import de.htwg.codebreaker.model.server.Server
+
 
 // ==================== SCHRITT 1: Action starten ====================
 
@@ -96,26 +97,7 @@ case class StartLaptopActionCommand(
   }
 }
 
-// ==================== SCHRITT 2: Actions verarbeiten (Placeholder) ====================
-
-/**
- * Wird automatisch bei NextPlayerCommand aufgerufen.
- * Macht momentan nichts - Actions bleiben bis sie mit CollectLaptopActionResultCommand abgeholt werden.
- * Kerne werden erst freigegeben wenn man die Belohnung abholt!
- */
-case class ProcessLaptopActionsCommand(currentRound: Int) extends Command {
-
-  override def doStep(game: Game): Try[Game] = {
-    // Actions werden NICHT gelöscht - bleiben bis CollectLaptopActionResultCommand sie abholt
-    Success(game)
-  }
-
-  override def undoStep(game: Game): Try[Game] = Try {
-    game
-  }
-}
-
-// ==================== SCHRITT 3: Ergebnis abholen ====================
+// ==================== SCHRITT 2: Ergebnis abholen ====================
 
 /**
  * Holt das Ergebnis einer fertigen Action ab.
@@ -150,12 +132,13 @@ case class CollectLaptopActionResultCommand(
 
     // Erfolgschance berechnen
     val baseChance = 100 - server.difficulty
-    val securityBonus = player.cybersecurity / 2
+    val securityBonus = player.laptop.cybersecurity / 2
     val successChance = math.max(5, math.min(95, baseChance + securityBonus))
 
     val success = random.nextInt(100) < successChance
 
     if (!success) {
+
       // Fehlgeschlagen - Action entfernen UND Kerne freigeben
       val releasedCores = completedAction.action.coreCost
       val updatedLaptop = player.laptop.copy(

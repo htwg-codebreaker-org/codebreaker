@@ -9,7 +9,7 @@ import scalafx.animation.PauseTransition
 import scalafx.util.Duration
 
 import de.htwg.codebreaker.controller.ControllerInterface
-import de.htwg.codebreaker.controller.commands.{StartLaptopActionCommand, CollectLaptopActionResultCommand}
+import de.htwg.codebreaker.controller.commands.laptop.{StartLaptopActionCommand, CollectLaptopActionResultCommand}
 import de.htwg.codebreaker.model.server.Server
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.laptop.{LaptopAction, LaptopActionType}

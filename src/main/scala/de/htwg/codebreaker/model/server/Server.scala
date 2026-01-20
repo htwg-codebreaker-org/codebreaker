@@ -30,10 +30,11 @@ case class Server(
   rewardRam: Int,
   hacked: Boolean,
   serverType: ServerType,
-  hackedBy: Option[Int] = None,
-  claimedBy: Option[Int] = None,
-  blockedUntilRound: Option[Int] = None,
-  installedRole: Option[InstalledServerRole] = None
+  hackedBy: Option[Int],
+  claimedBy: Option[Int],
+  cybersecurityLevel: Int,
+  blockedUntilRound: Option[Int],
+  installedRole: Option[InstalledServerRole],
 )
 
 /**
@@ -52,9 +53,10 @@ case class ServerBlueprint(
 case class InstalledServerRole(
   roleType: ServerRoleType,
   installStartRound: Int,
-  isActive: Boolean = false,
-  detectionRisk: Int = 0,
-  runningActions: List[RunningRoleAction] = Nil
+  isActive: Boolean,
+  detectionRisk: Int,
+  runningActions: List[RunningRoleAction],
+  networkRange: Int, 
 )
 
 case class RunningRoleAction(

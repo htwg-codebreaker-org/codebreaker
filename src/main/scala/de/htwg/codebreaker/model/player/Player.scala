@@ -24,7 +24,7 @@ case class Player(
   availableXp: Int,
   totalXpEarned: Int,
   skills: PlayerSkillTree,
-  cybersecurity: Int,
+  arrested: Boolean,
   movementPoints: Int,
   maxMovementPoints: Int
 )

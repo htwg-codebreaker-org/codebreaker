@@ -14,7 +14,8 @@ case class ServerRoleBlueprint(
   setupDurationRounds: Int,
   baseDetectionRisk: Int,
   availableActionIds: List[String],
-  description: String
+  description: String,
+  networkRange: Int,
 )
 
 /**
@@ -34,15 +35,18 @@ case class RoleActionBlueprint(
 
 case class RoleActionReward(
   bitcoin: Int = 0,
-  credits: Int = 0,
   code: Int = 0,
   cpu: Int = 0,
-  ram: Int = 0
+  ram: Int = 0,
+
+  // Zusätzliche Boni für den Laptop des Spielers
+  networkRangeBonus: Int = 0,
+  cybersecurityDamage: Int = 0
 )
+
 
 case class RoleActionRequirements(
   minCpu: Int = 0,
   minRam: Int = 0,
   minCode: Int = 0,
-  minCredits: Int = 0
 )

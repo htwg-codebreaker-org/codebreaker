@@ -6,5 +6,6 @@ case class LaptopHardware(
   cpu: Int,
   ram: Int,
   code: Int,
-  kerne: Int
+  kerne: Int,
+  networkRange: Int,
 )

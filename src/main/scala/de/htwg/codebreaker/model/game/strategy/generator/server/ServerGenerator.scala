@@ -107,7 +107,12 @@ object ServerGenerator:
         rewardCpu   = rewardCpu,
         rewardRam   = rewardRam,
         hacked      = false,
-        serverType  = ServerType.Side
+        serverType  = ServerType.Side,
+        installedRole = None,
+        claimedBy = None,
+        hackedBy = None,
+        cybersecurityLevel = 0,
+        blockedUntilRound = None
       )
     }.toList
 
@@ -129,7 +134,12 @@ object ServerGenerator:
         rewardCpu   = rngIn(bp.rewardCpuRange),
         rewardRam   = rngIn(bp.rewardRamRange),
         hacked      = false,
-        serverType  = bp.serverType
+        serverType  = bp.serverType,
+        installedRole = None,
+        claimedBy = None,
+        hackedBy = None,
+        cybersecurityLevel = 0,
+        blockedUntilRound = None
       )
     }
 

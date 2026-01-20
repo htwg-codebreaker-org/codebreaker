@@ -41,22 +41,6 @@ class TileActionMenu(
         
         val hackItem = new MenuItem(s"💻 ${server.name} hacken")
 
-        // einfache Vorvalidierung (ohne Skill)
-        if (server.hacked || server.serverType == ServerType.Private) {
-          hackItem.text = s"💻 ${server.name} (nicht möglich)"
-          hackItem.disable = true
-        } else {
-          hackItem.onAction = _ => {
-            new AttackSelectionWindow(
-              controller = controller,
-              server = server,
-              playerIndex = playerIndex
-            ).show()
-          }
-        }
-
-        menu.items.add(hackItem)
-
         // === Laptop-Angriff ===
         val laptopHackItem = new MenuItem(s"💻 ${server.name} angreifen (Laptop)")
         if (server.hacked || server.serverType == ServerType.Private) {

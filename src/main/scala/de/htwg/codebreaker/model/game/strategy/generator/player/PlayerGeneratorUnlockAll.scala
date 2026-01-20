@@ -26,10 +26,12 @@ object PlayerGeneratorUnlockAll:
         cpu = 1000,
         ram = 1000,
         code = 1000,
-        kerne = 1
+        kerne = 1,
+        networkRange = 1000
       ),
       tools = LaptopInstalledTools(starterTools),
-      runningActions = Nil
+      runningActions = Nil,
+      cybersecurity = 1000
     )
   }
 
@@ -47,8 +49,8 @@ object PlayerGeneratorUnlockAll:
         availableXp = 1000,
         totalXpEarned = 10001000,
         skills = PlayerSkillTree(initialSkills),
-        cybersecurity = 1000,
         movementPoints = 1000,
-        maxMovementPoints = 1000
+        maxMovementPoints = 1000,
+        arrested = false
       )
     }.toList

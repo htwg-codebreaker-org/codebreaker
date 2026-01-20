@@ -8,8 +8,9 @@ import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.TextAlignment
 
 import de.htwg.codebreaker.controller.ControllerInterface
-import de.htwg.codebreaker.controller.commands.CollectLaptopActionResultCommand
-import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.controller.commands.laptop.{CollectLaptopActionResultCommand, UpgradeCoresCommand}
+import de.htwg.codebreaker.controller.commands.server.{StartRoleActionCommand, InstallServerRoleCommand, CollectRoleActionCommand}
+import de.htwg.codebreaker.model.server.{Server, InstalledServerRole, ServerRoleType, ServerRoleBlueprint, RoleActionBlueprint}
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
 
@@ -33,10 +34,12 @@ class LaptopMainMenu(
 
     val player = controller.getPlayers(playerIndex)
     val currentRound = controller.game.state.round
-    
     val runningCount = player.laptop.runningActions.count(_.completionRound > currentRound)
     val completedCount = controller.getCompletedActionsForCurrentPlayer()
       .count(_.completionRound <= currentRound)
+    val currentCores = player.laptop.hardware.kerne
+    val upgradeCost = UpgradeCoresCommand.calculateCost(currentCores)
+    val canAffordUpgrade = player.laptop.hardware.cpu >= upgradeCost
 
     // === HEADER ===
     val header = new Label(s"${player.name} – Laptop") {
@@ -45,7 +48,7 @@ class LaptopMainMenu(
     }
 
     // === LINKE SPALTE: AKTIONEN ===
-    val leftColumn = createActionsColumn(player, runningCount, completedCount, stage)
+    val leftColumn = createActionsColumn(player, runningCount, completedCount, currentCores, upgradeCost, canAffordUpgrade, stage)
 
     // === RECHTE SPALTE: GECLAIMTE SERVER ===
     val rightColumn = createClaimedServersColumn()
@@ -75,6 +78,9 @@ class LaptopMainMenu(
     player: Player,
     runningCount: Int,
     completedCount: Int,
+    currentCores: Int,
+    upgradeCost: Int,
+    canAffordUpgrade: Boolean,
     parentStage: Stage
   ): VBox = {
     
@@ -97,6 +103,12 @@ class LaptopMainMenu(
             },
             new Label(s"Code: ${player.laptop.hardware.code}") {
               style = "-fx-text-fill: #ffcc66; -fx-font-size: 11px;"
+            },
+            new Label(s"Cybersecurity: ${player.laptop.cybersecurity}%") {
+              style = "-fx-text-fill: #ff6666; -fx-font-size: 11px;"
+            },
+            new Label(s"Netzwerkreichweite: ${player.laptop.hardware.networkRange}") {
+              style = "-fx-text-fill: #ccc; -fx-font-size: 11px;"
             }
           )
         },
@@ -104,6 +116,22 @@ class LaptopMainMenu(
           style = "-fx-text-fill: #ccc; -fx-font-size: 11px;"
         }
       )
+    }
+
+    
+    val upgradeButton = new Button(s"⬆️ Upgrade Cores\n($currentCores → ${currentCores + 1}) [$upgradeCost CPU]") {
+      style = if (canAffordUpgrade) 
+        "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;"
+      else
+        "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #555; -fx-text-fill: #999;"
+      wrapText = true
+      maxWidth = Double.MaxValue
+      disable = !canAffordUpgrade
+      onAction = _ => {
+        controller.doAndRemember(UpgradeCoresCommand(playerIndex))
+        parentStage.close()
+        show()
+      }
     }
 
     val attackButton = new Button("🔨 Angriff") {
@@ -141,6 +169,7 @@ class LaptopMainMenu(
           style = "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #4db8ff;"
         },
         hardwareInfo,
+        upgradeButton,
         attackButton,
         runningButton,
         completedButton,
@@ -242,9 +271,9 @@ class LaptopMainMenu(
     }
   }
 
-  // ==========================================
-  // RECHTE SPALTE: GECLAIMTE SERVER
-  // ==========================================
+// ==========================================
+// RECHTE SPALTE: GECLAIMTE SERVER MIT ROLLEN
+// ==========================================
 
   private def createClaimedServersColumn(): VBox = {
     val claimedServers = controller.getServers.filter(_.claimedBy.contains(playerIndex))
@@ -265,7 +294,7 @@ class LaptopMainMenu(
         )
       }
     } else {
-      val serverBoxes = claimedServers.map(createServerBox)
+      val serverBoxes = claimedServers.map(createServerBoxWithRole)
 
       val scrollPane = new ScrollPane {
         content = new VBox {
@@ -285,7 +314,7 @@ class LaptopMainMenu(
     }
   }
 
-  private def createServerBox(s: Server): VBox = {
+  private def createServerBoxWithRole(s: Server): VBox = {
     val typeColor = s.serverType.toString match {
       case "Side" => "#66ff66"
       case "Firm" => "#66ccff"
@@ -296,23 +325,127 @@ class LaptopMainMenu(
       case _ => "#888"
     }
 
-    new VBox {
-      style = s"-fx-background-color: #2a2a2a; -fx-padding: 10; -fx-border-radius: 5; -fx-background-radius: 5; -fx-border-color: $typeColor; -fx-border-width: 2;"
-      spacing = 5
+    val serverInfoBox = new VBox {
+      spacing = 3
       children = Seq(
         new Label(s"💻 ${s.name}") {
           style = s"-fx-text-fill: $typeColor; -fx-font-weight: bold; -fx-font-size: 12px;"
         },
-        new Label(s"${s.serverType}") {
-          style = "-fx-text-fill: #ccc; -fx-font-size: 11px;"
-        },
-        new Label(s"Schwierigkeit: ${s.difficulty}%") {
-          style = "-fx-text-fill: #888; -fx-font-size: 10px;"
+        new Label(s"${s.serverType} | Diff: ${s.difficulty}%") {
+          style = "-fx-text-fill: #ccc; -fx-font-size: 10px;"
         },
         new Label(s"Position: (${s.tile.x}, ${s.tile.y})") {
-          style = "-fx-text-fill: #888; -fx-font-size: 10px;"
+          style = "-fx-text-fill: #888; -fx-font-size: 9px;"
         }
       )
+    }
+
+    // ═══ ROLE STATUS ═══
+    val roleSection = s.installedRole match {
+      case None =>
+        // Kein Role installiert - Button zum Installieren
+        val installButton = new Button("⚙️ Install Role") {
+          style = "-fx-font-size: 10px; -fx-padding: 5;"
+          maxWidth = Double.MaxValue
+          onAction = _ => showRoleSelectionWindow(s)
+        }
+        new VBox {
+          spacing = 3
+          children = Seq(
+            new Label("No Role") {
+              style = "-fx-text-fill: #888; -fx-font-size: 10px; -fx-font-style: italic;"
+            },
+            installButton
+          )
+        }
+
+      case Some(role) if !role.isActive =>
+        // Role wird installiert - prüfe ob fertig
+        val currentRound = controller.game.state.round
+        val roundsLeft = s.blockedUntilRound.getOrElse(currentRound) - currentRound
+        
+        if (roundsLeft <= 0) {
+          // ✅ FERTIG! Zeige verfügbare Actions
+          val availableActions = controller.game.model.actionBlueprints
+            .filter(_.roleType == role.roleType)
+            .take(2)  // Nur die ersten 2 Actions anzeigen (Platzersparnis)
+
+          val actionButtons = availableActions.map { blueprint =>
+            new Button(s"▶ ${blueprint.name}") {
+              style = "-fx-font-size: 9px; -fx-padding: 3;"
+              maxWidth = Double.MaxValue
+              onAction = _ => showRoleManagementWindow(s, role)
+            }
+          }
+
+          val moreActionsButton = new Button("⚙️ All Actions") {
+            style = "-fx-font-size: 9px; -fx-padding: 3; -fx-background-color: #4db8ff; -fx-text-fill: white;"
+            maxWidth = Double.MaxValue
+            onAction = _ => showRoleManagementWindow(s, role)
+          }
+
+          new VBox {
+            spacing = 3
+            children = Seq(
+              new Label(s"✅ ${role.roleType} Ready!") {
+                style = "-fx-text-fill: #32cd32; -fx-font-size: 10px; -fx-font-weight: bold;"
+              },
+              new Label(s"Detection: ${role.detectionRisk}%") {
+                style = s"-fx-text-fill: ${if (role.detectionRisk > 70) "#ff6666" else "#ffcc66"}; -fx-font-size: 9px;"
+              }
+            ) ++ actionButtons :+ moreActionsButton
+          }
+        } else {
+          // ⏳ Noch nicht fertig
+          new VBox {
+            spacing = 3
+            children = Seq(
+              new Label(s"⏳ Installing: ${role.roleType}") {
+                style = "-fx-text-fill: #ff8c00; -fx-font-size: 10px; -fx-font-weight: bold;"
+              },
+              new Label(s"Ready in: $roundsLeft rounds") {
+                style = "-fx-text-fill: #ff8c00; -fx-font-size: 9px;"
+              }
+            )
+          }
+        }
+
+      case Some(role) =>
+        // Role ist aktiv
+        val currentRound = controller.game.state.round
+        val runningActions = role.runningActions.filter(_.completionRound > currentRound)
+        val completedActions = role.runningActions.filter(_.completionRound <= currentRound)
+
+        val manageButton = new Button("⚙️ Manage Role") {
+          style = "-fx-font-size: 10px; -fx-padding: 5;"
+          maxWidth = Double.MaxValue
+          onAction = _ => showRoleManagementWindow(s, role)
+        }
+
+        new VBox {
+          spacing = 3
+          children = Seq(
+            new Label(s"✓ ${role.roleType}") {
+              style = "-fx-text-fill: #32cd32; -fx-font-size: 10px; -fx-font-weight: bold;"
+            },
+            new Label(s"Detection: ${role.detectionRisk}%") {
+              style = s"-fx-text-fill: ${if (role.detectionRisk > 70) "#ff6666" else "#ffcc66"}; -fx-font-size: 9px;"
+            },
+            new Label(s"Range: ${role.networkRange}") {
+              style = "-fx-text-fill: #66ccff; -fx-font-size: 9px;"
+            },
+            new Label(s"Running: ${runningActions.length} | Done: ${completedActions.length}") {
+              style = "-fx-text-fill: #ccc; -fx-font-size: 9px;"
+            },
+            manageButton
+          )
+        }
+    }
+
+    new VBox {
+      style = s"-fx-background-color: #2a2a2a; -fx-padding: 10; -fx-border-radius: 5; -fx-background-radius: 5; -fx-border-color: $typeColor; -fx-border-width: 2;"
+      spacing = 8
+      children = Seq(serverInfoBox, roleSection)
     }
   }
 
@@ -392,7 +525,7 @@ class LaptopMainMenu(
         new Label(s"Target: ${action.targetServer}") {
           style = "-fx-font-size: 11px; -fx-text-fill: #666;"
         },
-        new Label(s"Fertig in Runde: ${action.completionRound}") {
+        new Label(s"Fertig in Runde: ${action.completionRound} (${roundsLeft} Runden übrig)") {
           style = "-fx-font-size: 11px;"
         },
         new Label(action.action.description) {
@@ -593,6 +726,223 @@ class LaptopMainMenu(
           stealButton,
           cancelButton
         )
+      }
+    )
+
+    stage.show()
+  }
+  // ==========================================
+  // ROLE SELECTION WINDOW
+  // ==========================================
+
+  private def showRoleSelectionWindow(server: Server): Unit = {
+    val stage = new Stage {
+      title = s"Install Role: ${server.name}"
+      width = 500
+      height = 400
+      resizable = false
+    }
+
+    val availableRoles = controller.game.model.roleBlueprints
+
+    val roleButtons = availableRoles.map { blueprint =>
+      val setupText = s"Setup: ${blueprint.setupDurationRounds} rounds"
+      val riskText = s"Risk: ${blueprint.baseDetectionRisk}%"
+      
+      new Button(s"${blueprint.name}\n$setupText | $riskText\n${blueprint.description}") {
+        style = "-fx-font-size: 11px; -fx-padding: 10; -fx-wrap-text: true;"
+        wrapText = true
+        maxWidth = Double.MaxValue
+        prefHeight = 80
+        onAction = _ => {
+          stage.close()
+          controller.doAndRemember(
+            InstallServerRoleCommand(playerIndex, server.name, blueprint.roleType)
+          )
+          show() // Refresh main menu
+        }
+      }
+    }
+
+    val scrollPane = new ScrollPane {
+      content = new VBox {
+        spacing = 8
+        padding = Insets(10)
+        children = roleButtons
+      }
+      fitToWidth = true
+    }
+
+    val cancelButton = new Button("❌ Cancel") {
+      style = "-fx-font-size: 12px; -fx-padding: 10;"
+      maxWidth = Double.MaxValue
+      onAction = _ => stage.close()
+    }
+
+    stage.scene = new Scene(
+      new VBox {
+        spacing = 10
+        padding = Insets(10)
+        children = Seq(
+          new Label(s"Select Role for ${server.name}") {
+            style = "-fx-font-size: 14px; -fx-font-weight: bold;"
+          },
+          scrollPane,
+          cancelButton
+        )
+      }
+    )
+
+    stage.show()
+  }
+
+  // ==========================================
+  // ROLE MANAGEMENT WINDOW
+  // ==========================================
+
+  private def showRoleManagementWindow(server: Server, role: InstalledServerRole): Unit = {
+    val stage = new Stage {
+      title = s"${server.name} - ${role.roleType}"
+      width = 700
+      height = 500
+      resizable = true
+    }
+
+    val currentRound = controller.game.state.round
+
+    // === HEADER ===
+    val header = new VBox {
+      spacing = 5
+      padding = Insets(10)
+      style = "-fx-background-color: #2a2a2a;"
+      children = Seq(
+        new Label(s"💻 ${server.name} - ${role.roleType}") {
+          style = "-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4db8ff;"
+        },
+        new Label(s"Detection Risk: ${role.detectionRisk}%") {
+          val color = if (role.detectionRisk > 70) "#ff6666" else "#ffcc66"
+          style = s"-fx-font-size: 12px; -fx-text-fill: $color;"
+        }
+      )
+    }
+
+    // === RUNNING ACTIONS SECTION ===
+    val runningActions = role.runningActions.filter(_.completionRound > currentRound)
+    val runningSection = if (runningActions.isEmpty) {
+      new VBox {
+        spacing = 5
+        children = Seq(
+          new Label("No running actions") {
+            style = "-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-style: italic;"
+          }
+        )
+      }
+    } else {
+      new VBox {
+        spacing = 5
+        children = runningActions.map { action =>
+          val roundsLeft = action.completionRound - currentRound
+          new Label(s"⏳ ${action.actionId} - ${roundsLeft} rounds left") {
+            style = "-fx-font-size: 11px; -fx-text-fill: #ff8c00;"
+          }
+        }
+      }
+    }
+
+    // === COMPLETED ACTIONS SECTION ===
+    val completedActions = role.runningActions.filter(_.completionRound <= currentRound)
+    val completedSection = if (completedActions.isEmpty) {
+      new VBox {
+        spacing = 5
+        children = Seq(
+          new Label("No completed actions") {
+            style = "-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-style: italic;"
+          }
+        )
+      }
+    } else {
+      new VBox {
+        spacing = 5
+        children = completedActions.map { action =>
+          new HBox {
+            spacing = 10
+            alignment = Pos.CenterLeft
+            children = Seq(
+              new Label(s"✓ ${action.actionId}") {
+                style = "-fx-font-size: 11px; -fx-text-fill: #32cd32; -fx-font-weight: bold;"
+              },
+              new Button("📦 Collect") {
+                style = "-fx-font-size: 10px; -fx-padding: 5;"
+                onAction = _ => {
+                  stage.close()
+                  controller.doAndRemember(
+                    CollectRoleActionCommand(playerIndex, server.name, action.actionId)
+                  )
+                  show() // Refresh main menu
+                }
+              }
+            )
+          }
+        }
+      }
+    }
+
+    // === AVAILABLE ACTIONS SECTION ===
+    val availableActions = controller.game.model.actionBlueprints
+      .filter(_.roleType == role.roleType)
+
+    val actionButtons = availableActions.map { blueprint =>
+      val durationText = s"Duration: ${blueprint.durationRounds} rounds"
+      val riskText = s"Risk: +${blueprint.detectionRiskIncrease}%"
+      
+      new Button(s"▶ ${blueprint.name}\n$durationText | $riskText\n${blueprint.description}") {
+        style = "-fx-font-size: 11px; -fx-padding: 10; -fx-wrap-text: true;"
+        wrapText = true
+        maxWidth = Double.MaxValue
+        prefHeight = 80
+        onAction = _ => {
+          stage.close()
+          controller.doAndRemember(
+            StartRoleActionCommand(playerIndex, server.name, blueprint.id)
+          )
+          show() // Refresh main menu
+        }
+      }
+    }
+
+    // === MAIN CONTENT ===
+    val scrollPane = new ScrollPane {
+      content = new VBox {
+        spacing = 15
+        padding = Insets(10)
+        children = Seq(
+          new Label("═══ Running Actions ═══") {
+            style = "-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #ff8c00;"
+          },
+          runningSection,
+          new Label("═══ Completed Actions ═══") {
+            style = "-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #32cd32;"
+          },
+          completedSection,
+          new Label("═══ Start New Action ═══") {
+            style = "-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #4db8ff;"
+          }
+        ) ++ actionButtons
+      }
+      fitToWidth = true
+    }
+
+    val closeButton = new Button("❌ Close") {
+      style = "-fx-font-size: 12px; -fx-padding: 10;"
+      maxWidth = Double.MaxValue
+      onAction = _ => stage.close()
+    }
+
+    stage.scene = new Scene(
+      new BorderPane {
+        top = header
+        center = scrollPane
+        bottom = closeButton
       }
     )
 

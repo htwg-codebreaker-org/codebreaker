@@ -37,7 +37,8 @@ object ServerRoleGenerator:
       setupDurationRounds = 2,
       baseDetectionRisk = 20,
       availableActionIds = List("mine_bitcoin", "optimize_mining", "pool_connect"),
-      description = "Generiert Bitcoin durch Mining"
+      description = "Generiert Bitcoin durch Mining",
+      networkRange = 0
     ),
     ServerRoleBlueprint(
       roleType = ServerRoleType.DarknetHost,
@@ -45,7 +46,8 @@ object ServerRoleGenerator:
       setupDurationRounds = 3,
       baseDetectionRisk = 45,
       availableActionIds = List("host_marketplace", "run_hidden_service", "launder_money"),
-      description = "Hostet illegale Services im Darknet"
+      description = "Hostet illegale Services im Darknet",
+      networkRange = 0
     ),
     ServerRoleBlueprint(
       roleType = ServerRoleType.DataTrader,
@@ -53,7 +55,8 @@ object ServerRoleGenerator:
       setupDurationRounds = 2,
       baseDetectionRisk = 30,
       availableActionIds = List("extract_data", "sell_data", "analyze_patterns"),
-      description = "Verkauft gestohlene Daten"
+      description = "Verkauft gestohlene Daten",
+      networkRange = 0
     ),
     ServerRoleBlueprint(
       roleType = ServerRoleType.BotnetNode,
@@ -61,7 +64,8 @@ object ServerRoleGenerator:
       setupDurationRounds = 4,
       baseDetectionRisk = 60,
       availableActionIds = List("launch_ddos", "spread_malware", "command_bots"),
-      description = "Command & Control für Botnet"
+      description = "Command & Control für Botnet",
+      networkRange = 10
     ),
     ServerRoleBlueprint(
       roleType = ServerRoleType.Inactive,
@@ -69,7 +73,8 @@ object ServerRoleGenerator:
       setupDurationRounds = 0,
       baseDetectionRisk = 5,
       availableActionIds = List(),
-      description = "Server ist claimed, aber nicht aktiv"
+      description = "Server ist claimed, aber nicht aktiv",
+      networkRange = 0
     )
   )
 
@@ -118,7 +123,7 @@ object ServerRoleGenerator:
       roleType = ServerRoleType.DarknetHost,
       durationRounds = 3,
       detectionRiskIncrease = 25,
-      rewards = RoleActionReward(credits = 80),
+      rewards = RoleActionReward(bitcoin = 80),
       requirements = RoleActionRequirements(minRam = 30),
       description = "Hoste illegalen Marktplatz für 3 Runden"
     ),
@@ -128,7 +133,7 @@ object ServerRoleGenerator:
       roleType = ServerRoleType.DarknetHost,
       durationRounds = 2,
       detectionRiskIncrease = 20,
-      rewards = RoleActionReward(credits = 50),
+      rewards = RoleActionReward(bitcoin = 50),
       requirements = RoleActionRequirements(minRam = 20),
       description = "Betreibe versteckten Onion-Service"
     ),
@@ -138,7 +143,7 @@ object ServerRoleGenerator:
       roleType = ServerRoleType.DarknetHost,
       durationRounds = 4,
       detectionRiskIncrease = 35,
-      rewards = RoleActionReward(bitcoin = 150, credits = 100),
+      rewards = RoleActionReward(bitcoin = 150, ram = 100),
       requirements = RoleActionRequirements(minCode = 30),
       description = "Geldwäsche über Mixer-Services"
     ),
@@ -160,7 +165,7 @@ object ServerRoleGenerator:
       roleType = ServerRoleType.DataTrader,
       durationRounds = 1,
       detectionRiskIncrease = 10,
-      rewards = RoleActionReward(credits = 60),
+      rewards = RoleActionReward(bitcoin = 60),
       requirements = RoleActionRequirements(minCode = 20),
       description = "Verkaufe gestohlene Daten auf dem Schwarzmarkt"
     ),
@@ -170,7 +175,7 @@ object ServerRoleGenerator:
       roleType = ServerRoleType.DataTrader,
       durationRounds = 3,
       detectionRiskIncrease = 5,
-      rewards = RoleActionReward(code = 60, credits = 40),
+      rewards = RoleActionReward(code = 60, bitcoin = 40),
       requirements = RoleActionRequirements(minCpu = 25, minCode = 15),
       description = "Analysiere Daten für wertvolle Insights"
     ),
@@ -182,7 +187,7 @@ object ServerRoleGenerator:
       roleType = ServerRoleType.BotnetNode,
       durationRounds = 1,
       detectionRiskIncrease = 40,
-      rewards = RoleActionReward(credits = 100),
+      rewards = RoleActionReward(bitcoin = 100),
       requirements = RoleActionRequirements(minCpu = 30, minRam = 25),
       description = "Starte koordinierten DDoS-Angriff"
     ),
@@ -192,7 +197,7 @@ object ServerRoleGenerator:
       roleType = ServerRoleType.BotnetNode,
       durationRounds = 3,
       detectionRiskIncrease = 30,
-      rewards = RoleActionReward(credits = 80),
+      rewards = RoleActionReward(bitcoin = 80),
       requirements = RoleActionRequirements(minCode = 40),
       description = "Verbreite Malware über das Botnet"
     ),
@@ -202,8 +207,21 @@ object ServerRoleGenerator:
       roleType = ServerRoleType.BotnetNode,
       durationRounds = 2,
       detectionRiskIncrease = 25,
-      rewards = RoleActionReward(credits = 120),
+      rewards = RoleActionReward(bitcoin = 120),
       requirements = RoleActionRequirements(minCpu = 35, minRam = 30),
       description = "Kontrolliere und kommandiere Zombie-PCs"
+    ),
+    RoleActionBlueprint(
+      id = "scan_network",
+      name = "Scan Network",
+      roleType = ServerRoleType.BotnetNode,
+      durationRounds = 2,
+      detectionRiskIncrease = 20,
+      rewards = RoleActionReward(
+        networkRangeBonus = 2
+      ),
+      requirements = RoleActionRequirements(minCpu = 20, minCode = 30),
+      description = "Scannt das Netzwerk und erweitert die Reichweite des Botnets"
     )
+
   )

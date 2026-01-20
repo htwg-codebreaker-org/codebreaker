@@ -45,7 +45,6 @@ class PlayerSidebar(
         createResourceRow(player),
         createMovementLabel(player),
         createLevelXpRow(player),
-        createSecurityLabel(player),
         createLaptopButton(index)
       )
     }
@@ -85,12 +84,6 @@ class PlayerSidebar(
           style = s"-fx-text-fill: #ffb84d; -fx-font-size: ${config.fontSizeSmall}px;"
         }
       )
-    }
-  }
-  
-  private def createSecurityLabel(player: Player): Label = {
-    new Label(s"Security: ${player.cybersecurity}%") {
-      style = s"-fx-text-fill: #ff6666; -fx-font-size: ${config.fontSizeSmall}px;"
     }
   }
   

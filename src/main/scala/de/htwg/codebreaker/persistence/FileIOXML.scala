@@ -10,6 +10,8 @@ import de.htwg.codebreaker.model.player.skill.{PlayerSkillTree, HackSkill, Socia
 import scala.util.{Try, Success, Failure}
 import scala.xml._
 import java.io.{File, PrintWriter}
+import de.htwg.codebreaker.model.server.RunningRoleAction
+import de.htwg.codebreaker.model.server.InstalledServerRole
 
 /**
  * XML implementation of FileIO.
@@ -76,6 +78,9 @@ class FileIOXML extends FileIOInterface:
     <player>
       <id>{player.id}</id>
       <name>{player.name}</name>
+      <movementPoints>{player.movementPoints}</movementPoints>
+      <maxMovementPoints>{player.maxMovementPoints}</maxMovementPoints>
+      <arrested>{player.arrested}</arrested>
 
       <tile>
         <x>{player.tile.x}</x>
@@ -96,6 +101,7 @@ class FileIOXML extends FileIOInterface:
         <runningActions>
           {player.laptop.runningActions.map(runningActionToXML)}
         </runningActions>
+        <cybersecurity>{player.laptop.cybersecurity}</cybersecurity>
       </laptop>
 
       <availableXp>{player.availableXp}</availableXp>
@@ -109,10 +115,6 @@ class FileIOXML extends FileIOInterface:
           {player.skills.unlockedSocialSkills.map(id => <skill>{id}</skill>)}
         </socialSkills>
       </skills>
-
-      <cybersecurity>{player.cybersecurity}</cybersecurity>
-      <movementPoints>{player.movementPoints}</movementPoints>
-      <maxMovementPoints>{player.maxMovementPoints}</maxMovementPoints>
     </player>
 
   private def runningActionToXML(action: RunningLaptopAction): Elem =
@@ -162,9 +164,39 @@ class FileIOXML extends FileIOInterface:
       <rewardCpu>{server.rewardCpu}</rewardCpu>
       <rewardRam>{server.rewardRam}</rewardRam>
       <hacked>{server.hacked}</hacked>
-      <hackedBy>{server.hackedBy.getOrElse(-1)}</hackedBy>
+      <hackedBy>{server.hackedBy}</hackedBy>
+      <claimedBy>{server.claimedBy}</claimedBy>
+      <cybersecurityLevel>{server.cybersecurityLevel}</cybersecurityLevel>
+      <blockedUntilRound>{server.blockedUntilRound}</blockedUntilRound>
+      <installedRole>{server.installedRole.map(roleToXML)}</installedRole>
     </server>
-  
+
+  private def roleToXML(role: InstalledServerRole): Elem =
+    <installedRole>
+      <roleType>{role.roleType.toString}</roleType>
+      <installStartRound>{role.installStartRound}</installStartRound>
+      <isActive>{role.isActive}</isActive>
+      <detectionRisk>{role.detectionRisk}</detectionRisk>
+      <runningActions>
+        {role.runningActions.map(runningActionToXML)}
+      </runningActions>
+      <networkRange>{role.networkRange}</networkRange>
+    </installedRole>
+
+  private def runningActionToXML(action: RunningRoleAction): Elem =
+    <runningAction>
+      <actionId>{action.actionId}</actionId>
+      <startRound>{action.startRound}</startRound>
+      <completionRound>{action.completionRound}</completionRound>
+      <detectionIncrease>{action.detectionIncrease}</detectionIncrease>
+      <expectedRewards>
+        <bitcoin>{action.expectedRewards.bitcoin}</bitcoin>
+        <code>{action.expectedRewards.code}</code>
+        <cpu>{action.expectedRewards.cpu}</cpu>
+        <ram>{action.expectedRewards.ram}</ram>
+      </expectedRewards>
+    </runningAction>
+
   private def hackSkillToXML(skill: HackSkill): Elem =
     <skill>
       <id>{skill.id}</id>
@@ -204,7 +236,6 @@ class FileIOXML extends FileIOInterface:
       <detectionRiskIncrease>{blueprint.detectionRiskIncrease}</detectionRiskIncrease>
       <rewards>
         <bitcoin>{blueprint.rewards.bitcoin}</bitcoin>
-        <credits>{blueprint.rewards.credits}</credits>
         <code>{blueprint.rewards.code}</code>
         <cpu>{blueprint.rewards.cpu}</cpu>
         <ram>{blueprint.rewards.ram}</ram>
@@ -213,7 +244,6 @@ class FileIOXML extends FileIOInterface:
         <minCpu>{blueprint.requirements.minCpu}</minCpu>
         <minRam>{blueprint.requirements.minRam}</minRam>
         <minCode>{blueprint.requirements.minCode}</minCode>
-        <minCredits>{blueprint.requirements.minCredits}</minCredits>
       </requirements>
       <description>{blueprint.description}</description>
     </blueprint>
@@ -240,14 +270,19 @@ class FileIOXML extends FileIOInterface:
       id = (xml \ "id").text.toInt,
       name = (xml \ "name").text,
       tile = xmlToTile((xml \ "tile").head),
+      movementPoints = (xml \ "movementPoints").text.toInt,
+      maxMovementPoints = (xml \ "maxMovementPoints").text.toInt,
+      arrested = (xml \ "arrested").text.toBoolean,
 
       laptop = Laptop(
         hardware = LaptopHardware(
           cpu = (xml \ "laptop" \ "hardware" \ "cpu").text.toInt,
           ram = (xml \ "laptop" \ "hardware" \ "ram").text.toInt,
           code = (xml \ "laptop" \ "hardware" \ "code").text.toInt,
-          kerne = (xml \ "laptop" \ "hardware" \ "kerne").text.toInt
+          kerne = (xml \ "laptop" \ "hardware" \ "kerne").text.toInt,
+          networkRange = (xml \ "laptop" \ "hardware" \ "networkRange").text.toInt
         ),
+        cybersecurity = (xml \ "laptop" \ "cybersecurity").text.toInt,
         tools = LaptopInstalledTools(
           installedTools = (xml \ "laptop" \ "tools" \ "tool")
             .map(n => laptopTools.find(_.id == n.text).get)
@@ -265,10 +300,6 @@ class FileIOXML extends FileIOInterface:
         unlockedHackSkills = (xml \ "skills" \ "hackSkills" \ "skill").map(_.text).toSet,
         unlockedSocialSkills = (xml \ "skills" \ "socialSkills" \ "skill").map(_.text).toSet
       ),
-
-      cybersecurity = (xml \ "cybersecurity").text.toInt,
-      movementPoints = (xml \ "movementPoints").text.toInt,
-      maxMovementPoints = (xml \ "maxMovementPoints").text.toInt
     )
 
   private def xmlToRunningLaptopAction(xml: Node, laptopTools: List[LaptopTool]): RunningLaptopAction =
@@ -325,7 +356,35 @@ class FileIOXML extends FileIOInterface:
       rewardCpu = (xml \ "rewardCpu").text.toInt,
       rewardRam = (xml \ "rewardRam").text.toInt,
       hacked = (xml \ "hacked").text.toBoolean,
-      hackedBy = if (hackedByValue == -1) None else Some(hackedByValue)
+      hackedBy = (xml \ "hackedBy").text.toIntOption,
+      claimedBy = (xml \ "claimedBy").text.toIntOption,
+      cybersecurityLevel = (xml \ "cybersecurityLevel").text.toInt,
+      blockedUntilRound = (xml \ "blockedUntilRound").text.toIntOption,
+      installedRole = (xml \ "installedRole").headOption.map(xmlToInstalledServerRole)
+    )
+  
+  private def xmlToInstalledServerRole(xml: Node): InstalledServerRole =
+    InstalledServerRole(
+      roleType = ServerRoleType.valueOf((xml \ "roleType").text),
+      installStartRound = (xml \ "installStartRound").text.toInt,
+      isActive = (xml \ "isActive").text.toBoolean,
+      detectionRisk = (xml \ "detectionRisk").text.toInt,
+      runningActions = (xml \ "runningActions" \ "runningAction").map(xmlToRunningRoleAction).toList,
+      networkRange = (xml \ "networkRange").text.toInt,
+    )
+
+  private def xmlToRunningRoleAction(xml: Node): RunningRoleAction = 
+    RunningRoleAction(
+      actionId = (xml \ "actionId").text,
+      startRound = (xml \ "startRound").text.toInt,
+      completionRound = (xml \ "completionRound").text.toInt,
+      detectionIncrease = (xml \ "detectionIncrease").text.toInt,
+      expectedRewards = RoleActionReward(
+        bitcoin = (xml \ "expectedRewards" \ "bitcoin").text.toInt,
+        code = (xml \ "expectedRewards" \ "code").text.toInt,
+        cpu = (xml \ "expectedRewards" \ "cpu").text.toInt,
+        ram = (xml \ "expectedRewards" \ "ram").text.toInt
+      )
     )
 
   private def xmlToHackSkill(xml: Node): HackSkill =
@@ -353,7 +412,8 @@ class FileIOXML extends FileIOInterface:
       setupDurationRounds = (xml \ "setupDurationRounds").text.toInt,
       baseDetectionRisk = (xml \ "baseDetectionRisk").text.toInt,
       availableActionIds = (xml \ "availableActionIds" \ "actionId").map(_.text).toList,
-      description = (xml \ "description").text
+      description = (xml \ "description").text,
+      networkRange = (xml \ "networkRange").text.toInt,
     )
 
   private def xmlToActionBlueprint(xml: Node): RoleActionBlueprint =
@@ -365,16 +425,14 @@ class FileIOXML extends FileIOInterface:
       detectionRiskIncrease = (xml \ "detectionRiskIncrease").text.toInt,
       rewards = RoleActionReward(
         bitcoin = (xml \ "rewards" \ "bitcoin").text.toInt,
-        credits = (xml \ "rewards" \ "credits").text.toInt,
         code = (xml \ "rewards" \ "code").text.toInt,
         cpu = (xml \ "rewards" \ "cpu").text.toInt,
         ram = (xml \ "rewards" \ "ram").text.toInt
       ),
       requirements = RoleActionRequirements(
-        minCpu = (xml \ "requirements" \ "minCpu").text.toInt,
-        minRam = (xml \ "requirements" \ "minRam").text.toInt,
-        minCode = (xml \ "requirements" \ "minCode").text.toInt,
-        minCredits = (xml \ "requirements" \ "minCredits").text.toInt
+        minCpu = (xml \ "requirements" \ "minCpu").text.toIntOption.getOrElse(0),
+        minRam = (xml \ "requirements" \ "minRam").text.toIntOption.getOrElse(0),
+        minCode = (xml \ "requirements" \ "minCode").text.toIntOption.getOrElse(0)
       ),
       description = (xml \ "description").text
     )

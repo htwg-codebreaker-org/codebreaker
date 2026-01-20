@@ -1,7 +1,7 @@
 package de.htwg.codebreaker.view.gui.components
 
 import de.htwg.codebreaker.controller.{ControllerInterface}
-import de.htwg.codebreaker.controller.commands.{NextPlayerCommand}
+import de.htwg.codebreaker.controller.commands.player.NextPlayerCommand
 import de.htwg.codebreaker.view.gui.components.menu.pauseMenu.{PauseMenu}
 import scalafx.scene.layout.{HBox, Region, Priority}
 import scalafx.scene.control.{Button, Label}

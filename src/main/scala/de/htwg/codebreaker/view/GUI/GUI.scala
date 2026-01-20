@@ -2,7 +2,7 @@ package de.htwg.codebreaker.view.gui
 
 import com.google.inject.Inject
 import de.htwg.codebreaker.controller.{ControllerInterface}
-import de.htwg.codebreaker.controller.commands.{NextPlayerCommand}
+import de.htwg.codebreaker.controller.commands.player.NextPlayerCommand
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.view.gui.components._
 import scalafx.application.{JFXApp3, Platform}
