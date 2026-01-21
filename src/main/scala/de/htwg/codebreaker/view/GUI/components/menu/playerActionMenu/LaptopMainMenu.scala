@@ -7,67 +7,60 @@ import scalafx.stage.Stage
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.TextAlignment
 
+import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.controller.commands.laptop.{CollectLaptopActionResultCommand, UpgradeCoresCommand}
 import de.htwg.codebreaker.controller.commands.server.{StartRoleActionCommand, InstallServerRoleCommand, CollectRoleActionCommand}
-import de.htwg.codebreaker.model.server.{Server, InstalledServerRole, ServerRoleType, ServerRoleBlueprint, RoleActionBlueprint}
+import de.htwg.codebreaker.model.server.{Server, InstalledServerRole}
 import de.htwg.codebreaker.model.player.Player
-import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
+import de.htwg.codebreaker.view.gui.components.menu.ObservableWindow
 
-/**
- * Hauptmenü für Laptop-Aktionen - 2 Spalten Layout
- * - Linke Spalte: Laptop Info, Attack, Running Tasks, Completed Tasks
- * - Rechte Spalte: Geclaimte Server
- */
 class LaptopMainMenu(
-  controller: ControllerInterface,
+  protected val controller: ControllerInterface,
   playerIndex: Int
-) {
+) extends ObservableWindow {
 
-  def show(): Unit = {
-    val stage = new Stage {
-      title = s"💻 Laptop"
-      width = 900
-      height = 600
-      resizable = true
-    }
+  override protected def createStage(): Stage = {
+    val stage = super.createStage()
+    stage.title = s"💻 Laptop"
+    stage.width = 900
+    stage.height = 600
+    stage.resizable = true
+    stage
+  }
 
-    val player = controller.getPlayers(playerIndex)
-    val currentRound = controller.game.state.round
-    val runningCount = player.laptop.runningActions.count(_.completionRound > currentRound)
-    val completedCount = controller.getCompletedActionsForCurrentPlayer()
-      .count(_.completionRound <= currentRound)
-    val currentCores = player.laptop.hardware.kerne
-    val upgradeCost = UpgradeCoresCommand.calculateCost(currentCores)
-    val canAffordUpgrade = player.laptop.hardware.cpu >= upgradeCost
+  override protected def refreshContent(): Unit = {
+    currentStage.foreach { stage =>
+      val player = controller.getPlayers(playerIndex)
+      val currentRound = controller.game.state.round
+      val runningCount = player.laptop.runningActions.count(_.completionRound > currentRound)
+      val completedCount = controller.getCompletedActionsForCurrentPlayer()
+        .count(_.completionRound <= currentRound)
+      val currentCores = player.laptop.hardware.kerne
+      val upgradeCost = UpgradeCoresCommand.calculateCost(currentCores)
+      val canAffordUpgrade = player.laptop.hardware.cpu >= upgradeCost
 
-    // === HEADER ===
-    val header = new Label(s"${player.name} – Laptop") {
-      style = "-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10;"
-      textAlignment = TextAlignment.Center
-    }
-
-    // === LINKE SPALTE: AKTIONEN ===
-    val leftColumn = createActionsColumn(player, runningCount, completedCount, currentCores, upgradeCost, canAffordUpgrade, stage)
-
-    // === RECHTE SPALTE: GECLAIMTE SERVER ===
-    val rightColumn = createClaimedServersColumn()
-
-    // === MAIN LAYOUT ===
-    stage.scene = new Scene(
-      new BorderPane {
-        top = header
-        center = new HBox {
-          spacing = 15
-          padding = Insets(10)
-          children = Seq(leftColumn, rightColumn)
-          HBox.setHgrow(leftColumn, Priority.Always)
-          HBox.setHgrow(rightColumn, Priority.Always)
-        }
+      val header = new Label(s"${player.name} – Laptop") {
+        style = "-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 10;"
+        textAlignment = TextAlignment.Center
       }
-    )
 
-    stage.show()
+      val leftColumn = createActionsColumn(player, runningCount, completedCount, currentCores, upgradeCost, canAffordUpgrade, stage)
+      val rightColumn = createClaimedServersColumn()
+
+      stage.scene = new Scene(
+        new BorderPane {
+          top = header
+          center = new HBox {
+            spacing = 15
+            padding = Insets(10)
+            children = Seq(leftColumn, rightColumn)
+            HBox.setHgrow(leftColumn, Priority.Always)
+            HBox.setHgrow(rightColumn, Priority.Always)
+          }
+        }
+      )
+    }
   }
 
   // ==========================================
@@ -75,116 +68,112 @@ class LaptopMainMenu(
   // ==========================================
 
   private def createActionsColumn(
-    player: Player,
-    runningCount: Int,
-    completedCount: Int,
-    currentCores: Int,
-    upgradeCost: Int,
-    canAffordUpgrade: Boolean,
-    parentStage: Stage
-  ): VBox = {
-    
-    val hardwareInfo = new VBox {
-      style = "-fx-background-color: #2a2a2a; -fx-padding: 10; -fx-border-radius: 5; -fx-background-radius: 5;"
-      spacing = 5
-      children = Seq(
-        new Label("⚙️ Hardware") {
-          style = "-fx-text-fill: #4db8ff; -fx-font-weight: bold; -fx-font-size: 13px;"
-        },
-        new HBox {
-          spacing = 10
-          children = Seq(
-            new Label(s"CPU: ${player.laptop.hardware.cpu}") {
-              style = "-fx-text-fill: #66ff66; -fx-font-size: 11px;"
-            },
-            new Label(s"RAM: ${player.laptop.hardware.ram}") {
-              style = "-fx-text-fill: #66ccff; -fx-font-size: 11px;"
-            },
-            new Label(s"Code: ${player.laptop.hardware.code}") {
-              style = "-fx-text-fill: #ffcc66; -fx-font-size: 11px;"
-            },
-            new Label(s"Cybersecurity: ${player.laptop.cybersecurity}%") {
-              style = "-fx-text-fill: #ff6666; -fx-font-size: 11px;"
-            },
-            new Label(s"Netzwerkreichweite: ${player.laptop.hardware.networkRange}") {
-              style = "-fx-text-fill: #ccc; -fx-font-size: 11px;"
-            }
-          )
-        },
-        new Label(s"Kerne: ${player.laptop.hardware.kerne}") {
-          style = "-fx-text-fill: #ccc; -fx-font-size: 11px;"
+      player: Player,
+      runningCount: Int,
+      completedCount: Int,
+      currentCores: Int,
+      upgradeCost: Int,
+      canAffordUpgrade: Boolean,
+      parentStage: Stage
+    ): VBox = {
+      
+      val hardwareInfo = new VBox {
+        style = "-fx-background-color: #2a2a2a; -fx-padding: 10; -fx-border-radius: 5; -fx-background-radius: 5;"
+        spacing = 5
+        children = Seq(
+          new Label("⚙️ Hardware") {
+            style = "-fx-text-fill: #4db8ff; -fx-font-weight: bold; -fx-font-size: 13px;"
+          },
+          new HBox {
+            spacing = 10
+            children = Seq(
+              new Label(s"CPU: ${player.laptop.hardware.cpu}") {
+                style = "-fx-text-fill: #66ff66; -fx-font-size: 11px;"
+              },
+              new Label(s"RAM: ${player.laptop.hardware.ram}") {
+                style = "-fx-text-fill: #66ccff; -fx-font-size: 11px;"
+              },
+              new Label(s"Code: ${player.laptop.hardware.code}") {
+                style = "-fx-text-fill: #ffcc66; -fx-font-size: 11px;"
+              },
+              new Label(s"Cybersecurity: ${player.laptop.cybersecurity}%") {
+                style = "-fx-text-fill: #ff6666; -fx-font-size: 11px;"
+              },
+              new Label(s"Netzwerkreichweite: ${player.laptop.hardware.networkRange}") {
+                style = "-fx-text-fill: #ccc; -fx-font-size: 11px;"
+              }
+            )
+          },
+          new Label(s"Kerne: ${player.laptop.hardware.kerne}") {
+            style = "-fx-text-fill: #ccc; -fx-font-size: 11px;"
+          }
+        )
+      }
+
+      val upgradeButton = new Button(s"⬆️ Upgrade Cores\n($currentCores → ${currentCores + 1}) [$upgradeCost CPU]") {
+        style = if (canAffordUpgrade) 
+          "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;"
+        else
+          "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #555; -fx-text-fill: #999;"
+        wrapText = true
+        maxWidth = Double.MaxValue
+        disable = !canAffordUpgrade
+        onAction = _ => {
+          controller.doAndRemember(UpgradeCoresCommand(playerIndex))
         }
-      )
-    }
+      }
 
-    val upgradeButton = new Button(s"⬆️ Upgrade Cores\n($currentCores → ${currentCores + 1}) [$upgradeCost CPU]") {
-      style = if (canAffordUpgrade) 
-        "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;"
-      else
-        "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #555; -fx-text-fill: #999;"
-      wrapText = true
-      maxWidth = Double.MaxValue
-      disable = !canAffordUpgrade
-      onAction = _ => {
-        controller.doAndRemember(UpgradeCoresCommand(playerIndex))
-        parentStage.close()
-        show()
+      val internetSearchButton = new Button("🌐 Internet durchsuchen") {
+        style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #1e90ff; -fx-text-fill: white; -fx-font-weight: bold;"
+        maxWidth = Double.MaxValue
+        onAction = _ => {
+          new InternetSearchMenu(controller, playerIndex).show()
+        }
+      }
+
+      val attackButton = new Button("🔨 Angriff") {
+        style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #7b68ee; -fx-text-fill: white; -fx-font-weight: bold;"
+        maxWidth = Double.MaxValue
+        onAction = _ => {
+          showServerSelectionForAttack()
+        }
+      }
+
+      val runningButton = new Button(s"🔄 Running Tasks ($runningCount)") {
+        style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #ff8c00; -fx-text-fill: white;"
+        maxWidth = Double.MaxValue
+        onAction = _ => showRunningTasksWindow(parentStage)
+      }
+
+      val completedButton = new Button(s"✅ Completed Tasks ($completedCount)") {
+        style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #32cd32; -fx-text-fill: white;"
+        maxWidth = Double.MaxValue
+        onAction = _ => showCompletedTasksWindow(parentStage)
+      }
+
+      val closeButton = new Button("❌ Schließen") {
+        style = "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #dc143c; -fx-text-fill: white;"
+        maxWidth = Double.MaxValue
+        onAction = _ => parentStage.close()
+      }
+
+      new VBox {
+        style = "-fx-border-color: #444; -fx-border-width: 1; -fx-padding: 15; -fx-background-color: #1a1a1a;"
+        spacing = 12
+        children = Seq(
+          new Label("═══ Laptop Menu ═══") {
+            style = "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #4db8ff;"
+          },
+          hardwareInfo,
+          upgradeButton,
+          internetSearchButton,
+          attackButton,
+          runningButton,
+          completedButton,
+          closeButton
+        )
       }
     }
-
-    val internetSearchButton = new Button("🌐 Internet durchsuchen") {
-      style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #1e90ff; -fx-text-fill: white; -fx-font-weight: bold;"
-      maxWidth = Double.MaxValue
-      onAction = _ => {
-        parentStage.close()
-        new InternetSearchMenu(controller, playerIndex).show()
-      }
-    }
-
-    val attackButton = new Button("🔨 Angriff") {
-      style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #7b68ee; -fx-text-fill: white; -fx-font-weight: bold;"
-      maxWidth = Double.MaxValue
-      onAction = _ => {
-        parentStage.close()
-        showServerSelectionForAttack()
-      }
-    }
-
-    val runningButton = new Button(s"🔄 Running Tasks ($runningCount)") {
-      style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #ff8c00; -fx-text-fill: white;"
-      maxWidth = Double.MaxValue
-      onAction = _ => showRunningTasksWindow(parentStage)
-    }
-
-    val completedButton = new Button(s"✅ Completed Tasks ($completedCount)") {
-      style = "-fx-font-size: 13px; -fx-padding: 12; -fx-background-color: #32cd32; -fx-text-fill: white;"
-      maxWidth = Double.MaxValue
-      onAction = _ => showCompletedTasksWindow(parentStage)
-    }
-
-    val closeButton = new Button("❌ Schließen") {
-      style = "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #dc143c; -fx-text-fill: white;"
-      maxWidth = Double.MaxValue
-      onAction = _ => parentStage.close()
-    }
-
-    new VBox {
-      style = "-fx-border-color: #444; -fx-border-width: 1; -fx-padding: 15; -fx-background-color: #1a1a1a;"
-      spacing = 12
-      children = Seq(
-        new Label("═══ Laptop Menu ═══") {
-          style = "-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #4db8ff;"
-        },
-        hardwareInfo,
-        upgradeButton,
-        internetSearchButton,
-        attackButton,
-        runningButton,
-        completedButton,
-        closeButton
-      )
-    }
-  }
 
   // ==========================================
   // SERVER AUSWAHL FÜR ANGRIFF
@@ -883,37 +872,19 @@ class LaptopMainMenu(
               new Button("📦 Collect") {
                 style = "-fx-font-size: 10px; -fx-padding: 5;"
                 onAction = _ => {
-                  val oldPlayer = controller.getPlayers(playerIndex)
-                  val oldCpu = oldPlayer.laptop.hardware.cpu
-                  val oldRam = oldPlayer.laptop.hardware.ram
-                  val oldCode = oldPlayer.laptop.hardware.code
-                  
                   controller.doAndRemember(
                     CollectRoleActionCommand(playerIndex, server.name, action.actionId)
                   )
-                  
                   stage.close()
                   
-                  val newPlayer = controller.getPlayers(playerIndex)
                   val updatedServer = controller.getServers.find(_.name == server.name)
-                  
-                  val wasDetected = updatedServer.flatMap(_.installedRole) match {
-                    case Some(updatedRole) => updatedRole.detectionRisk > role.detectionRisk
-                    case None => false
-                  }
-                  
-                  if (wasDetected) {
-                    showDetectedNotification(server.name)
-                  } else {
-                    val cpuGained = newPlayer.laptop.hardware.cpu - oldCpu
-                    val ramGained = newPlayer.laptop.hardware.ram - oldRam
-                    val codeGained = newPlayer.laptop.hardware.code - oldCode
-                    
-                    showRewardsNotification(cpuGained, ramGained, codeGained)
-                  }
-                  
                   updatedServer.flatMap(_.installedRole).foreach { updatedRole =>
-                    showRoleManagementWindow(updatedServer.get, updatedRole)
+                    val wasDetected = updatedRole.detectionRisk > role.detectionRisk
+                    if (wasDetected) {
+                      showDetectedNotification(server.name)
+                    } else {
+                      showRewardsNotification(rewards.cpu, rewards.ram, rewards.code)
+                    }
                   }
                 }
               }
@@ -941,11 +912,6 @@ class LaptopMainMenu(
             StartRoleActionCommand(playerIndex, server.name, blueprint.id)
           )
           stage.close()
-          
-          val updatedServer = controller.getServers.find(_.name == server.name)
-          updatedServer.flatMap(_.installedRole).foreach { updatedRole =>
-            showRoleManagementWindow(updatedServer.get, updatedRole)
-          }
         }
       }
     }

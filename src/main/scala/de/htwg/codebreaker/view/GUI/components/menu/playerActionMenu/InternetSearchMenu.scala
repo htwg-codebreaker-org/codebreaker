@@ -14,44 +14,44 @@ import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.controller.commands.laptop._
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.laptop.RunningInternetSearch
+import de.htwg.codebreaker.view.gui.components.menu.ObservableWindow
 
 class InternetSearchMenu(
-  controller: ControllerInterface,
+  protected val controller: ControllerInterface,
   playerIndex: Int
-) {
+) extends ObservableWindow {
 
-  def show(): Unit = {
-    val stage = new Stage {
-      title = "🌐 Internet durchsuchen"
-      width = 700
-      height = 500
-      resizable = true
-    }
+  override protected def createStage(): Stage = {
+    val stage = super.createStage()
+    stage.title = "🌐 Internet durchsuchen"
+    stage.width = 700
+    stage.height = 500
+    stage.resizable = true
+    stage
+  }
 
-    val player = controller.getPlayers(playerIndex)
-    val currentRound = controller.game.state.round
+  override protected def refreshContent(): Unit = {
+    currentStage.foreach { stage =>
+      val player = controller.getPlayers(playerIndex)
+      val currentRound = controller.game.state.round
 
-    val content = player.laptop.runningInternetSearch match {
-      case None =>
-        // Keine Suche gestartet
-        createStartSearchView(player, stage)
-      
-      case Some(search) if search.completionRound > currentRound =>
-        // Suche läuft noch
-        createRunningSearchView(search, currentRound, stage)
-      
-      case Some(search) =>
-        // Suche abgeschlossen - Ergebnisse anzeigen
-        createResultsView(search, stage)
-    }
-
-    stage.scene = new Scene(
-      new BorderPane {
-        center = content
+      val content = player.laptop.runningInternetSearch match {
+        case None =>
+          createStartSearchView(player, stage)
+        
+        case Some(search) if search.completionRound > currentRound =>
+          createRunningSearchView(search, currentRound, stage)
+        
+        case Some(search) =>
+          createResultsView(search, stage)
       }
-    )
 
-    stage.show()
+      stage.scene = new Scene(
+        new BorderPane {
+          center = content
+        }
+      )
+    }
   }
 
   // ==========================================
@@ -106,8 +106,7 @@ class InternetSearchMenu(
           maxWidth = 300
           onAction = _ => {
             controller.doAndRemember(SearchInternetCommand(playerIndex))
-            parentStage.close()
-            show() // Refresh
+            // ✅ Observer aktualisiert automatisch - kein close/show nötig!
           }
         },
         new Button("❌ Abbrechen") {

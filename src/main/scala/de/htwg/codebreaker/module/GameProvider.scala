@@ -15,4 +15,4 @@ import de.htwg.codebreaker.model.game.GameFactory.unlockAll
 class GameProvider extends Provider[Game]:
   override def get(): Game =
     // You can modify this to choose different game types based on configuration or other criteria
-    apply("default")
+    apply("unlockAll")
