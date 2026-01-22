@@ -2,7 +2,6 @@
 package de.htwg.codebreaker
 
 import com.google.inject.{Guice, Injector}
-import de.htwg.codebreaker.module.CodebreakerModule
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.view.TUI
 import de.htwg.codebreaker.view.gui.GUI

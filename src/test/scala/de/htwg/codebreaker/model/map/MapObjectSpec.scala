@@ -2,7 +2,9 @@ package de.htwg.codebreaker.model
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import MapObject._
+import de.htwg.codebreaker.model.map.MapObject._
+import de.htwg.codebreaker.model.map.{MapObject, Continent}
+import de.htwg.codebreaker.model.server.ServerType
 
 class MapObjectSpec extends AnyWordSpec with Matchers:
 

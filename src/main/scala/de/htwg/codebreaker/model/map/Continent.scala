@@ -1,5 +1,5 @@
 // src/main/scala/de/htwg/codebreaker/model/Continent.scala
-package de.htwg.codebreaker.model
+package de.htwg.codebreaker.model.map
 
 /**
  * Alle Kontinente der Weltkarte (plus „Ocean“ für Wasserflächen).

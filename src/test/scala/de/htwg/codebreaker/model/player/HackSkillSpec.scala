@@ -1,7 +1,8 @@
-package de.htwg.codebreaker.model
+package de.htwg.codebreaker.model.player
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import de.htwg.codebreaker.model.player.skill.HackSkill
 
 class HackSkillSpec extends AnyWordSpec with Matchers:
 

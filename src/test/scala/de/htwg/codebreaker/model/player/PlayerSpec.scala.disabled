@@ -1,0 +1,220 @@
+package de.htwg.codebreaker.model.player
+
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
+import de.htwg.codebreaker.model.map.{Tile, Continent}
+import de.htwg.codebreaker.model.player.skill.PlayerSkillTree
+import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools}
+
+class PlayerSpec extends AnyWordSpec with Matchers:
+
+  val testTile = Tile(10, 10, Continent.Europe)
+  val emptySkillTree = PlayerSkillTree(Set.empty)
+
+  "Player" should {
+
+    "be created with all required fields" in {
+      val player = Player(
+        id = 0,
+        name = "TestPlayer",
+        tile = testTile,
+        cpu = 100,
+        ram = 200,
+        code = 50,
+        availableXp = 0,
+        totalXpEarned = 0,
+        skills = emptySkillTree,
+        cybersecurity = 30
+      )
+
+      player.id shouldBe 0
+      player.name shouldBe "TestPlayer"
+      player.tile shouldBe testTile
+      player.cpu shouldBe 100
+      player.ram shouldBe 200
+      player.code shouldBe 50
+      player.availableXp shouldBe 0
+      player.totalXpEarned shouldBe 0
+      player.skills shouldBe emptySkillTree
+      player.cybersecurity shouldBe 30
+      player.movementPoints shouldBe 5  // default value
+      player.maxMovementPoints shouldBe 5  // default value
+    }
+
+    "use default movement points when not specified" in {
+      val player = Player(
+        0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30
+      )
+
+      player.movementPoints shouldBe 5
+      player.maxMovementPoints shouldBe 5
+    }
+
+    "support custom movement points" in {
+      val player = Player(
+        0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30,
+        movementPoints = 3,
+        maxMovementPoints = 10
+      )
+
+      player.movementPoints shouldBe 3
+      player.maxMovementPoints shouldBe 10
+    }
+
+    "support modifying resources functionally" in {
+      val original = Player(
+        0, "Test", testTile, 100, 100, 50, 0, 0, emptySkillTree, 30
+      )
+
+      val updated = original.copy(cpu = 150, ram = 200, code = 75)
+
+      original.cpu shouldBe 100
+      original.ram shouldBe 100
+      original.code shouldBe 50
+
+      updated.cpu shouldBe 150
+      updated.ram shouldBe 200
+      updated.code shouldBe 75
+    }
+
+    "support modifying XP functionally" in {
+      val original = Player(
+        0, "Test", testTile, 100, 100, 0, 50, 100, emptySkillTree, 30
+      )
+
+      val updated = original.copy(availableXp = 30, totalXpEarned = 150)
+
+      original.availableXp shouldBe 50
+      original.totalXpEarned shouldBe 100
+
+      updated.availableXp shouldBe 30
+      updated.totalXpEarned shouldBe 150
+    }
+
+    "support moving to different tile" in {
+      val original = Player(
+        0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30
+      )
+
+      val newTile = Tile(15, 20, Continent.Asia)
+      val moved = original.copy(tile = newTile)
+
+      original.tile shouldBe testTile
+      moved.tile shouldBe newTile
+    }
+
+    "support updating movement points" in {
+      val original = Player(
+        0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30,
+        movementPoints = 5
+      )
+
+      val updated = original.copy(movementPoints = 2)
+
+      original.movementPoints shouldBe 5
+      updated.movementPoints shouldBe 2
+    }
+
+    "support resetting movement points to max" in {
+      val player = Player(
+        0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30,
+        movementPoints = 2,
+        maxMovementPoints = 5
+      )
+
+      val reset = player.copy(movementPoints = player.maxMovementPoints)
+
+      reset.movementPoints shouldBe 5
+    }
+
+    "support updating skill tree" in {
+      val original = Player(
+        0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30
+      )
+
+      val newSkills = PlayerSkillTree(Set("skill1", "skill2"))
+      val updated = original.copy(skills = newSkills)
+
+      original.skills.unlockedSkillIds shouldBe empty
+      updated.skills.unlockedSkillIds should have size 2
+    }
+
+    "support updating cybersecurity" in {
+      val original = Player(
+        0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30
+      )
+
+      val updated = original.copy(cybersecurity = 50)
+
+      original.cybersecurity shouldBe 30
+      updated.cybersecurity shouldBe 50
+    }
+
+    "support zero resources" in {
+      val player = Player(
+        0, "Test", testTile, 0, 0, 0, 0, 0, emptySkillTree, 0
+      )
+
+      player.cpu shouldBe 0
+      player.ram shouldBe 0
+      player.code shouldBe 0
+      player.cybersecurity shouldBe 0
+    }
+
+    "support negative movement points" in {
+      val player = Player(
+        0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30,
+        movementPoints = -1
+      )
+
+      player.movementPoints shouldBe -1
+    }
+
+    "support different player IDs" in {
+      val player1 = Player(0, "P1", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30)
+      val player2 = Player(1, "P2", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30)
+
+      player1.id shouldBe 0
+      player2.id shouldBe 1
+      player1 should not be player2
+    }
+
+    "support equality comparison" in {
+      val player1 = Player(0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30)
+      val player2 = Player(0, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30)
+      val player3 = Player(1, "Test", testTile, 100, 100, 0, 0, 0, emptySkillTree, 30)
+
+      player1 shouldBe player2
+      player1 should not be player3
+    }
+
+    "track total XP separately from available XP" in {
+      val player = Player(
+        0, "Test", testTile, 100, 100, 0,
+        availableXp = 50,
+        totalXpEarned = 200,
+        emptySkillTree, 30
+      )
+
+      player.availableXp shouldBe 50
+      player.totalXpEarned shouldBe 200
+      player.totalXpEarned should be >= player.availableXp
+    }
+
+    "support high resource values" in {
+      val player = Player(
+        0, "Rich", testTile,
+        cpu = 10000,
+        ram = 50000,
+        code = 9999,
+        availableXp = 5000,
+        totalXpEarned = 100000,
+        emptySkillTree,
+        cybersecurity = 100
+      )
+
+      player.cpu shouldBe 10000
+      player.ram shouldBe 50000
+      player.code shouldBe 9999
+    }
+  }

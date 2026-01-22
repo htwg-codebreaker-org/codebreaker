@@ -6,14 +6,19 @@ import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
 
 import de.htwg.codebreaker.controller.ControllerInterface
-import de.htwg.codebreaker.controller.commands._
-import de.htwg.codebreaker.model.{Server, ServerType, Continent}
-import de.htwg.codebreaker.model.MapObject
-import de.htwg.codebreaker.model.MapObject._
+import de.htwg.codebreaker.controller.commands.player.{MovePlayerCommand, NextPlayerCommand, UnlockHackSkillCommand, UnlockSocialSkillCommand}
+import de.htwg.codebreaker.controller.commands.laptop.{StartLaptopActionCommand, CollectLaptopActionResultCommand}
+import de.htwg.codebreaker.controller.commands.laptop.UpgradeCoresCommand
+import de.htwg.codebreaker.model.map.{MapObject, Tile}
+import de.htwg.codebreaker.model.player.laptop.LaptopAction
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.model.map.MapObject._
+
 import de.htwg.codebreaker.util.Observer
 
 import scala.io.StdIn
 import scala.util.{Failure, Success}
+import org.checkerframework.checker.units.qual.s
 
 /**
  * Text-based User Interface (TUI)
@@ -32,35 +37,403 @@ class TUI @Inject()(controller: ControllerInterface)
   // =========================
 
   def processInputLine(input: String): Unit =
-    input.trim match {
+  input.trim match {
 
-      case "q" =>
-        println("Spiel beendet.")
+    case "q" =>
+      println("Spiel beendet.")
 
-      case "m" =>
-        show()
+    case "m" =>
+      show()
 
-      case "help" =>
-        printHelp()
+    case "help" =>
+      printHelp()
 
-      case "undo" =>
-        controller.undo()
+    case "undo" =>
+      controller.undo()
 
-      case "redo" =>
-        controller.redo()
+    case "redo" =>
+      controller.redo()
 
-      case "next" =>
-        controller.doAndRemember(NextPlayerCommand())
+    case "next" =>
+      controller.doAndForget(NextPlayerCommand())
 
-      case s if s.startsWith("move ") =>
-        handleMove(s)
+    case "skills" =>  // ← NEU!
+      showSkillMenu()
 
-      case s if s.startsWith("tile ") =>
-        handleTileMenu(s)
+    case "laptop" =>
+      showLaptopMenu()
+
+    case s if s.startsWith("move ") =>
+      handleMove(s)
+
+    case s if s.startsWith("tile ") =>
+      handleTileMenu(s)
+
+    case _ =>
+      println("Unbekannter Befehl. 'help' für Hilfe.")
+  }
+
+  // =========================
+  // LAPTOP MENU
+  // =========================
+
+  private def showLaptopMenu(): Unit = {
+    val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+    val player = controller.getPlayers(playerIndex)
+
+    println("\n" + "=" * 60)
+    println(s"${player.name} – Laptop")
+    println("=" * 60)
+
+    val runningCount = player.laptop.runningActions.length
+    val completedCount = controller.getCompletedActionsForCurrentPlayer().length
+    
+    val currentCores = player.laptop.hardware.kerne
+    val upgradeCost = UpgradeCoresCommand.calculateCost(currentCores)  // ← Clean!
+
+    println(s"\na) 🔨 Attack (neue Action starten)")
+    println(s"r) 🔄 Running Tasks ($runningCount)")
+    println(s"c) ✅ Completed Tasks ($completedCount)")
+    println(s"u) ⬆️  Upgrade Cores ($currentCores → ${currentCores + 1}) [Kosten: $upgradeCost CPU]")
+    println(s"0) Zurück")
+    print("> ")
+
+    StdIn.readLine() match {
+      case "a" => showAttackMenu()
+      case "r" => showRunningActionsMenu()
+      case "c" => showCompletedActionsMenu()
+      case "u" => handleCoreUpgrade(playerIndex)  // ← Kein cost parameter mehr nötig
+      case "0" => println("Zurück zum Hauptmenü.")
+      case _ => println("Ungültige Auswahl.")
+    }
+  }
+
+  private def handleCoreUpgrade(playerIndex: Int): Unit = {
+    val player = controller.getPlayers(playerIndex)
+    val cost = UpgradeCoresCommand.calculateCost(player.laptop.hardware.kerne)
+    
+    if (player.laptop.hardware.cpu < cost) {
+      println(s"\n❌ Nicht genug CPU! Benötigt: $cost, Verfügbar: ${player.laptop.hardware.cpu}")
+    } else {
+      controller.doAndRemember(UpgradeCoresCommand(playerIndex))
+      println(s"✅ Core-Upgrade erfolgreich! Neue Kerne: ${player.laptop.hardware.kerne + 1}")
+    }
+    showLaptopMenu()
+  }
+
+  // --- ATTACK: Neue Actions starten ---
+  private def showAttackMenu(): Unit = {
+    val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+    val player = controller.getPlayers(playerIndex)
+    val playerTile = player.tile
+    
+    // Server nur auf aktuellem Tile
+    val inRangeServers = controller.getServers.filter(_.tile == playerTile)
+
+    if (inRangeServers.isEmpty) {
+      println("\n📡 Kein Server in Reichweite auf diesem Tile!")
+      println(s"Du befindest dich auf (${playerTile.x}, ${playerTile.y})")
+      showLaptopMenu()
+      return
+    }
+
+    // Server auswählen
+    println("\n💻 Server in Reichweite:")
+    println("-" * 60)
+    inRangeServers.zipWithIndex.foreach { case (server, idx) =>
+      println(s"${idx + 1}) ${server.name} (${server.difficulty}%) - ${server.serverType}")
+    }
+    println("0) Zurück")
+    print("> ")
+
+    StdIn.readLine() match {
+      case "0" => showLaptopMenu()
+      case input =>
+        try {
+          val choice = input.toInt - 1
+          if (choice >= 0 && choice < inRangeServers.length) {
+            val server = inRangeServers(choice)
+            showActionSelectionForServer(playerIndex, server)
+          } else {
+            println("Ungültige Auswahl.")
+            showAttackMenu()
+          }
+        } catch {
+          case _: NumberFormatException =>
+            println("Ungültige Eingabe.")
+            showAttackMenu()
+        }
+    }
+  }
+
+  // --- Verfügbare Actions für einen Server auswählen ---
+  private def showActionSelectionForServer(playerIndex: Int, server: Server): Unit = {
+    val player = controller.getPlayers(playerIndex)
+    
+    // Hole alle verfügbaren Actions basierend auf installierten Tools
+    val availableActions = getAvailableActionsForPlayer(player)
+
+    if (availableActions.isEmpty) {
+      println("\n❌ Keine Tools installiert um anzugreifen!")
+      showLaptopMenu()
+      return
+    }
+
+    // Laufende Actions für diesen Server
+    val runningForServer = player.laptop.runningActions.filter(_.targetServer == server.name)
+
+    if (runningForServer.nonEmpty) {
+      println(s"\n⚠️ Bereits laufende Actions für ${server.name}:")
+      runningForServer.foreach { running =>
+        val roundsLeft = running.completionRound - controller.game.state.round
+        println(s"  - ${running.action.name} (noch $roundsLeft Runden)")
+      }
+      println()
+    }
+
+    println("\n💻 Verfügbare Actions für Angriff:")
+    println("-" * 60)
+    availableActions.zipWithIndex.foreach { case (action, idx) =>
+      val canAfford = 
+        player.laptop.hardware.cpu >= action.cpuCost &&
+        player.laptop.hardware.ram >= action.ramCost &&
+        player.laptop.hardware.kerne >= action.coreCost
+      
+      val status = if (canAfford) "✓" else "✗"
+      println(s"${idx + 1}) $status ${action.name} (${action.durationRounds}R)")
+      println(s"   Kosten: ${action.cpuCost} CPU, ${action.ramCost} RAM, ${action.coreCost} Kerne")
+      println(s"   ${action.description}")
+    }
+    println("0) Zurück")
+    print("> ")
+
+    StdIn.readLine() match {
+      case "0" => showLaptopMenu()
+      case input =>
+        try {
+          val choice = input.toInt - 1
+          if (choice >= 0 && choice < availableActions.length) {
+            val action = availableActions(choice)
+            
+            val canAfford = 
+              player.laptop.hardware.cpu >= action.cpuCost &&
+              player.laptop.hardware.ram >= action.ramCost &&
+              player.laptop.hardware.kerne >= action.coreCost
+
+            if (canAfford) {
+              controller.doAndRemember(
+                StartLaptopActionCommand(playerIndex, action, server.name)
+              )
+              println(s"✅ ${action.name} gestartet auf ${server.name}!")
+              showLaptopMenu()
+            } else {
+              println("❌ Nicht genug Ressourcen!")
+              showActionSelectionForServer(playerIndex, server)
+            }
+          } else {
+            println("Ungültige Auswahl.")
+            showActionSelectionForServer(playerIndex, server)
+          }
+        } catch {
+          case _: NumberFormatException =>
+            println("Ungültige Eingabe.")
+            showActionSelectionForServer(playerIndex, server)
+        }
+    }
+  }
+
+  // --- Verfügbare Actions basierend auf installierten Tools ---
+  private def getAvailableActionsForPlayer(player: de.htwg.codebreaker.model.player.Player): List[LaptopAction] = {
+    val installedToolIds = player.laptop.tools.toolIds
+    val allTools = controller.game.model.laptopTools
+    
+    allTools
+      .filter(tool => installedToolIds.contains(tool.id))
+      .flatMap(tool => tool.availableActions)
+  }
+
+  // --- RUNNING ACTIONS ---
+  private def showRunningActionsMenu(): Unit = {
+    val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+    val player = controller.getPlayers(playerIndex)
+    val currentRound = controller.game.state.round
+    
+    // Nur Actions die noch laufen (nicht fertig)
+    val running = player.laptop.runningActions.filter(_.completionRound > currentRound)
+
+    if (running.isEmpty) {
+      println("\n🔄 Keine laufenden Actions.")
+      showLaptopMenu()
+      return
+    }
+
+    println("\n🔄 Laufende Actions:")
+    println("-" * 60)
+    running.zipWithIndex.foreach { case (action, i) =>
+      val roundsLeft = action.completionRound - currentRound
+      println(s"${i + 1}) ${action.action.name}")
+      println(s"   Target: ${action.targetServer}")
+      println(s"   Fertig in Runde: ${action.completionRound} (noch $roundsLeft Runden)")
+      println(s"   ${action.action.description}")
+    }
+    println("\n0) Zurück")
+    print("> ")
+
+    StdIn.readLine() match {
+      case "0" => showLaptopMenu()
+      case _ => 
+        println("Running Tasks - aktuell nur Anzeige.")
+        showRunningActionsMenu()
+    }
+  }
+
+  // --- COMPLETED ACTIONS (Mit Claim/Steal Optionen) ---
+  private def showCompletedActionsMenu(): Unit = {
+    val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+    val player = controller.getPlayers(playerIndex)
+    val currentRound = controller.game.state.round
+    
+    // Nur Actions die fertig sind (completion_round <= currentRound)
+    val completed = player.laptop.runningActions.filter(_.completionRound <= currentRound)
+
+    if (completed.isEmpty) {
+      println("\n✅ Keine abgeschlossenen Actions.")
+      showLaptopMenu()
+      return
+    }
+
+    println("\n✅ Abgeschlossene Actions:")
+    println("-" * 60)
+    completed.zipWithIndex.foreach { case (action, i) =>
+      println(s"${i + 1}) ${action.action.name}")
+      println(s"   Target: ${action.targetServer}")
+      println(s"   ${action.action.description}")
+    }
+    println("\n0) Zurück")
+    print("Wähle eine Action (Nummer): ")
+
+    StdIn.readLine() match {
+      case "0" => showLaptopMenu()
+      case input =>
+        try {
+          val idx = input.toInt - 1
+          if (idx >= 0 && idx < completed.length) {
+            val selectedAction = completed(idx)
+            showClaimOrStealMenu(playerIndex, selectedAction.targetServer)
+          } else {
+            println("Ungültige Auswahl.")
+            showCompletedActionsMenu()
+          }
+        } catch {
+          case _: NumberFormatException =>
+            println("Ungültige Eingabe.")
+            showCompletedActionsMenu()
+        }
+    }
+  }
+
+  // --- CLAIM vs STEAL MENU ---
+  private def showClaimOrStealMenu(playerIndex: Int, targetServer: String): Unit = {
+    println("\n" + "=" * 60)
+    println(s"$targetServer – Reward abholen")
+    println("=" * 60)
+    println("\n1) 🏆 Claim (Server beanspruchen + Belohnung)")
+    println("2) 🔓 Daten klauen (nur Belohnung, Server gehackt aber nicht geclaimed)")
+    println("0) Abbrechen")
+    print("> ")
+
+    StdIn.readLine() match {
+      case "1" =>
+        // Claim = true
+        controller.doAndRemember(
+          CollectLaptopActionResultCommand(playerIndex, targetServer, claimServer = true)
+        )
+        println("✅ Server geclaimed!")
+        showLaptopMenu()
+
+      case "2" =>
+        // Steal = false (nur Daten klauen)
+        controller.doAndRemember(
+          CollectLaptopActionResultCommand(playerIndex, targetServer, claimServer = false)
+        )
+        println("🔓 Daten geklaut!")
+        showLaptopMenu()
+
+      case "0" =>
+        println("Abgebrochen.")
+        showCompletedActionsMenu()
 
       case _ =>
-        println("Unbekannter Befehl. 'help' für Hilfe.")
+        println("Ungültige Auswahl.")
+        showClaimOrStealMenu(playerIndex, targetServer)
     }
+  }
+
+  // =========================
+  // SKILL MENU
+  // =========================
+
+  private def showSkillMenu(): Unit = {
+    val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
+    val player = controller.getPlayers(playerIndex)
+    val allHackSkills = controller.game.model.hackSkills
+    val allSocialSkills = controller.game.model.socialSkills
+
+    println("\n" + "=" * 60)
+    println(s"${player.name} – Skilltree (XP: ${player.availableXp})")
+    println("=" * 60)
+
+    // === HACK SKILLS ===
+    println("\n💻 HACK SKILLS:")
+    println("-" * 60)
+    allHackSkills.zipWithIndex.foreach { case (skill, idx) =>
+      val unlocked = player.skills.unlockedHackSkills.contains(skill.id)
+      val status = if (unlocked) "✔" else if (player.availableXp >= skill.costXp) "🔓" else "❌"
+      // ← GEÄNDERT: Verwende s"..." statt f"..."
+      println(s"${(idx + 1).toString.padTo(2, ' ')} $status ${skill.name.padTo(20, ' ')} | XP: ${skill.costXp.toString.padTo(3, ' ')} | Bonus: +${skill.successBonus}%%")
+      println(s"    ${skill.description}")
+    }
+
+    // === SOCIAL SKILLS ===
+    val socialOffset = allHackSkills.length
+    println("\n🗣️ SOCIAL SKILLS:")
+    println("-" * 60)
+    allSocialSkills.zipWithIndex.foreach { case (skill, idx) =>
+      val unlocked = player.skills.unlockedSocialSkills.contains(skill.id)
+      val status = if (unlocked) "✔" else if (player.availableXp >= skill.costXp) "🔓" else "❌"
+      println(s"${(socialOffset + idx + 1).toString.padTo(2, ' ')} $status ${skill.name.padTo(20, ' ')} | XP: ${skill.costXp.toString.padTo(3, ' ')} | Bonus: +${skill.successBonus}%%")
+      println(s"    ${skill.description}")
+    }
+
+    println("\n" + "=" * 60)
+    println("Wähle einen Skill zum Freischalten (Nummer) oder 0 zum Abbrechen:")
+    print("> ")
+
+    StdIn.readLine() match {
+      case "0" => 
+        println("Abgebrochen.")
+      
+      case input =>
+        try {
+          val choice = input.toInt - 1
+          
+          if (choice >= 0 && choice < allHackSkills.length) {
+            // Hack Skill ausgewählt
+            val skill = allHackSkills(choice)
+            controller.doAndRemember(UnlockHackSkillCommand(playerIndex, skill))
+          } else if (choice >= socialOffset && choice < socialOffset + allSocialSkills.length) {
+            // Social Skill ausgewählt
+            val skill = allSocialSkills(choice - socialOffset)
+            controller.doAndRemember(UnlockSocialSkillCommand(playerIndex, skill))
+          } else {
+            println("Ungültige Auswahl.")
+          }
+        } catch {
+          case _: NumberFormatException =>
+            println("Ungültige Eingabe.")
+        }
+    }
+  }
 
   // =========================
   // TILE MENU
@@ -80,7 +453,7 @@ class TUI @Inject()(controller: ControllerInterface)
       val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
       val player = controller.getPlayers(playerIndex)
 
-      controller.game.model.worldMap.tileAt(x, y) match {
+      controller.game.model.map.tileAt(x, y) match {
         case None =>
           println("Ungültiges Tile.")
 
@@ -95,82 +468,11 @@ class TUI @Inject()(controller: ControllerInterface)
             case Failure(_) =>
               println("1) ➡ Bewegen (nicht möglich)")
           }
-
-          // ---- HACK OPTION ----
-          controller.getServers.find(_.tile == tile) match {
-            case Some(server) if !server.hacked =>
-              println("2) 💻 Server angreifen")
-            case Some(_) =>
-              println("2) 💻 Server (bereits gehackt)")
-            case None =>
-              println("2) 💻 Kein Server")
-          }
-
-          println("0) Abbrechen")
-          print("> ")
-
-          StdIn.readLine() match {
-            case "1" =>
-              controller.doAndRemember(moveCmd)
-
-            case "2" =>
-              controller.getServers.find(_.tile == tile).foreach { server =>
-                openHackMenu(server, playerIndex)
-              }
-
-            case _ =>
-              println("Abgebrochen.")
-          }
       }
 
     } catch {
       case _: NumberFormatException =>
         println("X und Y müssen Zahlen sein.")
-    }
-  }
-
-  // =========================
-  // HACK MENU (SKILLS)
-  // =========================
-
-  private def openHackMenu(server: Server, playerIndex: Int): Unit = {
-    val player = controller.getPlayers(playerIndex)
-
-    val unlockedSkills =
-      controller.game.model.skills
-        .filter(s => player.skills.unlockedSkillIds.contains(s.id))
-
-    if (unlockedSkills.isEmpty) {
-      println("❌ Keine Skills freigeschaltet.")
-      return
-    }
-
-    println(s"\n💻 Angriff auf ${server.name}")
-    unlockedSkills.zipWithIndex.foreach { case (skill, i) =>
-      val chance =
-        math.min(95, (100 - server.difficulty) + skill.successBonus)
-      println(s"${i + 1}) ${skill.name}  → $chance%")
-    }
-    println("0) Abbrechen")
-    print("> ")
-
-    StdIn.readLine() match {
-      case "0" => println("Abgebrochen.")
-      case s =>
-        try {
-          val idx = s.toInt - 1
-          if (idx >= 0 && idx < unlockedSkills.size) {
-            val skill = unlockedSkills(idx)
-            controller.doAndRemember(
-              HackServerCommand(server.name, playerIndex, skill)
-            )
-          } else {
-            println("Ungültige Auswahl.")
-          }
-        } catch {
-          case _: NumberFormatException =>
-            println("Ungültige Eingabe.")
-        }
     }
   }
 
@@ -190,7 +492,7 @@ class TUI @Inject()(controller: ControllerInterface)
       val y = parts(2).toInt
       val playerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
 
-      controller.game.model.worldMap.tileAt(x, y) match {
+      controller.game.model.map.tileAt(x, y) match {
         case Some(tile) =>
           controller.doAndRemember(
             MovePlayerCommand(playerIndex, tile)
@@ -219,9 +521,13 @@ class TUI @Inject()(controller: ControllerInterface)
     players.zipWithIndex.foreach { case (p, i) =>
       println(s"Spieler $i: ${p.name}")
       println(s"  Position: (${p.tile.x}, ${p.tile.y})")
-      println(s"  CPU: ${p.cpu} | RAM: ${p.ram} | Code: ${p.code}")
+      println(s"  CPU: ${p.laptop.hardware.cpu} | RAM: ${p.laptop.hardware.ram} | Code: ${p.laptop.hardware.code}")
       println(s"  XP: ${p.availableXp} | Total XP: ${p.totalXpEarned}")
-      println(s"  Skills: ${p.skills.unlockedSkillIds.mkString(", ")}")
+      println(s"  HackSkills: ${p.skills.unlockedHackSkills.mkString(", ")}")
+      println(s"  SocialSkills: ${p.skills.unlockedSocialSkills.mkString(", ")}")
+      println(s"  Movement Points: ${p.movementPoints}/${p.maxMovementPoints}")
+      println(s"  Running Actions: ${p.laptop.runningActions.length}")
+      println(s"  Completed Actions: ${controller.getCompletedActionsForCurrentPlayer().length}")
       println("-" * 30)
     }
   }
@@ -254,6 +560,8 @@ class TUI @Inject()(controller: ControllerInterface)
         |  m                 → Karte anzeigen
         |  tile <x> <y>      → Aktionen für Tile
         |  move <x> <y>      → Spieler bewegen
+        |  skills            → Skilltree öffnen
+        |  laptop            → Laptop-Menu (Actions & Tasks)
         |  undo / redo
         |  next              → Nächster Spieler
         |  q                 → Beenden

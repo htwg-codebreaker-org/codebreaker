@@ -86,6 +86,27 @@ Die ursprüngliche Vision und Konzeptentwicklung finden Sie auf unserer GitHub P
 
 ---
 
+### Einblicke in das Spiel
+
+# 📸 Screenshots
+
+| Feature | Screenshot |
+|---------|-----------|
+| **Hauptansicht** | ![Start](docs/images/Start.PNG) |
+| **Laptop Menü** | ![Laptop](docs/images/Laptopmenü.PNG) |
+| **Server in Reichweite** | ![In Range](docs/images/Angriff_in_range.PNG) |
+| **Server außer Reichweite** | ![Not in Range](docs/images/Angriff_not_in_range.PNG) |
+| **Laufender Angriff** | ![Running](docs/images/Angriff_running.PNG) |
+| **Angriff abgeschlossen** | ![Fertig](docs/images/Angriff_fertig2.PNG) |
+| **Angriff Auswertung** | ![Auswertung](docs/images/Angriff_auswertung2.PNG) |
+| **Internet durchsuchen** | ![Internet](docs/images/Internet_durchsuchen.PNG) |
+| **Internetsuche läuft** | ![Suche läuft](docs/images/Internetsuche_läuft.PNG) |
+| **Server Roles** | ![Roles](docs/images/ServerRole.PNG) |
+| **Server Role Install** | ![Install](docs/images/ServerRole_install.PNG) |
+| **Skill-System** | ![Skills](docs/images/Skills.PNG) |
+
+---
+
 ## 🚀 Installation & Ausführung
 
 ### 📦 Docker Build

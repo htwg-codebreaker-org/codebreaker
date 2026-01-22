@@ -1,0 +1,223 @@
+package de.htwg.codebreaker.model.server
+
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
+
+class ServerSpec extends AnyWordSpec with Matchers:
+
+  val testTile = Tile(10, 10, Continent.Europe)
+
+  "ServerType enum" should {
+
+    "have all server types defined" in {
+      val types = ServerType.values
+      types should contain allOf (
+        ServerType.Side,
+        ServerType.Firm,
+        ServerType.Cloud,
+        ServerType.Bank,
+        ServerType.Military,
+        ServerType.GKS,
+        ServerType.Private
+      )
+    }
+  }
+
+  "Server" should {
+
+    "be created with all required fields" in {
+      val server = Server(
+        name = "TestServer",
+        tile = testTile,
+        difficulty = 50,
+        rewardCpu = 100,
+        rewardRam = 200,
+        hacked = false,
+        serverType = ServerType.Private
+      )
+
+      server.name shouldBe "TestServer"
+      server.tile shouldBe testTile
+      server.difficulty shouldBe 50
+      server.rewardCpu shouldBe 100
+      server.rewardRam shouldBe 200
+      server.hacked shouldBe false
+      server.serverType shouldBe ServerType.Private
+      server.hackedBy shouldBe None
+      server.claimedBy shouldBe None
+    }
+
+    "support optional hackedBy field" in {
+      val server = Server(
+        "Server",
+        testTile,
+        50,
+        100,
+        200,
+        true,
+        ServerType.Bank,
+        hackedBy = Some(1)
+      )
+
+      server.hackedBy shouldBe Some(1)
+    }
+
+    "support optional claimedBy field" in {
+      val server = Server(
+        "Server",
+        testTile,
+        50,
+        100,
+        200,
+        true,
+        ServerType.Military,
+        claimedBy = Some(2)
+      )
+
+      server.claimedBy shouldBe Some(2)
+    }
+  }
+
+  "Server.claim" should {
+
+    "assign a player to a server" in {
+      val server = Server(
+        "Server",
+        testTile,
+        50,
+        100,
+        200,
+        false,
+        ServerType.Firm
+      )
+
+      val claimed = Server.claim(server, 1)
+      
+      claimed.claimedBy shouldBe Some(1)
+      claimed.name shouldBe server.name
+      claimed.tile shouldBe server.tile
+    }
+
+    "not modify original server (functional)" in {
+      val original = Server(
+        "Server",
+        testTile,
+        50,
+        100,
+        200,
+        false,
+        ServerType.Cloud
+      )
+
+      val claimed = Server.claim(original, 1)
+      
+      original.claimedBy shouldBe None
+      claimed.claimedBy shouldBe Some(1)
+    }
+
+    "replace existing claim" in {
+      val server = Server(
+        "Server",
+        testTile,
+        50,
+        100,
+        200,
+        true,
+        ServerType.GKS,
+        claimedBy = Some(1)
+      )
+
+      val reclaimed = Server.claim(server, 2)
+      
+      reclaimed.claimedBy shouldBe Some(2)
+    }
+  }
+
+  "Server.unclaim" should {
+
+    "remove claim from server" in {
+      val server = Server(
+        "Server",
+        testTile,
+        50,
+        100,
+        200,
+        true,
+        ServerType.Private,
+        claimedBy = Some(1)
+      )
+
+      val unclaimed = Server.unclaim(server)
+      
+      unclaimed.claimedBy shouldBe None
+    }
+
+    "not modify original server (functional)" in {
+      val original = Server(
+        "Server",
+        testTile,
+        50,
+        100,
+        200,
+        true,
+        ServerType.Side,
+        claimedBy = Some(1)
+      )
+
+      val unclaimed = Server.unclaim(original)
+      
+      original.claimedBy shouldBe Some(1)
+      unclaimed.claimedBy shouldBe None
+    }
+
+    "work on unclaimed server" in {
+      val server = Server(
+        "Server",
+        testTile,
+        50,
+        100,
+        200,
+        false,
+        ServerType.Firm
+      )
+
+      val unclaimed = Server.unclaim(server)
+      
+      unclaimed.claimedBy shouldBe None
+    }
+  }
+
+  "ServerBlueprint" should {
+
+    "be created with all fields" in {
+      val blueprint = ServerBlueprint(
+        name = "TestBlueprint",
+        preferredPosition = (10, 20),
+        serverType = ServerType.Bank,
+        difficultyRange = (30, 70),
+        rewardCpuRange = (50, 150),
+        rewardRamRange = (100, 300)
+      )
+
+      blueprint.name shouldBe "TestBlueprint"
+      blueprint.preferredPosition shouldBe (10, 20)
+      blueprint.serverType shouldBe ServerType.Bank
+      blueprint.difficultyRange shouldBe (30, 70)
+      blueprint.rewardCpuRange shouldBe (50, 150)
+      blueprint.rewardRamRange shouldBe (100, 300)
+    }
+
+    "support different server types" in {
+      ServerType.values.foreach { sType =>
+        val blueprint = ServerBlueprint(
+          "Test",
+          (0, 0),
+          sType,
+          (10, 90),
+          (50, 150),
+          (100, 300)
+        )
+        blueprint.serverType shouldBe sType
+      }
+    }
+  }

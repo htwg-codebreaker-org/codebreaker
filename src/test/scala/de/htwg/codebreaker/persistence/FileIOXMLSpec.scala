@@ -1,7 +1,12 @@
 package de.htwg.codebreaker.persistence
 
-import de.htwg.codebreaker.model._
+import de.htwg.codebreaker.persistence.XML.FileIOXML
 import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.model.map.{Tile, Continent, WorldMap}
+import de.htwg.codebreaker.model.player.{Player}
+import de.htwg.codebreaker.model.player.skill.PlayerSkillTree
+import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools}
+import de.htwg.codebreaker.model.server.{Server, ServerType}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.BeforeAndAfterEach
@@ -17,32 +22,36 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
   val tile1 = Tile(0, 0, Continent.Europe)
   val tile2 = Tile(5, 5, Continent.Asia)
 
+  val hardware1 = LaptopHardware(cpu = 100, ram = 100, code = 1, kerne = 1, networkRange = 1)
+  val tools1 = LaptopInstalledTools.empty
+  val laptop1 = Laptop(hardware = hardware1, tools = tools1, runningActions = Nil, runningInternetSearch = None, cybersecurity = 10)
+
   val player1 = Player(
     id = 0,
     name = "Alice",
     tile = tile1,
-    cpu = 100,
-    ram = 100,
-    code = 1,
+    laptop = laptop1,
     availableXp = 50,
     totalXpEarned = 50,
     skills = PlayerSkillTree(Set.empty),
-    cybersecurity = 10,
+    arrested = false,
     movementPoints = 5,
     maxMovementPoints = 5
   )
+
+  val hardware2 = LaptopHardware(cpu = 80, ram = 90, code = 2, kerne = 1, networkRange = 1)
+  val tools2 = LaptopInstalledTools.empty
+  val laptop2 = Laptop(hardware = hardware2, tools = tools2, runningActions = Nil, runningInternetSearch = None, cybersecurity = 15)
 
   val player2 = Player(
     id = 1,
     name = "Bob",
     tile = tile2,
-    cpu = 80,
-    ram = 90,
-    code = 2,
+    laptop = laptop2,
     availableXp = 120,
     totalXpEarned = 120,
     skills = PlayerSkillTree(Set.empty),
-    cybersecurity = 15,
+    arrested = false,
     movementPoints = 3,
     maxMovementPoints = 5
   )
@@ -55,7 +64,11 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     rewardRam = 5,
     hacked = false,
     serverType = ServerType.Bank,
-    hackedBy = None
+    hackedBy = None,
+    claimedBy = None,
+    cybersecurityLevel = 10,
+    blockedUntilRound = None,
+    installedRole = None
   )
 
   val server2 = Server(
@@ -66,11 +79,15 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     rewardRam = 10,
     hacked = true,
     serverType = ServerType.Firm,
-    hackedBy = Some(0)
+    hackedBy = Some(0),
+    claimedBy = None,
+    cybersecurityLevel = 10,
+    blockedUntilRound = None,
+    installedRole = None
   )
 
   val worldMap = WorldMap.defaultMap
-  val model = GameModel(List(player1, player2), List(server1, server2), worldMap, Nil)
+  val model = GameModel(List(player1, player2), List(server1, server2), worldMap, Nil, Nil, Nil, Nil, Nil)
   val state = GameState(
     currentPlayerIndex = Some(0),
     status = GameStatus.Running,
@@ -127,7 +144,7 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
       // Verify player details
       val loadedPlayer1 = loadedGame.model.players(0)
       loadedPlayer1.name shouldBe "Alice"
-      loadedPlayer1.cpu shouldBe 100
+      loadedPlayer1.laptop.hardware.cpu shouldBe 100
       loadedPlayer1.tile shouldBe tile1
 
       // Verify server details
@@ -178,13 +195,13 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
 
     "save and load game with all server types" in {
       val servers = List(
-        Server("Bank", tile1, 10, 1, 1, false, ServerType.Bank),
-        Server("Firm", tile1, 10, 1, 1, false, ServerType.Firm),
-        Server("Side", tile1, 10, 1, 1, false, ServerType.Side),
-        Server("Cloud", tile1, 10, 1, 1, false, ServerType.Cloud),
-        Server("Military", tile1, 10, 1, 1, false, ServerType.Military),
-        Server("GKS", tile1, 10, 1, 1, false, ServerType.GKS),
-        Server("Private", tile1, 10, 1, 1, false, ServerType.Private)
+        Server("Bank", tile1, 10, 1, 1, false, ServerType.Bank, None, None, 10, None, None),
+        Server("Firm", tile1, 10, 1, 1, false, ServerType.Firm, None, None, 10, None, None),
+        Server("Side", tile1, 10, 1, 1, false, ServerType.Side, None, None, 10, None, None),
+        Server("Cloud", tile1, 10, 1, 1, false, ServerType.Cloud, None, None, 10, None, None),
+        Server("Military", tile1, 10, 1, 1, false, ServerType.Military, None, None, 10, None, None),
+        Server("GKS", tile1, 10, 1, 1, false, ServerType.GKS, None, None, 10, None, None),
+        Server("Private", tile1, 10, 1, 1, false, ServerType.Private, None, None, 10, None, None)
       )
       val modelWithAllTypes = model.copy(servers = servers)
       val gameWithAllTypes = testGame.copy(model = modelWithAllTypes)
@@ -256,13 +273,12 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
     }
 
     "preserve player stats correctly" in {
+      val hardwareWithStats = LaptopHardware(cpu = 42, ram = 73, code = 5, kerne = 1, networkRange = 1)
+      val laptopWithStats = laptop1.copy(hardware = hardwareWithStats, cybersecurity = 85)
       val playerWithStats = player1.copy(
-        cpu = 42,
-        ram = 73,
-        code = 5,
+        laptop = laptopWithStats,
         availableXp = 150,
         totalXpEarned = 9999,
-        cybersecurity = 85,
         movementPoints = 2,
         maxMovementPoints = 8
       )
@@ -273,12 +289,12 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
       val loaded = fileIO.load().get
       val loadedPlayer = loaded.model.players.head
 
-      loadedPlayer.cpu shouldBe 42
-      loadedPlayer.ram shouldBe 73
-      loadedPlayer.code shouldBe 5
+      loadedPlayer.laptop.hardware.cpu shouldBe 42
+      loadedPlayer.laptop.hardware.ram shouldBe 73
+      loadedPlayer.laptop.hardware.code shouldBe 5
       loadedPlayer.availableXp shouldBe 150
       loadedPlayer.totalXpEarned shouldBe 9999
-      loadedPlayer.cybersecurity shouldBe 85
+      loadedPlayer.laptop.cybersecurity shouldBe 85
       loadedPlayer.movementPoints shouldBe 2
       loadedPlayer.maxMovementPoints shouldBe 8
     }
