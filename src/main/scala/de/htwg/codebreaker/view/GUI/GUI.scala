@@ -1,23 +1,20 @@
 package de.htwg.codebreaker.view.gui
 
 import com.google.inject.Inject
-import de.htwg.codebreaker.controller.{ControllerInterface}
-import de.htwg.codebreaker.controller.commands.player.NextPlayerCommand
+import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.util.Observer
 import de.htwg.codebreaker.view.gui.components._
 import scalafx.application.{JFXApp3, Platform}
 import scalafx.scene.Scene
 import scalafx.scene.layout.{VBox, BorderPane}
-import de.htwg.codebreaker.view.gui.components.menu.pauseMenu.*
+import de.htwg.codebreaker.view.gui.components.menu.pauseMenu.PauseMenu
 import scalafx.beans.property.{BooleanProperty, DoubleProperty}
 import scala.compiletime.uninitialized
-import de.htwg.codebreaker.model.server.Server
 
 /**
- * Refaktorierte Graphical User Interface mit modularer Architektur.
- * Die GUI ist auf mehrere Komponenten aufgeteilt und vollständig skalierbar.
- * 
- * @param controller The game controller, injected by Guice
+ * Optimierte GUI mit effizienter Update-Strategie.
+ * - Bei Window-Resize: Komponenten komplett neu erstellen
+ * - Bei Game-Updates: Nur refresh() aufrufen
  */
 class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with Observer {
   
@@ -34,21 +31,21 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   // Konfiguration für skalierbare Dimensionen
   private var config: ViewConfig = uninitialized
   
-  // Komponenteninstanzen
+  // Komponenteninstanzen (werden bei resize neu erstellt)
   private var mapView: GameMapView = uninitialized
   private var playerSidebar: PlayerSidebar = uninitialized
   private var topBar: TopControlBar = uninitialized
   private val notificationHandler = new NotificationHandler()
   
-  // Haupt-BorderPane für UI-Updates
+  // Haupt-BorderPane
   private var mainBorderPane: BorderPane = uninitialized
   
   // Tracking für Hack-Ereignisse
-  private var previousServers: List[de.htwg.codebreaker.model.server.Server] = controller.getServers
-  private var previousPlayers: List[de.htwg.codebreaker.model.player.Player] = controller.getPlayers
+  private var previousServers = controller.getServers
+  private var previousPlayers = controller.getPlayers
   
   // GUI-Modus
-  enum GUIMode {
+  private enum GUIMode {
     case Menu, Game
   }
   private var mode: GUIMode = GUIMode.Menu
@@ -72,7 +69,7 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   /**
    * Erstellt und zeigt die Hauptspielansicht an.
    */
-  def showWorldMap(): Unit = {
+  private def showWorldMap(): Unit = {
     initializeComponents()
     
     mainBorderPane = new BorderPane {
@@ -92,26 +89,24 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
     // Listener für Fenstergrößen-Änderungen
     windowWidthProperty.onChange { (_, _, _) =>
       if (mode == GUIMode.Game) {
-        updateGameView()
+        rebuildOnResize()
       }
     }
     
     windowHeightProperty.onChange { (_, _, _) =>
       if (mode == GUIMode.Game) {
-        updateGameView()
+        rebuildOnResize()
       }
     }
   }
   
   /**
-   * Aktualisiert nur die Spielansicht ohne komplette Neuinitialisierung.
+   * WINDOW RESIZE: Komponenten komplett neu erstellen
    */
-  private def updateGameView(): Unit = {
+  private def rebuildOnResize(): Unit = {
     Platform.runLater {
-      // Komponenten mit neuer Config neu erstellen
-      initializeComponents()
+      initializeComponents()  // Neue Komponenten mit neuer Größe
       
-      // BorderPane-Inhalte aktualisieren
       mainBorderPane.center = mapView.createMapPane()
       mainBorderPane.right = playerSidebar.createSidebar()
       mainBorderPane.top = topBar.createTopBar()
@@ -119,13 +114,13 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   }
   
   /**
-   * Observer-Update: Reagiert auf Änderungen im Spielzustand.
+   * GAME UPDATE: Nur refresh() - keine Neuinitialisierung!
    */
   override def update(): Unit = {
     val currentServers = controller.getServers
     val currentPlayers = controller.getPlayers
     
-    // Erkennung und Anzeige von Hack-Ereignissen
+    // Hack-Ereignisse erkennen und anzeigen
     notificationHandler.detectAndShowHackResults(
       previousServers,
       currentServers,
@@ -136,11 +131,16 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
     previousServers = currentServers
     previousPlayers = currentPlayers
     
-    // UI-Updates auf JavaFX-Thread - OHNE Fenstergrößen-Updates
+    // UI-Update auf JavaFX-Thread
     Platform.runLater {
       if (mode == GUIMode.Game) {
-        updateGameView()
+        // ⚡ NUR REFRESH - SCHNELL!
+        mapView.refresh()
+        playerSidebar.refresh()
+        topBar.refresh()
       }
+      
+      // Undo/Redo Buttons aktualisieren
       canUndoProperty.value = controller.canUndo
       canRedoProperty.value = controller.canRedo
     }
@@ -152,18 +152,21 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
   def startGame(): Unit = {
     canUndoProperty = BooleanProperty(controller.canUndo)
     canRedoProperty = BooleanProperty(controller.canRedo)
-      mode = GUIMode.Game
+    mode = GUIMode.Game
     showWorldMap()
   }
 
+  /**
+   * Öffnet das Pause-Menü.
+   */
   private def openPauseMenu(): Unit = {
     new PauseMenu(
-        onResume = () => (),              // Spiel läuft weiter
-        onSave   = () => controller.save(), // 💾 SaveGame
-        onExit   = () => {
+      onResume = () => (),
+      onSave = () => controller.save(),
+      onExit = () => {
         Platform.exit()
         System.exit(0)
-        }
+      }
     ).show()
   }
   

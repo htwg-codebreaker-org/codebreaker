@@ -11,10 +11,14 @@ import de.htwg.codebreaker.model.player.skill.PlayerSkillTree
  * @param id                Eindeutige Spieler‑ID
  * @param name              Name des Spielers
  * @param tile              Position auf der Karte
- * @param level, xp         Fortschritt
+ * @param availableXp       Verfügbare Erfahrungspunkte
+ * @param totalXpEarned     Gesamte verdiente Erfahrungspunkte
  * @param cybersecurity     Sicherheits‑Wert
  * @param movementPoints    Verbleibende Bewegungspunkte
  * @param maxMovementPoints Maximale Bewegungspunkte pro Runde
+ * @param laptop            Laptop des Spielers
+ * @param skills            Fähigkeitenbaum des Spielers
+ * @param arrested          Ob der Spieler verhaftet ist
  */
 case class Player(
   id: Int,

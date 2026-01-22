@@ -1,18 +1,13 @@
 package de.htwg.codebreaker.view.gui.components
 
-import de.htwg.codebreaker.controller.{ControllerInterface}
+import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.controller.commands.player.NextPlayerCommand
-import de.htwg.codebreaker.view.gui.components.menu.pauseMenu.{PauseMenu}
+import de.htwg.codebreaker.view.gui.components.menu.skilltree.SkillTreeWindow
 import scalafx.scene.layout.{HBox, Region, Priority}
 import scalafx.scene.control.{Button, Label}
 import scalafx.beans.property.BooleanProperty
-import de.htwg.codebreaker.view.gui.components.menu.pauseMenu.PauseMenu
-import de.htwg.codebreaker.view.gui.components.menu.skilltree.SkillTreeWindow
+import scala.compiletime.uninitialized
 
-
-/**
- * Obere Steuerungsleiste mit Status-Informationen und Aktionsbuttons.
- */
 class TopControlBar(
   controller: ControllerInterface,
   config: ViewConfig,
@@ -21,13 +16,44 @@ class TopControlBar(
   onPause: () => Unit
 ) {
   
+  // ⚡ Speichere Referenzen für refresh()
+  private var topBarBox: HBox = uninitialized
+  private var roundLabel: Label = uninitialized
+  private var currentPlayerLabel: Label = uninitialized
+
+  /**
+   * Erstellt die TopBar initial.
+   */
   def createTopBar(): HBox = {
+    topBarBox = buildTopBarContent()
+    topBarBox
+  }
+  
+  /**
+   * ⚡ REFRESH: Nur Labels aktualisieren!
+   */
+  def refresh(): Unit = {
+    if (roundLabel != null && currentPlayerLabel != null) {
+      roundLabel.text = s"Runde: ${controller.getState.round}"
+      
+      val currentPlayer = controller.getPlayers(controller.getState.currentPlayerIndex.getOrElse(0))
+      currentPlayerLabel.text = s"Am Zug: ${currentPlayer.name}"
+    }
+  }
+  
+  /**
+   * Baut den TopBar-Inhalt.
+   */
+  private def buildTopBarContent(): HBox = {
+    roundLabel = createRoundLabel()
+    currentPlayerLabel = createCurrentPlayerLabel()
+    
     new HBox {
       style = s"-fx-background-color: #222; -fx-padding: ${config.spacing}; -fx-spacing: ${config.spacing * 2}; -fx-alignment: center-left;"
       children = Seq(
         createSkillTreeButton(),
-        createRoundLabel(),
-        createCurrentPlayerLabel(),
+        roundLabel,
+        currentPlayerLabel,
         createSpacer(),
         createUndoButton(),
         createRedoButton(),
@@ -42,11 +68,9 @@ class TopControlBar(
       onAction = _ => {
         new SkillTreeWindow(controller).show()
       }
-      style =
-        s"-fx-background-color: #8844cc; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: ${config.fontSizeSmall}px;"
+      style = s"-fx-background-color: #8844cc; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: ${config.fontSizeSmall}px;"
     }
   }
-
   
   private def createRoundLabel(): Label = {
     new Label(s"Runde: ${controller.getState.round}") {
@@ -92,11 +116,8 @@ class TopControlBar(
   
   private def createPauseButton(): Button = {
     new Button("⚙️") {
-        onAction = _ => onPause()
-        style =
-        s"-fx-background-color: #555; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: ${config.fontSizeSmall}px;"
+      onAction = _ => onPause()
+      style = s"-fx-background-color: #555; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: ${config.fontSizeSmall}px;"
     }
   }
-
-
 }

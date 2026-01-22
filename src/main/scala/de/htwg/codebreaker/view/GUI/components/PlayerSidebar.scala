@@ -3,21 +3,43 @@ package de.htwg.codebreaker.view.gui.components
 import de.htwg.codebreaker.controller.ControllerInterface
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.server.Server
-import de.htwg.codebreaker.view.gui.components.ViewConfig
 import de.htwg.codebreaker.view.gui.components.menu.playerActionMenu.LaptopMainMenu
-import scalafx.scene.layout.{VBox, HBox}
+import scalafx.scene.layout.VBox
+import scalafx.scene.layout.HBox
 import scalafx.scene.control.{Label, Button}
-import scalafx.geometry.Insets
+import scala.compiletime.uninitialized
 
-/**
- * Seitenleiste mit Informationen zum aktuellen Spieler und seinen geclaimten Servern.
- */
 class PlayerSidebar(
   controller: ControllerInterface,
   config: ViewConfig
 ) {
   
+  // ⚡ Speichere Referenz für refresh()
+  private var sidebarBox: VBox = uninitialized
+  
+  /**
+   * Erstellt die Sidebar initial.
+   */
   def createSidebar(): VBox = {
+    sidebarBox = buildSidebarContent()
+    sidebarBox
+  }
+  
+  /**
+   * ⚡ REFRESH: Nur Inhalt aktualisieren!
+   */
+  def refresh(): Unit = {
+    if (sidebarBox != null) {
+      val newContent = buildSidebarContent()
+      sidebarBox.children.clear()                    // ← Erst leeren
+      sidebarBox.children.addAll(newContent.children)  // ← Dann hinzufügen
+    }
+  }
+  
+  /**
+   * Baut den Sidebar-Inhalt.
+   */
+  private def buildSidebarContent(): VBox = {
     val currentPlayerIndex = controller.getState.currentPlayerIndex.getOrElse(0)
     val currentPlayer = controller.getPlayers(currentPlayerIndex)
     val claimedServers = getClaimedServers(currentPlayerIndex)
@@ -92,7 +114,6 @@ class PlayerSidebar(
       style = "-fx-font-size: 12px; -fx-padding: 10; -fx-background-color: #7b68ee; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-cursor: hand;"
       maxWidth = Double.MaxValue
       onAction = _ => {
-        // Öffne das neue Laptop Hauptmenü
         new LaptopMainMenu(controller, playerIndex).show()
       }
     }

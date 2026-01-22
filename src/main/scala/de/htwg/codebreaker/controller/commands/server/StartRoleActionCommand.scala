@@ -29,7 +29,7 @@ case class StartRoleActionCommand(
 
     val role = server.installedRole.get
 
-    // ✅ NEU: Prüfe ob Setup-Zeit abgelaufen ist
+    // Prüfe ob Setup-Zeit abgelaufen ist
     val currentRound = game.state.round
     val roundsLeft = server.blockedUntilRound.getOrElse(currentRound) - currentRound
     
@@ -53,7 +53,7 @@ case class StartRoleActionCommand(
       expectedRewards = blueprint.rewards
     )
 
-    // ✅ NEU: Aktiviere Role beim ersten Start + entferne Block
+    // Aktiviere Role beim ersten Start + entferne Block
     val updatedRole = role.copy(
       isActive = true,  // ← Automatisch aktivieren!
       runningActions = runningAction :: role.runningActions,
