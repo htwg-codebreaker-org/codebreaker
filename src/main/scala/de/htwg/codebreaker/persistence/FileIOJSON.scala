@@ -1,7 +1,21 @@
 package de.htwg.codebreaker.persistence
 
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.game.GameModel
+import de.htwg.codebreaker.model.game.{GameState, Phase, GameStatus}
+import de.htwg.codebreaker.model.map.{Continent, Tile, WorldMap}
+import de.htwg.codebreaker.model.server.{
+  Server, ServerType, ServerRoleBlueprint, RoleActionBlueprint, 
+  ServerRoleType, RoleActionReward, RoleActionRequirements,
+  InstalledServerRole, RunningRoleAction
+}
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.player.laptop.{
+  Laptop, LaptopHardware, LaptopInstalledTools, LaptopTool,
+  LaptopAction, LaptopActionType, RunningLaptopAction, ActionRewards, RunningInternetSearch
+}
+import de.htwg.codebreaker.model.player.skill.{PlayerSkillTree, HackSkill, SocialSkill}
+
 import scala.util.{Try, Success, Failure}
 import play.api.libs.json._
 import java.io.{File, PrintWriter}
@@ -36,12 +50,47 @@ class FileIOJSON extends FileIOInterface:
     def writes(phase: Phase): JsValue = JsString(phase.toString)
   }
 
-  implicit val tileFormat: Format[Tile] = Json.format[Tile]
-  implicit val playerFormat: Format[Player] = Json.format[Player]
-  implicit val playerSkillTreeFormat: Format[PlayerSkillTree] = Json.format[PlayerSkillTree]
-  implicit val serverFormat: Format[Server] = Json.format[Server]
-  implicit val hackSkillFormat: Format[HackSkill] = Json.format[HackSkill]
+  implicit val serverRoleTypeFormat: Format[ServerRoleType] = new Format[ServerRoleType] {
+    def reads(json: JsValue): JsResult[ServerRoleType] = json.validate[String].map(ServerRoleType.valueOf)
+    def writes(roleType: ServerRoleType): JsValue = JsString(roleType.toString)
+  }
 
+  implicit val laptopActionTypeFormat: Format[LaptopActionType] = new Format[LaptopActionType] {
+    def reads(json: JsValue): JsResult[LaptopActionType] = json.validate[String].map(LaptopActionType.valueOf)
+    def writes(actionType: LaptopActionType): JsValue = JsString(actionType.toString)
+  }
+
+  // Basic types
+  implicit val tileFormat: Format[Tile] = Json.format[Tile]
+  implicit val laptopHardwareFormat: Format[LaptopHardware] = Json.format[LaptopHardware]
+  implicit val laptopInstalledToolsFormat: Format[LaptopInstalledTools] = Json.format[LaptopInstalledTools]
+  
+  // Laptop actions - WICHTIG: Reihenfolge beachten!
+  implicit val laptopActionFormat: Format[LaptopAction] = Json.format[LaptopAction]
+  implicit val actionRewardsFormat: Format[ActionRewards] = Json.format[ActionRewards]
+  implicit val laptopToolFormat: Format[LaptopTool] = Json.format[LaptopTool]
+  implicit val runningLaptopActionFormat: Format[RunningLaptopAction] = Json.format[RunningLaptopAction]
+  implicit val runningInternetSearchFormat: Format[RunningInternetSearch] = Json.format[RunningInternetSearch]
+  
+  implicit val laptopFormat: Format[Laptop] = Json.format[Laptop]
+  implicit val playerSkillTreeFormat: Format[PlayerSkillTree] = Json.format[PlayerSkillTree]
+  
+  // Server role stuff
+  implicit val roleActionRewardFormat: Format[RoleActionReward] = Json.format[RoleActionReward]
+  implicit val roleActionRequirementsFormat: Format[RoleActionRequirements] = Json.format[RoleActionRequirements]
+  implicit val runningRoleActionFormat: Format[RunningRoleAction] = Json.format[RunningRoleAction]
+  implicit val installedServerRoleFormat: Format[InstalledServerRole] = Json.format[InstalledServerRole]
+  
+  implicit val roleActionBlueprintFormat: Format[RoleActionBlueprint] = Json.format[RoleActionBlueprint]
+  implicit val serverRoleBlueprintFormat: Format[ServerRoleBlueprint] = Json.format[ServerRoleBlueprint]
+  
+  // Player and Server
+  implicit val playerFormat: Format[Player] = Json.format[Player]
+  implicit val serverFormat: Format[Server] = Json.format[Server]
+  
+  // Skills
+  implicit val hackSkillFormat: Format[HackSkill] = Json.format[HackSkill]
+  implicit val socialSkillFormat: Format[SocialSkill] = Json.format[SocialSkill]
 
   implicit val worldMapFormat: Format[WorldMap] = new Format[WorldMap] {
     def reads(json: JsValue): JsResult[WorldMap] = {

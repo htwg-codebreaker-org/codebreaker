@@ -1,7 +1,12 @@
 package de.htwg.codebreaker.controller
 
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game._
+import de.htwg.codebreaker.model.map.{MapObject}
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.game.GameModel
+import de.htwg.codebreaker.model.game.{GameState, GameStatus, Phase}
 import de.htwg.codebreaker.util.Observer
 
 /**
@@ -22,9 +27,11 @@ trait ControllerInterface:
   def getServers: List[Server]
   def getMapData(): Vector[Vector[MapObject]]
   def getState: GameState
+  def getCompletedActionsForCurrentPlayer(): List[RunningLaptopAction]
 
   // Command execution
   def doAndRemember(cmd: Command): Unit
+  def doAndForget(cmd: Command): Unit
   def undo(): Unit
   def redo(): Unit
 
@@ -33,7 +40,6 @@ trait ControllerInterface:
   def canRedo: Boolean
 
   // Game state manipulation
-  def advanceRound(): Unit
   def setPhase(newPhase: Phase): Unit
   def setStatus(newStatus: GameStatus): Unit
   def setGame(newGame: Game): Unit

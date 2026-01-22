@@ -2,9 +2,14 @@ package de.htwg.codebreaker.controller.controller
 
 import com.typesafe.scalalogging.LazyLogging
 import de.htwg.codebreaker.util.Observer
-import de.htwg.codebreaker.model._
-import de.htwg.codebreaker.model.game._
-import de.htwg.codebreaker.controller._
+import de.htwg.codebreaker.controller.ControllerInterface
+import de.htwg.codebreaker.model.map.{MapObject}
+import de.htwg.codebreaker.model.server.Server
+import de.htwg.codebreaker.model.player.Player
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.game.{GameState, Phase, GameStatus}
+import de.htwg.codebreaker.controller.Command
+import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
 
 class LoggingController(inner: ControllerInterface)
   extends ControllerInterface
@@ -35,6 +40,9 @@ class LoggingController(inner: ControllerInterface)
   override def getState: GameState =
     inner.getState
 
+  override def getCompletedActionsForCurrentPlayer(): List[RunningLaptopAction] =
+    inner.getCompletedActionsForCurrentPlayer()
+
   override def canUndo: Boolean =
     inner.canUndo
 
@@ -46,7 +54,11 @@ class LoggingController(inner: ControllerInterface)
     logger.info(s"doAndRemember: ${cmd.getClass.getSimpleName}")
     inner.doAndRemember(cmd)
   }
-
+  
+  override def doAndForget(cmd: Command): Unit = {
+    logger.info(s"doAndForget: ${cmd.getClass.getSimpleName}")
+    inner.doAndForget(cmd)
+  }
   override def undo(): Unit = {
     logger.info("undo")
     inner.undo()
@@ -57,12 +69,8 @@ class LoggingController(inner: ControllerInterface)
     inner.redo()
   }
 
-  // State changes
-  override def advanceRound(): Unit = {
-    logger.info("advanceRound")
-    inner.advanceRound()
-  }
 
+  // State changes
   override def setPhase(newPhase: Phase): Unit = {
     logger.info(s"setPhase: $newPhase")
     inner.setPhase(newPhase)
