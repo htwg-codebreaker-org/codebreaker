@@ -1,5 +1,6 @@
-package de.htwg.codebreaker.persistence
+package de.htwg.codebreaker.persistence.XML
 
+import de.htwg.codebreaker.persistence.FileIOInterface
 import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.model.game.GameModel
 import de.htwg.codebreaker.model.game.{GameState, Phase, GameStatus}
@@ -96,6 +97,7 @@ class FileIOXML extends FileIOInterface:
           <ram>{player.laptop.hardware.ram}</ram>
           <code>{player.laptop.hardware.code}</code>
           <kerne>{player.laptop.hardware.kerne}</kerne>
+          <networkRange>{player.laptop.hardware.networkRange}</networkRange>
         </hardware>
         <tools>
           {player.laptop.tools.installedTools.map(tool => <tool>{tool.id}</tool>)}
@@ -175,11 +177,11 @@ class FileIOXML extends FileIOInterface:
       <rewardCpu>{server.rewardCpu}</rewardCpu>
       <rewardRam>{server.rewardRam}</rewardRam>
       <hacked>{server.hacked}</hacked>
-      <hackedBy>{server.hackedBy}</hackedBy>
-      <claimedBy>{server.claimedBy}</claimedBy>
+      <hackedBy>{server.hackedBy.getOrElse("")}</hackedBy>
+      <claimedBy>{server.claimedBy.getOrElse("")}</claimedBy>
       <cybersecurityLevel>{server.cybersecurityLevel}</cybersecurityLevel>
-      <blockedUntilRound>{server.blockedUntilRound}</blockedUntilRound>
-      <installedRole>{server.installedRole.map(roleToXML)}</installedRole>
+      <blockedUntilRound>{server.blockedUntilRound.getOrElse("")}</blockedUntilRound>
+      {server.installedRole.map(roleToXML).getOrElse(<installedRole/>)}
     </server>
 
   private def roleToXML(role: InstalledServerRole): Elem =
@@ -369,7 +371,9 @@ class FileIOXML extends FileIOInterface:
     )
 
   private def xmlToServer(xml: Node): Server =
-    val hackedByValue = (xml \ "hackedBy").text.toInt
+    def parseOptionalInt(text: String): Option[Int] =
+      if (text.isEmpty) None else text.toIntOption
+
     Server(
       name = (xml \ "name").text,
       tile = xmlToTile((xml \ "tile").head),
@@ -378,11 +382,11 @@ class FileIOXML extends FileIOInterface:
       rewardCpu = (xml \ "rewardCpu").text.toInt,
       rewardRam = (xml \ "rewardRam").text.toInt,
       hacked = (xml \ "hacked").text.toBoolean,
-      hackedBy = (xml \ "hackedBy").text.toIntOption,
-      claimedBy = (xml \ "claimedBy").text.toIntOption,
+      hackedBy = parseOptionalInt((xml \ "hackedBy").text),
+      claimedBy = parseOptionalInt((xml \ "claimedBy").text),
       cybersecurityLevel = (xml \ "cybersecurityLevel").text.toInt,
-      blockedUntilRound = (xml \ "blockedUntilRound").text.toIntOption,
-      installedRole = (xml \ "installedRole").headOption.map(xmlToInstalledServerRole)
+      blockedUntilRound = parseOptionalInt((xml \ "blockedUntilRound").text),
+      installedRole = (xml \ "installedRole" \ "installedRole").headOption.map(xmlToInstalledServerRole)
     )
   
   private def xmlToInstalledServerRole(xml: Node): InstalledServerRole =

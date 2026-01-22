@@ -6,8 +6,7 @@ import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
 
 import de.htwg.codebreaker.controller.ControllerInterface
-import de.htwg.codebreaker.controller.commands.{MovePlayerCommand, UnlockHackSkillCommand, UnlockSocialSkillCommand}
-import de.htwg.codebreaker.controller.commands.player.NextPlayerCommand
+import de.htwg.codebreaker.controller.commands.player.{MovePlayerCommand, NextPlayerCommand, UnlockHackSkillCommand, UnlockSocialSkillCommand}
 import de.htwg.codebreaker.controller.commands.laptop.{StartLaptopActionCommand, CollectLaptopActionResultCommand}
 import de.htwg.codebreaker.controller.commands.laptop.UpgradeCoresCommand
 import de.htwg.codebreaker.model.map.{MapObject, Tile}
