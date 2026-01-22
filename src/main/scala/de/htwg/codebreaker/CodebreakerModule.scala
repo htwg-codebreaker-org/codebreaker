@@ -27,7 +27,7 @@ import de.htwg.codebreaker.controller.controller.LoggingController
  */
 class CodebreakerModule extends AbstractModule:
 
-  // 🔁 FLAG – exakt wie in der Vorlesung gemeint
+  // Flag to enable or disable controller logging
   private val enableControllerLogging = true
 
   override def configure(): Unit =
