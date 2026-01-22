@@ -1,4 +1,4 @@
-package de.htwg.codebreaker.controller.commands
+package de.htwg.codebreaker.controller.commands.player
 
 import scala.util.{Try, Success, Failure}
 import de.htwg.codebreaker.controller.Command

@@ -2,8 +2,12 @@ package de.htwg.codebreaker.controller.commands
 
 import scala.util.{Success, Failure, Random}
 
-import de.htwg.codebreaker.model.{Server, ServerType, PlayerSkillTree, Tile, Continent, HackSkill}
-import de.htwg.codebreaker.model.game.{Game, GameFactory}
+import de.htwg.codebreaker.model.server.{Server, ServerType}
+import de.htwg.codebreaker.model.player.skill.{PlayerSkillTree, HackSkill}
+import de.htwg.codebreaker.model.map.{Tile, Continent}
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.builder.GameFactory
+import de.htwg.codebreaker.controller.commands.server.HackServerCommand
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -21,7 +25,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
         !s.hacked && s.serverType != ServerType.Private
       ).get
 
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val preparedPlayer = game.model.players.head.copy(
         tile = server.tile,
@@ -59,7 +63,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "fail when player index is invalid" in {
       val game = baseGame
       val server = game.model.servers.head
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val cmd = HackServerCommand(server.name, 999, skill, Random(0))
       val result = cmd.doStep(game)
@@ -70,7 +74,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "fail when server not found" in {
       val game = baseGame
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val cmd = HackServerCommand("NonExistentServer", 0, skill, Random(0))
       val result = cmd.doStep(game)
@@ -82,7 +86,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "fail when player not on server tile" in {
       val game = baseGame
       val server = game.model.servers.head
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
       
       val differentTile = Tile(999, 999, Continent.Antarctica)
       val player = game.model.players.head.copy(
@@ -104,7 +108,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "fail when server already hacked" in {
       val game = baseGame
       val server = game.model.servers.head.copy(hacked = true)
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val player = game.model.players.head.copy(
         tile = server.tile,
@@ -128,7 +132,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "fail when trying to hack private server" in {
       val game = baseGame
       val privateServer = game.model.servers.head.copy(serverType = ServerType.Private)
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val player = game.model.players.head.copy(
         tile = privateServer.tile,
@@ -152,7 +156,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "fail when skill not unlocked" in {
       val game = baseGame
       val server = game.model.servers.head
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val player = game.model.players.head.copy(
         tile = server.tile,
@@ -173,7 +177,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "fail when not enough CPU" in {
       val game = baseGame
       val server = game.model.servers.head.copy(difficulty = 100)
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val player = game.model.players.head.copy(
         tile = server.tile,
@@ -199,7 +203,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "fail when not enough RAM" in {
       val game = baseGame
       val server = game.model.servers.head.copy(difficulty = 100)
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val player = game.model.players.head.copy(
         tile = server.tile,
@@ -225,7 +229,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "handle failed hack attempt (consume resources but no rewards)" in {
       val game = baseGame
       val server = game.model.servers.find(!_.hacked).get
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val player = game.model.players.head.copy(
         tile = server.tile,
@@ -255,7 +259,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
 
     "grant correct rewards for different server types" in {
       val game = baseGame
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
       val alwaysSuccessRandom = new Random {
         override def nextInt(bound: Int): Int = 0
       }
@@ -283,7 +287,7 @@ class HackServerCommandSpec extends AnyWordSpec with Matchers {
     "support undo operation" in {
       val game = baseGame
       val server = game.model.servers.find(!_.hacked).get
-      val skill = game.model.skills.head
+      val skill = game.model.hackSkills.head
 
       val player = game.model.players.head.copy(
         tile = server.tile,

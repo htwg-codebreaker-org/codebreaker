@@ -1,7 +1,7 @@
 package de.htwg.codebreaker.controller
 
 import de.htwg.codebreaker.persistence.FileIOInterface
-import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.game.Game
 import scala.util.{Try, Success, Failure}
 
 class FakeFileIO extends FileIOInterface:

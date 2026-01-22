@@ -1,6 +1,6 @@
 package de.htwg.codebreaker.module
 
-import de.htwg.codebreaker.model.game.game.Game.Game
+import de.htwg.codebreaker.model.game.Game
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -26,7 +26,7 @@ class GameProviderSpec extends AnyWordSpec with Matchers {
       game.model.servers should not be empty
 
       // Default game should have a world map
-      game.model.worldMap should not be null
+      game.model.map should not be null
     }
 
     "provide a new game instance on each call" in {

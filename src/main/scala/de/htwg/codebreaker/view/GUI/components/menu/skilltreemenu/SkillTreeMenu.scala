@@ -8,7 +8,7 @@ import scalafx.stage.Stage
 import scalafx.geometry.{Insets, Pos}
 
 import de.htwg.codebreaker.controller.ControllerInterface
-import de.htwg.codebreaker.controller.commands.{UnlockHackSkillCommand, UnlockSocialSkillCommand}
+import de.htwg.codebreaker.controller.commands.player.{UnlockHackSkillCommand, UnlockSocialSkillCommand}
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.skill.{HackSkill, SocialSkill}
 import de.htwg.codebreaker.view.gui.components.menu.ObservableWindow

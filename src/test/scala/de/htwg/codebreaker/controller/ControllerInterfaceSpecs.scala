@@ -18,7 +18,7 @@ class ControllerSpec extends AnyWordSpec with Matchers:
 
       controller.getPlayers should have size 1
       controller.getServers should have size 1
-      controller.getState.round shouldBe 0
+      controller.getState.round shouldBe 1
     }
 
     "return the current game" in {
@@ -46,7 +46,7 @@ class ControllerSpec extends AnyWordSpec with Matchers:
       controller.doAndRemember(cmd)
 
       controller.canUndo shouldBe true
-      controller.getState.round shouldBe 1
+      controller.getState.round shouldBe 2
     }
 
     "handle failed command execution" in {
@@ -70,16 +70,16 @@ class ControllerSpec extends AnyWordSpec with Matchers:
       controller.doAndRemember(cmd)
       controller.undo()
 
-      controller.getState.round shouldBe 0
+      controller.getState.round shouldBe 1
       controller.canRedo shouldBe true
     }
 
     "handle undo when stack is empty" in {
       val controller = Controller(TestGameFactory.game(), new FakeFileIO())
-      
+
       controller.canUndo shouldBe false
       controller.undo() // Should not crash
-      controller.getState.round shouldBe 0
+      controller.getState.round shouldBe 1
     }
 
     "handle failed undo operation" in {
@@ -106,7 +106,7 @@ class ControllerSpec extends AnyWordSpec with Matchers:
       controller.undo()
       controller.redo()
 
-      controller.getState.round shouldBe 1
+      controller.getState.round shouldBe 2
     }
 
     "handle redo when stack is empty" in {
@@ -165,8 +165,8 @@ class ControllerSpec extends AnyWordSpec with Matchers:
     "advance round directly" in {
       val controller = Controller(TestGameFactory.game(), new FakeFileIO())
 
-      controller.advanceRound()
-      controller.getState.round shouldBe 1
+      controller.doAndRemember(new DummyCommand)
+      controller.getState.round shouldBe 2
     }
 
     "set phase and status" in {
@@ -183,13 +183,13 @@ class ControllerSpec extends AnyWordSpec with Matchers:
       val fileIO = new FakeFileIO()
       val controller = Controller(TestGameFactory.game(), fileIO)
 
-      controller.advanceRound()
+      controller.doAndRemember(new DummyCommand)
       controller.save()
 
       val controller2 = Controller(TestGameFactory.game(), fileIO)
       controller2.load()
 
-      controller2.getState.round shouldBe 1
+      controller2.getState.round shouldBe 2
     }
 
     "handle save failure" in {
@@ -233,12 +233,12 @@ class ControllerSpec extends AnyWordSpec with Matchers:
       }
 
       controller.add(observer)
-      controller.advanceRound()
+      controller.doAndRemember(new DummyCommand)
       notified shouldBe true
 
       notified = false
       controller.remove(observer)
-      controller.advanceRound()
+      controller.doAndRemember(new DummyCommand)
       notified shouldBe false
     }
 

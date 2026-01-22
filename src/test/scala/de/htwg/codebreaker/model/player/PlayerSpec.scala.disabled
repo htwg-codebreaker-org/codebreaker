@@ -1,7 +1,10 @@
-package de.htwg.codebreaker.model
+package de.htwg.codebreaker.model.player
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import de.htwg.codebreaker.model.map.{Tile, Continent}
+import de.htwg.codebreaker.model.player.skill.PlayerSkillTree
+import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools}
 
 class PlayerSpec extends AnyWordSpec with Matchers:
 

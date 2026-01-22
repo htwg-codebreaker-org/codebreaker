@@ -19,20 +19,20 @@ class CommandInterfaceSpec extends AnyWordSpec with Matchers:
       }
 
       command.doStep(game) shouldBe a[Success[?]]
-      command.doStep(game).get.state.round shouldBe 1
+      command.doStep(game).get.state.round shouldBe 2
     }
 
     "define undoStep method" in {
       val game = TestGameFactory.game().copy(state = GameState().advanceRound())
       val command = new Command {
-        override def doStep(game: Game): Try[Game] = 
+        override def doStep(game: Game): Try[Game] =
           Success(game.copy(state = game.state.advanceRound()))
-        override def undoStep(game: Game): Try[Game] = 
+        override def undoStep(game: Game): Try[Game] =
           Success(game.copy(state = game.state.copy(round = game.state.round - 1)))
       }
 
       command.undoStep(game) shouldBe a[Success[?]]
-      command.undoStep(game).get.state.round shouldBe 0
+      command.undoStep(game).get.state.round shouldBe 1
     }
 
     "support successful command execution" in {
@@ -65,15 +65,15 @@ class CommandInterfaceSpec extends AnyWordSpec with Matchers:
     "support successful undo execution" in {
       val game = TestGameFactory.game().copy(state = GameState().advanceRound())
       val command = new Command {
-        override def doStep(game: Game): Try[Game] = 
+        override def doStep(game: Game): Try[Game] =
           Success(game.copy(state = game.state.advanceRound()))
-        override def undoStep(game: Game): Try[Game] = 
-          Success(game.copy(state = game.state.copy(round = 0)))
+        override def undoStep(game: Game): Try[Game] =
+          Success(game.copy(state = game.state.copy(round = 1)))
       }
 
       val result = command.undoStep(game)
       result shouldBe a[Success[?]]
-      result.get.state.round shouldBe 0
+      result.get.state.round shouldBe 1
     }
 
     "support failed undo execution" in {
@@ -95,11 +95,11 @@ class CommandInterfaceSpec extends AnyWordSpec with Matchers:
 
       val doResult = dummy.doStep(game)
       doResult shouldBe a[Success[?]]
-      doResult.get.state.round shouldBe 1
+      doResult.get.state.round shouldBe 2
 
       val undoResult = dummy.undoStep(doResult.get)
       undoResult shouldBe a[Success[?]]
-      undoResult.get.state.round shouldBe 0
+      undoResult.get.state.round shouldBe 1
     }
 
     "allow chaining multiple commands" in {
@@ -113,7 +113,7 @@ class CommandInterfaceSpec extends AnyWordSpec with Matchers:
       } yield game2
 
       result shouldBe a[Success[?]]
-      result.get.state.round shouldBe 2
+      result.get.state.round shouldBe 3
     }
 
     "handle command with state transformation" in {
@@ -161,7 +161,7 @@ class CommandInterfaceSpec extends AnyWordSpec with Matchers:
 
       val result = compositeCommand.doStep(game)
       result shouldBe a[Success[?]]
-      result.get.state.round shouldBe 1
+      result.get.state.round shouldBe 2
       result.get.state.phase shouldBe Phase.ExecutingTurn
     }
   }

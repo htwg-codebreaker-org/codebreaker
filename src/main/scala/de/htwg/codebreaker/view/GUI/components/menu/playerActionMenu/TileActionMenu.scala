@@ -1,6 +1,6 @@
 package de.htwg.codebreaker.view.gui.components.menu.playerActionMenu
 
-import de.htwg.codebreaker.controller.commands.{MovePlayerCommand}
+import de.htwg.codebreaker.controller.commands.player.MovePlayerCommand
 import de.htwg.codebreaker.model._
 import de.htwg.codebreaker.controller.{ControllerInterface}
 import de.htwg.codebreaker.model.map.{Tile}

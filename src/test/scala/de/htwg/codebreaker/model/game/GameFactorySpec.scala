@@ -2,6 +2,7 @@ package de.htwg.codebreaker.model.game
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import de.htwg.codebreaker.model.builder.GameFactory
 
 class GameFactorySpec extends AnyWordSpec with Matchers:
 
@@ -12,15 +13,15 @@ class GameFactorySpec extends AnyWordSpec with Matchers:
       
       game should not be null
       game.model.players should not be empty
-      game.state.round shouldBe 0
+      game.state.round shouldBe 1
     }
 
-    "create hard game" in {
-      val game = GameFactory("hard")
-      
+    "create unlockAll game" in {
+      val game = GameFactory("unlockAll")
+
       game should not be null
       game.model.players should not be empty
-      game.state.round shouldBe 0
+      game.state.round shouldBe 1
     }
 
     "fallback to default for unknown game type" in {
@@ -36,18 +37,18 @@ class GameFactorySpec extends AnyWordSpec with Matchers:
       game should not be null
       game.model.players should have size 2
       game.model.servers should not be empty
-      game.model.worldMap should not be null
-      game.state shouldBe GameState(Some(0), GameStatus.Running, Phase.AwaitingInput, 0)
+      game.model.map should not be null
+      game.state shouldBe GameState(Some(0), GameStatus.Running, Phase.AwaitingInput, 1)
     }
 
-    "create hard game explicitly" in {
-      val game = GameFactory.hard()
-      
+    "create unlockAll game explicitly" in {
+      val game = GameFactory.unlockAll()
+
       game should not be null
       game.model.players should have size 2
       game.model.servers should not be empty
-      game.model.worldMap should not be null
-      game.state shouldBe GameState(Some(0), GameStatus.Running, Phase.AwaitingInput, 0)
+      game.model.map should not be null
+      game.state shouldBe GameState(Some(0), GameStatus.Running, Phase.AwaitingInput, 1)
     }
 
     "create games with proper initial state" in {
@@ -55,15 +56,15 @@ class GameFactorySpec extends AnyWordSpec with Matchers:
       
       game.state.status shouldBe GameStatus.Running
       game.state.phase shouldBe Phase.AwaitingInput
-      game.state.round shouldBe 0
+      game.state.round shouldBe 1
       game.state.currentPlayerIndex shouldBe Some(0)
     }
 
     "create games with proper world map" in {
       val game = GameFactory.default()
       
-      game.model.worldMap.width shouldBe 80
-      game.model.worldMap.height shouldBe 40
+      game.model.map.width shouldBe 80
+      game.model.map.height shouldBe 40
     }
 
     "create games with players" in {
@@ -73,8 +74,8 @@ class GameFactorySpec extends AnyWordSpec with Matchers:
       game.model.players.foreach { player =>
         player.id should be >= 0
         player.name should not be empty
-        player.cpu should be > 0
-        player.ram should be > 0
+        player.laptop.hardware.cpu should be > 0
+        player.laptop.hardware.ram should be > 0
       }
     }
 
@@ -93,8 +94,8 @@ class GameFactorySpec extends AnyWordSpec with Matchers:
     "create games with skills" in {
       val game = GameFactory.default()
       
-      game.model.skills should not be empty
-      game.model.skills.foreach { skill =>
+      game.model.hackSkills should not be empty
+      game.model.hackSkills.foreach { skill =>
         skill.id should not be empty
         skill.name should not be empty
         skill.costXp should be >= 0
@@ -114,11 +115,11 @@ class GameFactorySpec extends AnyWordSpec with Matchers:
 
     "support all predefined game types" in {
       val easyGame = GameFactory("easy")
-      val hardGame = GameFactory("hard")
+      val unlockAllGame = GameFactory("unlockAll")
       val customGame = GameFactory("custom")
-      
+
       easyGame should not be null
-      hardGame should not be null
+      unlockAllGame should not be null
       customGame should not be null
     }
   }

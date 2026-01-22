@@ -2,9 +2,8 @@ package de.htwg.codebreaker.controller.commands
 
 import scala.util.Success
 
-import de.htwg.codebreaker.model.game.{Game, GameState}
-import de.htwg.codebreaker.model.game.game.GameStatus
-import de.htwg.codebreaker.model.game.Phase
+import de.htwg.codebreaker.model.game.{Game, GameState, GameStatus, Phase}
+import de.htwg.codebreaker.controller.commands.player.NextPlayerCommand
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -21,7 +20,7 @@ class NextPlayerCommandSpec extends CommandTestBase {
       val result = cmd.doStep(game).get
 
       result.state.currentPlayerIndex shouldBe Some(1)
-      result.state.round shouldBe 0
+      result.state.round shouldBe 1
     }
 
     "should increase round after last player" in {
@@ -34,7 +33,7 @@ class NextPlayerCommandSpec extends CommandTestBase {
       val result = cmd.doStep(game).get
 
       result.state.currentPlayerIndex shouldBe Some(0)
-      result.state.round shouldBe 1
+      result.state.round shouldBe 2
     }
 
 
@@ -46,7 +45,7 @@ class NextPlayerCommandSpec extends CommandTestBase {
       val afterUndo = cmd.undoStep(afterDo).get
 
       afterUndo.state.currentPlayerIndex shouldBe Some(0)
-      afterUndo.state.round shouldBe 0
+      afterUndo.state.round shouldBe 1
     }
   }
 }

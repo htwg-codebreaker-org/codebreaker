@@ -2,8 +2,9 @@ package de.htwg.codebreaker.controller.commands
 
 import scala.util.Success
 
-import de.htwg.codebreaker.model.Tile
-import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.map.Tile
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.controller.commands.player.MovePlayerCommand
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -18,7 +19,7 @@ class MovePlayerCommandSpec extends CommandTestBase {
       val player = game.model.players.head
       val start = player.tile
 
-      val newTile = game.model.worldMap.tiles.find { t =>
+      val newTile = game.model.map.tiles.find { t =>
         t.continent.isLand &&
         t != start &&
         math.abs(t.x - start.x) + math.abs(t.y - start.y) <= player.movementPoints
@@ -38,7 +39,7 @@ class MovePlayerCommandSpec extends CommandTestBase {
       val player = game.model.players.head
       val start = player.tile
 
-      val newTile = game.model.worldMap.tiles.find { t =>
+      val newTile = game.model.map.tiles.find { t =>
         t.continent.isLand &&
         t != start &&
         math.abs(t.x - start.x) + math.abs(t.y - start.y) <= player.movementPoints

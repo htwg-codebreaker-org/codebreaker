@@ -1,5 +1,6 @@
-package de.htwg.codebreaker.persistence
+package de.htwg.codebreaker.persistence.JSON
 
+import de.htwg.codebreaker.persistence.FileIOInterface
 import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.model.game.GameModel
 import de.htwg.codebreaker.model.game.{GameState, Phase, GameStatus}
