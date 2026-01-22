@@ -65,7 +65,6 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
         save()
         notifyObservers
       case Failure(ex) =>
-        println(s"Command fehlgeschlagen: ${ex.getMessage}")
     }
   }
 
@@ -82,7 +81,6 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
         save()
         notifyObservers
       case Failure(ex) =>
-        println(s"Command fehlgeschlagen: ${ex.getMessage}")
     }
   }
 
@@ -98,9 +96,9 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
           )
           notifyObservers
         case Failure(ex) =>
-          println(s"Undo fehlgeschlagen: ${ex.getMessage}")
       }
-    case Nil => println("Nichts zum Rückgängig machen.")
+    case Nil => 
+      // Nothing to undo
   }
 
 
@@ -116,9 +114,9 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
           )
           notifyObservers
         case Failure(ex) =>
-          println(s"Redo fehlgeschlagen: ${ex.getMessage}")
       }
-    case Nil => println("Nichts zum Wiederholen.")
+    case Nil => 
+      // Nothing to redo
   }
 
   def setPhase(newPhase: Phase): Unit = {
@@ -140,20 +138,19 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
   }
 
   def setGame(newGame: Game): Unit = {
-    state = ControllerState(newGame)  // ← erstellt neuen State ohne History
+    state = ControllerState(newGame)
     notifyObservers
   }
 
   def save(): Unit =
     fileIO.save(state.currentGame) match {
-      case Success(_) => println("Spiel gespeichert!")
-      case Failure(ex) => println(s"Fehler beim Speichern: ${ex.getMessage}")
+      case Success(_) => // Save successful
+      case Failure(ex) => // Save failed - observers can handle the error
     }
 
   def load(): Unit =
     fileIO.load() match {
       case Success(loadedGame) =>
         setGame(loadedGame)
-        println("Spiel geladen!")
-      case Failure(ex) => println(s"Fehler beim Laden: ${ex.getMessage}")
+      case Failure(ex) => // Load failed - observers can handle the error
     }

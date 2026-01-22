@@ -134,7 +134,7 @@ class GUI @Inject() (val controller: ControllerInterface) extends JFXApp3 with O
     // UI-Update auf JavaFX-Thread
     Platform.runLater {
       if (mode == GUIMode.Game) {
-        // ⚡ NUR REFRESH - SCHNELL!
+        // NUR REFRESH
         mapView.refresh()
         playerSidebar.refresh()
         topBar.refresh()
