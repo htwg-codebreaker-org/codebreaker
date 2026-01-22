@@ -5,9 +5,10 @@ import de.htwg.codebreaker.model.player.{Player}
 import de.htwg.codebreaker.model.player.skill.PlayerSkillTree
 import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools}
 import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
+import de.htwg.codebreaker.model.game.strategy.PlayerGenerationStrategy
 import scala.util.Random
 
-object PlayerGenerator:
+object DefaultPlayerGenerator extends PlayerGenerationStrategy:
 
   private val initialSkills: Set[String] =
     Set("script_kiddie")
@@ -36,7 +37,7 @@ object PlayerGenerator:
     )
   }
 
-  def generatePlayers(count: Int, map: WorldMap, avoidTiles: List[Tile] = Nil): List[Player] =
+  override def generatePlayers(count: Int, map: WorldMap, avoidTiles: List[Tile] = Nil): List[Player] =
     val rng = new Random()
     val validTiles = map.tiles.filter(t => t.continent.isLand && !avoidTiles.contains(t))
     val shuffled = rng.shuffle(validTiles).take(count)

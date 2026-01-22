@@ -3,13 +3,13 @@ package de.htwg.codebreaker.model.game.builder
 
 import de.htwg.codebreaker.model.map.WorldMap
 import de.htwg.codebreaker.model.game.game.{Game, GameModel, GameState, GameStatus, Phase}
-import de.htwg.codebreaker.model.game.strategy.player.{RandomPlayerGenerator}
 import de.htwg.codebreaker.model.game.strategy.server.{DefaultServerGenerator}
 import de.htwg.codebreaker.model.game.strategy.skilltree.{DefaultSkillTreeGenerator}
 import de.htwg.codebreaker.model.game.strategy.{PlayerGenerationStrategy, ServerGenerationStrategy, SkillTreeGenerationStrategy}
 import de.htwg.codebreaker.model.game.strategy.server.{DefaultServerRoleGenerator}
 import de.htwg.codebreaker.model.game.strategy.ServerRoleGenerationStrategy
 import de.htwg.codebreaker.model.player.laptop.LaptopTool
+import de.htwg.codebreaker.model.game.strategy.player.{DefaultPlayerGenerator, UnlockAllPlayerGenerator}
 import de.htwg.codebreaker.model.game.strategy.LaptopToolGenerationStrategy
 import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
 
@@ -17,7 +17,7 @@ import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
 
 final class GameBuilder private (
     val numPlayers: Int = 2,
-    val playerStrategy: PlayerGenerationStrategy = RandomPlayerGenerator,
+    val playerStrategy: PlayerGenerationStrategy = DefaultPlayerGenerator,
     val serverStrategy: ServerGenerationStrategy = DefaultServerGenerator,
     val skillStrategy: SkillTreeGenerationStrategy = DefaultSkillTreeGenerator,
     val roleStrategy: ServerRoleGenerationStrategy = DefaultServerRoleGenerator,
@@ -66,9 +66,6 @@ final class GameBuilder private (
     )
 
     Game(model, state)
-
-
-
 
 object GameBuilder:
   def apply(): GameBuilder =

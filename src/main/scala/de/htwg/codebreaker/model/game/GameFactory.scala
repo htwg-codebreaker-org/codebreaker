@@ -3,14 +3,13 @@ package de.htwg.codebreaker.model.game
 
 import de.htwg.codebreaker.model.map.WorldMap
 import de.htwg.codebreaker.model.game.game.Game
-import de.htwg.codebreaker.model.game.strategy.server.DefaultServerGenerator
 import de.htwg.codebreaker.model.game.strategy.skilltree.DefaultSkillTreeGenerator
 import de.htwg.codebreaker.model.game.builder.GameBuilder
-import de.htwg.codebreaker.model.game.strategy.server.DefaultServerRoleGenerator
 import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
 import de.htwg.codebreaker.model.game.strategy.PlayerGenerationStrategy
-import de.htwg.codebreaker.model.game.strategy.player.RandomPlayerGenerator
-import de.htwg.codebreaker.model.game.strategy.player.RandomPlayerGeneratorUnlockAll
+import de.htwg.codebreaker.model.game.strategy.player.{DefaultPlayerGenerator, UnlockAllPlayerGenerator}
+import de.htwg.codebreaker.model.game.strategy.ServerGenerationStrategy
+import de.htwg.codebreaker.model.game.strategy.server.{DefaultServerRoleGenerator, DefaultServerGenerator}
 
 
 object GameFactory {
@@ -34,7 +33,7 @@ object GameFactory {
   def unlockAll(): Game =
     GameBuilder()
       .withNumberOfPlayers(2)
-      .withPlayerStrategy(RandomPlayerGeneratorUnlockAll)
+      .withPlayerStrategy(UnlockAllPlayerGenerator)
       .withServerStrategy(DefaultServerGenerator)
       .withMap(WorldMap.defaultMap)
       .withSkills(DefaultSkillTreeGenerator)

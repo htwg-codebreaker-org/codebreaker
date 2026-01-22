@@ -70,6 +70,22 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
   }
 
 
+  /** Führt ein Command aus und löscht die Undo/Redo-History (für Spieler-/Rundenwechsel). */
+  def doAndForget(cmd: Command): Unit = {
+    cmd.doStep(state.currentGame) match {
+      case Success(newGame) =>
+        state = state.copy(
+          currentGame = newGame,
+          undoStack = Nil,
+          redoStack = Nil
+        )
+        save()
+        notifyObservers
+      case Failure(ex) =>
+        println(s"Command fehlgeschlagen: ${ex.getMessage}")
+    }
+  }
+
   /** Macht den letzten Schritt rückgängig. */
   def undo(): Unit = state.undoStack match {
     case HistoryEntry(before, cmd) :: rest =>
@@ -103,22 +119,6 @@ class Controller @Inject() (initialGame: Game, fileIO: FileIOInterface) extends 
           println(s"Redo fehlgeschlagen: ${ex.getMessage}")
       }
     case Nil => println("Nichts zum Wiederholen.")
-  }
-
-    /** Führt ein Command aus und löscht die Undo/Redo-History (für Spieler-/Rundenwechsel). */
-  def doAndForget(cmd: Command): Unit = {
-    cmd.doStep(state.currentGame) match {
-      case Success(newGame) =>
-        state = state.copy(
-          currentGame = newGame,
-          undoStack = Nil,
-          redoStack = Nil
-        )
-        save()
-        notifyObservers
-      case Failure(ex) =>
-        println(s"Command fehlgeschlagen: ${ex.getMessage}")
-    }
   }
 
   def setPhase(newPhase: Phase): Unit = {
