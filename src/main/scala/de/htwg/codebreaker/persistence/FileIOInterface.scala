@@ -1,6 +1,6 @@
 package de.htwg.codebreaker.persistence
 
-import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.game.Game
 import scala.util.Try
 
 /**

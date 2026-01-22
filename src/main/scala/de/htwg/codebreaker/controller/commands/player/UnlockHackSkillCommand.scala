@@ -4,7 +4,7 @@ import scala.util.{Try, Success, Failure}
 import de.htwg.codebreaker.controller.Command
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.skill.{HackSkill, PlayerSkillTree}
-import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.game.Game
 
 /**
  * Command zum Freischalten eines Hack-Skills für einen Spieler.

@@ -1,14 +1,14 @@
-package de.htwg.codebreaker.model.game.strategy.player
+package de.htwg.codebreaker.model.builder.strategy.generator.player
 
 import de.htwg.codebreaker.model.map.{WorldMap, Tile}
 import de.htwg.codebreaker.model.player.{Player}
 import de.htwg.codebreaker.model.player.skill.PlayerSkillTree
 import de.htwg.codebreaker.model.player.laptop.{Laptop, LaptopHardware, LaptopInstalledTools}
-import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
-import de.htwg.codebreaker.model.game.strategy.PlayerGenerationStrategy
+import de.htwg.codebreaker.model.builder.strategy.generator.player.laptop.DefaultLaptopToolGenerator
+import de.htwg.codebreaker.model.builder.strategy.PlayerGenerationStrategy
 import scala.util.Random
 
-object DefaultPlayerGenerator extends PlayerGenerationStrategy:
+object UnlockAllPlayerGenerator extends PlayerGenerationStrategy:
 
   private val initialSkills: Set[String] =
     Set("script_kiddie")
@@ -24,16 +24,16 @@ object DefaultPlayerGenerator extends PlayerGenerationStrategy:
     
     Laptop(
       hardware = LaptopHardware(
-        cpu = 20,
-        ram = 20,
-        code = 20,
+        cpu = 1000,
+        ram = 1000,
+        code = 1000,
         kerne = 1,
-        networkRange = 0
+        networkRange = 1000
       ),
       tools = LaptopInstalledTools(starterTools),
-      runningInternetSearch = None,
       runningActions = Nil,
-      cybersecurity = 5
+      runningInternetSearch = None,
+      cybersecurity = 1000
     )
   }
 
@@ -48,11 +48,11 @@ object DefaultPlayerGenerator extends PlayerGenerationStrategy:
         name = s"Spieler ${idx + 1}",
         tile = tile,
         laptop = initialLaptop,
-        availableXp = 0,
-        totalXpEarned = 0,
+        availableXp = 1000,
+        totalXpEarned = 10001000,
         skills = PlayerSkillTree(initialSkills),
-        movementPoints = 5,
-        maxMovementPoints = 5,
+        movementPoints = 1000,
+        maxMovementPoints = 1000,
         arrested = false
       )
     }.toList

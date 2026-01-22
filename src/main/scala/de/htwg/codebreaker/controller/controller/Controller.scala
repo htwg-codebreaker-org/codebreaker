@@ -5,7 +5,7 @@ import de.htwg.codebreaker.util.Observable
 import de.htwg.codebreaker.model.map.{WorldMap, MapObject}
 import de.htwg.codebreaker.model.server.Server
 import de.htwg.codebreaker.model.player.Player
-import de.htwg.codebreaker.model.game.game.{Game, GameState, Phase, GameStatus}
+import de.htwg.codebreaker.model.game.{Game, GameState, Phase, GameStatus}
 import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
 
 import de.htwg.codebreaker.persistence.FileIOInterface

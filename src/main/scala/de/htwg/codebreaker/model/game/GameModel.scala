@@ -1,4 +1,4 @@
-package de.htwg.codebreaker.model.game.game
+package de.htwg.codebreaker.model.game
 import de.htwg.codebreaker.model.map.{WorldMap}
 import de.htwg.codebreaker.model.server.Server
 import de.htwg.codebreaker.model.player.{Player}

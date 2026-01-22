@@ -2,7 +2,7 @@ package de.htwg.codebreaker.controller.commands.server
 
 import scala.util.{Try, Success, Failure}
 import de.htwg.codebreaker.controller.Command
-import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.model.server.{Server, RunningRoleAction}
 
 case class StartRoleActionCommand(

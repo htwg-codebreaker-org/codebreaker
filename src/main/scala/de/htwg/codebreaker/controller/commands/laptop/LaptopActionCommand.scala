@@ -2,7 +2,7 @@ package de.htwg.codebreaker.controller.commands.laptop
 
 import scala.util.{Try, Success, Failure, Random}
 import de.htwg.codebreaker.controller.Command
-import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.laptop.{RunningLaptopAction, LaptopAction}
 import de.htwg.codebreaker.model.server.Server

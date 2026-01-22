@@ -1,6 +1,6 @@
-package de.htwg.codebreaker.model.game.strategy.skilltree
+package de.htwg.codebreaker.model.builder.strategy.generator.skilltree
 
-import de.htwg.codebreaker.model.game.strategy.SkillTreeGenerationStrategy
+import de.htwg.codebreaker.model.builder.strategy.SkillTreeGenerationStrategy
 import de.htwg.codebreaker.model.player.skill.{HackSkill, SocialSkill}
 
 object DefaultSkillTreeGenerator extends SkillTreeGenerationStrategy:

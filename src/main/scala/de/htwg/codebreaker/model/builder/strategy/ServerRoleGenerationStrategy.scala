@@ -1,5 +1,5 @@
 // src/main/scala/de/htwg/codebreaker/model/game/strategy/ServerRoleGenerationStrategy.scala
-package de.htwg.codebreaker.model.game.strategy
+package de.htwg.codebreaker.model.builder.strategy
 
 import de.htwg.codebreaker.model.server.{ServerRoleBlueprint, RoleActionBlueprint}
 

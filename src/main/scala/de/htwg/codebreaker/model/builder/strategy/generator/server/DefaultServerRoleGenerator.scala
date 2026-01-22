@@ -1,7 +1,7 @@
-// src/main/scala/de/htwg/codebreaker/model/game/strategy/server/ServerRoleGenerator.scala
-package de.htwg.codebreaker.model.game.strategy.server
+// src/main/scala/de/htwg/codebreaker/model/builder/strategy/generator/server/ServerRoleGenerator.scala
+package de.htwg.codebreaker.model.builder.strategy.generator.server
 
-import de.htwg.codebreaker.model.game.strategy.ServerRoleGenerationStrategy
+import de.htwg.codebreaker.model.builder.strategy.ServerRoleGenerationStrategy
 import de.htwg.codebreaker.model.server._
 
 /** 

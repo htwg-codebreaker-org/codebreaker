@@ -1,17 +1,15 @@
 // src/main/scala/de/htwg/codebreaker/model/game/builder/GameBuilder.scala
-package de.htwg.codebreaker.model.game.builder
+package de.htwg.codebreaker.model.builder
 
 import de.htwg.codebreaker.model.map.WorldMap
-import de.htwg.codebreaker.model.game.game.{Game, GameModel, GameState, GameStatus, Phase}
-import de.htwg.codebreaker.model.game.strategy.server.{DefaultServerGenerator}
-import de.htwg.codebreaker.model.game.strategy.skilltree.{DefaultSkillTreeGenerator}
-import de.htwg.codebreaker.model.game.strategy.{PlayerGenerationStrategy, ServerGenerationStrategy, SkillTreeGenerationStrategy}
-import de.htwg.codebreaker.model.game.strategy.server.{DefaultServerRoleGenerator}
-import de.htwg.codebreaker.model.game.strategy.ServerRoleGenerationStrategy
-import de.htwg.codebreaker.model.player.laptop.LaptopTool
-import de.htwg.codebreaker.model.game.strategy.player.{DefaultPlayerGenerator, UnlockAllPlayerGenerator}
-import de.htwg.codebreaker.model.game.strategy.LaptopToolGenerationStrategy
-import de.htwg.codebreaker.model.game.strategy.laptop.DefaultLaptopToolGenerator
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.builder.strategy.generator.player.{DefaultPlayerGenerator}
+import de.htwg.codebreaker.model.builder.strategy.generator.server.{DefaultServerGenerator}
+import de.htwg.codebreaker.model.builder.strategy.generator.skilltree.{DefaultSkillTreeGenerator}
+import de.htwg.codebreaker.model.builder.strategy.generator.server.{DefaultServerRoleGenerator}
+import de.htwg.codebreaker.model.builder.strategy.generator.player.laptop.{DefaultLaptopToolGenerator}
+import de.htwg.codebreaker.model.builder.strategy.{PlayerGenerationStrategy, ServerGenerationStrategy, SkillTreeGenerationStrategy, ServerRoleGenerationStrategy, LaptopToolGenerationStrategy}
+import de.htwg.codebreaker.model.game.{GameModel, GameState, Phase, GameStatus}
 
 
 

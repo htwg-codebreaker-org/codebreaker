@@ -1,4 +1,4 @@
-package de.htwg.codebreaker.model.game.strategy
+package de.htwg.codebreaker.model.builder.strategy
 
 import de.htwg.codebreaker.model.map.{WorldMap, Tile}
 import de.htwg.codebreaker.model.player.Player

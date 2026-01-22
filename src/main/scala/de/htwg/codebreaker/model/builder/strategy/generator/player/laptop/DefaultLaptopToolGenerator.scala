@@ -1,8 +1,8 @@
 // ==================== DEFAULT IMPLEMENTATION ====================
 
-package de.htwg.codebreaker.model.game.strategy.laptop
+package de.htwg.codebreaker.model.builder.strategy.generator.player.laptop
 
-import de.htwg.codebreaker.model.game.strategy.LaptopToolGenerationStrategy
+import de.htwg.codebreaker.model.builder.strategy.LaptopToolGenerationStrategy
 import de.htwg.codebreaker.model.player.laptop._
 
 object DefaultLaptopToolGenerator extends LaptopToolGenerationStrategy {

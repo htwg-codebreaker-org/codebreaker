@@ -4,7 +4,9 @@ import de.htwg.codebreaker.model.map.{MapObject}
 import de.htwg.codebreaker.model.server.Server
 import de.htwg.codebreaker.model.player.Player
 import de.htwg.codebreaker.model.player.laptop.RunningLaptopAction
-import de.htwg.codebreaker.model.game.game.{Game, GameState, GameModel, GameStatus, Phase}
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.game.GameModel
+import de.htwg.codebreaker.model.game.{GameState, GameStatus, Phase}
 import de.htwg.codebreaker.util.Observer
 
 /**

@@ -1,6 +1,8 @@
 package de.htwg.codebreaker.persistence
 
-import de.htwg.codebreaker.model.game.game.{Game, GameState, GameModel, Phase, GameStatus}
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.game.GameModel
+import de.htwg.codebreaker.model.game.{GameState, Phase, GameStatus}
 import de.htwg.codebreaker.model.map.{Continent, Tile, WorldMap}
 import de.htwg.codebreaker.model.server.{Server, ServerType, ServerRoleBlueprint, RoleActionBlueprint, ServerRoleType, RoleActionReward, RoleActionRequirements}
 import de.htwg.codebreaker.model.player.Player

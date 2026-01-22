@@ -1,10 +1,10 @@
 package de.htwg.codebreaker.module
 
 import com.google.inject.Provider
-import de.htwg.codebreaker.model.game.game.Game
-import de.htwg.codebreaker.model.game.GameFactory
-import de.htwg.codebreaker.model.game.GameFactory.apply
-import de.htwg.codebreaker.model.game.GameFactory.unlockAll
+import de.htwg.codebreaker.model.game.Game
+import de.htwg.codebreaker.model.builder.GameFactory
+import de.htwg.codebreaker.model.builder.GameFactory.apply
+import de.htwg.codebreaker.model.builder.GameFactory.unlockAll
 
 /**
  * Provider for Game instances.

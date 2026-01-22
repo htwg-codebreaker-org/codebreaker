@@ -1,6 +1,6 @@
 package de.htwg.codebreaker.controller.commands.player
 
-import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.controller._
 import scala.util.{Try, Success}
 

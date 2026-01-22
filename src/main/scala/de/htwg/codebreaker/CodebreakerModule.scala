@@ -4,7 +4,7 @@ import com.google.inject.{AbstractModule, Provides}
 import com.google.inject.Scopes
 import de.htwg.codebreaker.controller._
 import de.htwg.codebreaker.module.GameProvider
-import de.htwg.codebreaker.model.game.game.Game
+import de.htwg.codebreaker.model.game.Game
 import de.htwg.codebreaker.persistence._
 import de.htwg.codebreaker.controller.controller.Controller
 import de.htwg.codebreaker.controller.controller.LoggingController

@@ -1,8 +1,8 @@
-package de.htwg.codebreaker.model.game.strategy.server
+package de.htwg.codebreaker.model.builder.strategy.generator.server
 
 import de.htwg.codebreaker.model.map.{WorldMap, Tile, Continent}
 import de.htwg.codebreaker.model.server.{ServerType, Server, ServerBlueprint}
-import de.htwg.codebreaker.model.game.strategy.ServerGenerationStrategy  // ← HINZUFÜGEN!
+import de.htwg.codebreaker.model.builder.strategy.ServerGenerationStrategy
 import scala.util.Random
 
 /** 
