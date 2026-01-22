@@ -11,13 +11,8 @@ case class GameState(
   currentPlayerIndex: Option[Int] = None,
   status: GameStatus = GameStatus.Running,
   phase: Phase = Phase.AwaitingInput,
-  round: Int = 0
+  round: Int = 1
 ):
-  def nextPlayer(totalPlayers: Int): GameState =
-    val nextIndex = currentPlayerIndex match
-      case Some(i) => (i + 1) % totalPlayers
-      case None    => 0
-    copy(currentPlayerIndex = Some(nextIndex))
 
   def advanceRound(): GameState =
     copy(round = round + 1)

@@ -303,13 +303,13 @@
       "roleType" : "BotnetNode"
     } ],
     "players" : [ {
-      "totalXpEarned" : 10001050,
+      "totalXpEarned" : 10001000,
       "arrested" : false,
       "laptop" : {
         "hardware" : {
-          "ram" : 1097,
+          "ram" : 1000,
           "code" : 1000,
-          "cpu" : 1061,
+          "cpu" : 1000,
           "kerne" : 1,
           "networkRange" : 1000
         },
@@ -384,18 +384,18 @@
         "cybersecurity" : 1000
       },
       "id" : 1,
-      "availableXp" : 1050,
+      "availableXp" : 1000,
       "skills" : {
         "unlockedHackSkills" : [ "script_kiddie" ],
         "unlockedSocialSkills" : [ ]
       },
       "maxMovementPoints" : 1000,
       "tile" : {
-        "x" : 39,
-        "y" : 11,
+        "x" : 46,
+        "y" : 7,
         "continent" : "Europe"
       },
-      "movementPoints" : 1000,
+      "movementPoints" : 915,
       "name" : "Spieler 1"
     }, {
       "totalXpEarned" : 10001000,
@@ -486,9 +486,9 @@
       },
       "maxMovementPoints" : 1000,
       "tile" : {
-        "x" : 64,
-        "y" : 25,
-        "continent" : "Oceania"
+        "x" : 38,
+        "y" : 12,
+        "continent" : "Europe"
       },
       "movementPoints" : 1000,
       "name" : "Spieler 2"
@@ -579,69 +579,33 @@
     } ],
     "servers" : [ {
       "name" : "Pentagon",
-      "difficulty" : 89,
-      "hacked" : true,
-      "hackedBy" : 0,
+      "difficulty" : 87,
+      "hacked" : false,
+      "rewardCpu" : 31,
       "serverType" : "Military",
-      "installedRole" : {
-        "installStartRound" : 2,
-        "detectionRisk" : 60,
-        "runningActions" : [ {
-          "expectedRewards" : {
-            "bitcoin" : 100,
-            "ram" : 0,
-            "cpu" : 0,
-            "networkRangeBonus" : 0,
-            "code" : 0,
-            "cybersecurityDamage" : 0
-          },
-          "actionId" : "optimize_mining",
-          "detectionIncrease" : 5,
-          "startRound" : 4,
-          "completionRound" : 7
-        }, {
-          "expectedRewards" : {
-            "bitcoin" : 100,
-            "ram" : 0,
-            "cpu" : 0,
-            "networkRangeBonus" : 0,
-            "code" : 0,
-            "cybersecurityDamage" : 0
-          },
-          "actionId" : "optimize_mining",
-          "detectionIncrease" : 5,
-          "startRound" : 4,
-          "completionRound" : 7
-        } ],
-        "isActive" : true,
-        "roleType" : "BitcoinMiner",
-        "networkRange" : 0
-      },
       "tile" : {
         "x" : 24,
         "y" : 14,
         "continent" : "NorthAmerica"
       },
-      "rewardRam" : 50,
-      "cybersecurityLevel" : 0,
-      "claimedBy" : 0,
-      "rewardCpu" : 33
+      "rewardRam" : 55,
+      "cybersecurityLevel" : 0
     }, {
       "name" : "Wall Street",
-      "difficulty" : 61,
+      "difficulty" : 75,
       "hacked" : false,
-      "rewardCpu" : 22,
+      "rewardCpu" : 25,
       "serverType" : "Bank",
       "tile" : {
         "x" : 23,
         "y" : 14,
         "continent" : "NorthAmerica"
       },
-      "rewardRam" : 30,
+      "rewardRam" : 28,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Silicon Valley",
-      "difficulty" : 62,
+      "difficulty" : 64,
       "hacked" : false,
       "rewardCpu" : 20,
       "serverType" : "Cloud",
@@ -650,63 +614,63 @@
         "y" : 15,
         "continent" : "NorthAmerica"
       },
-      "rewardRam" : 33,
+      "rewardRam" : 35,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Brussels",
-      "difficulty" : 73,
+      "difficulty" : 72,
       "hacked" : false,
-      "rewardCpu" : 38,
+      "rewardCpu" : 33,
       "serverType" : "Bank",
       "tile" : {
         "x" : 39,
         "y" : 11,
         "continent" : "Europe"
       },
-      "rewardRam" : 15,
+      "rewardRam" : 23,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Frankfurt Hub",
-      "difficulty" : 67,
+      "difficulty" : 75,
       "hacked" : false,
-      "rewardCpu" : 26,
+      "rewardCpu" : 28,
       "serverType" : "Bank",
       "tile" : {
         "x" : 40,
         "y" : 12,
         "continent" : "Europe"
       },
-      "rewardRam" : 15,
+      "rewardRam" : 18,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Moscow",
-      "difficulty" : 67,
+      "difficulty" : 62,
       "hacked" : false,
-      "rewardCpu" : 28,
+      "rewardCpu" : 29,
       "serverType" : "Military",
       "tile" : {
         "x" : 46,
         "y" : 11,
         "continent" : "Europe"
       },
-      "rewardRam" : 17,
+      "rewardRam" : 20,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Beijing",
-      "difficulty" : 67,
+      "difficulty" : 71,
       "hacked" : false,
-      "rewardCpu" : 34,
+      "rewardCpu" : 30,
       "serverType" : "Military",
       "tile" : {
         "x" : 61,
         "y" : 15,
         "continent" : "Asia"
       },
-      "rewardRam" : 22,
+      "rewardRam" : 24,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Tokyo Grid",
-      "difficulty" : 63,
+      "difficulty" : 60,
       "hacked" : false,
       "rewardCpu" : 24,
       "serverType" : "Cloud",
@@ -715,37 +679,37 @@
         "y" : 15,
         "continent" : "Asia"
       },
-      "rewardRam" : 25,
+      "rewardRam" : 15,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Sydney Core",
-      "difficulty" : 62,
+      "difficulty" : 63,
       "hacked" : false,
-      "rewardCpu" : 25,
+      "rewardCpu" : 23,
       "serverType" : "Cloud",
       "tile" : {
         "x" : 67,
         "y" : 27,
         "continent" : "Oceania"
       },
-      "rewardRam" : 24,
+      "rewardRam" : 25,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Cairo",
-      "difficulty" : 52,
+      "difficulty" : 50,
       "hacked" : false,
-      "rewardCpu" : 29,
+      "rewardCpu" : 25,
       "serverType" : "Firm",
       "tile" : {
         "x" : 44,
         "y" : 16,
         "continent" : "Africa"
       },
-      "rewardRam" : 15,
+      "rewardRam" : 14,
       "cybersecurityLevel" : 0
     }, {
       "name" : "GKS",
-      "difficulty" : 93,
+      "difficulty" : 90,
       "hacked" : false,
       "rewardCpu" : 0,
       "serverType" : "GKS",
@@ -758,376 +722,415 @@
       "cybersecurityLevel" : 0
     }, {
       "name" : "Nebenserver-NA-0",
-      "difficulty" : 48,
-      "hacked" : false,
-      "rewardCpu" : 10,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 17,
-        "y" : 8,
-        "continent" : "NorthAmerica"
-      },
-      "rewardRam" : 18,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-NA-1",
-      "difficulty" : 47,
-      "hacked" : false,
-      "rewardCpu" : 14,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 26,
-        "y" : 13,
-        "continent" : "NorthAmerica"
-      },
-      "rewardRam" : 11,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-NA-2",
-      "difficulty" : 46,
+      "difficulty" : 35,
       "hacked" : false,
       "rewardCpu" : 18,
       "serverType" : "Side",
       "tile" : {
-        "x" : 25,
-        "y" : 8,
+        "x" : 24,
+        "y" : 3,
         "continent" : "NorthAmerica"
       },
-      "rewardRam" : 18,
+      "rewardRam" : 15,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-NA-3",
-      "difficulty" : 21,
+      "name" : "Nebenserver-NA-1",
+      "difficulty" : 37,
       "hacked" : false,
-      "rewardCpu" : 13,
+      "rewardCpu" : 15,
       "serverType" : "Side",
       "tile" : {
-        "x" : 17,
-        "y" : 13,
+        "x" : 16,
+        "y" : 7,
+        "continent" : "NorthAmerica"
+      },
+      "rewardRam" : 10,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-NA-2",
+      "difficulty" : 32,
+      "hacked" : false,
+      "rewardCpu" : 12,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 21,
+        "y" : 18,
         "continent" : "NorthAmerica"
       },
       "rewardRam" : 19,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-NA-4",
-      "difficulty" : 41,
+      "name" : "Nebenserver-NA-3",
+      "difficulty" : 44,
       "hacked" : false,
-      "rewardCpu" : 17,
+      "rewardCpu" : 11,
       "serverType" : "Side",
       "tile" : {
-        "x" : 19,
-        "y" : 5,
+        "x" : 22,
+        "y" : 11,
         "continent" : "NorthAmerica"
       },
       "rewardRam" : 13,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Nebenserver-SA-0",
-      "difficulty" : 28,
+      "difficulty" : 30,
       "hacked" : false,
-      "rewardCpu" : 14,
+      "rewardCpu" : 13,
       "serverType" : "Side",
       "tile" : {
         "x" : 30,
         "y" : 25,
         "continent" : "SouthAmerica"
       },
-      "rewardRam" : 13,
+      "rewardRam" : 12,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Nebenserver-SA-1",
-      "difficulty" : 36,
+      "difficulty" : 25,
       "hacked" : false,
-      "rewardCpu" : 20,
+      "rewardCpu" : 19,
       "serverType" : "Side",
       "tile" : {
-        "x" : 24,
-        "y" : 22,
+        "x" : 28,
+        "y" : 26,
         "continent" : "SouthAmerica"
       },
-      "rewardRam" : 15,
+      "rewardRam" : 20,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Nebenserver-SA-2",
-      "difficulty" : 35,
+      "difficulty" : 27,
       "hacked" : false,
-      "rewardCpu" : 11,
+      "rewardCpu" : 19,
       "serverType" : "Side",
       "tile" : {
-        "x" : 25,
-        "y" : 31,
+        "x" : 24,
+        "y" : 19,
         "continent" : "SouthAmerica"
       },
-      "rewardRam" : 13,
+      "rewardRam" : 10,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Nebenserver-SA-3",
-      "difficulty" : 36,
-      "hacked" : false,
-      "rewardCpu" : 11,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 26,
-        "y" : 28,
-        "continent" : "SouthAmerica"
-      },
-      "rewardRam" : 18,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-EU-0",
-      "difficulty" : 47,
+      "difficulty" : 24,
       "hacked" : false,
       "rewardCpu" : 13,
       "serverType" : "Side",
       "tile" : {
-        "x" : 50,
-        "y" : 5,
-        "continent" : "Europe"
+        "x" : 26,
+        "y" : 22,
+        "continent" : "SouthAmerica"
+      },
+      "rewardRam" : 19,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-SA-4",
+      "difficulty" : 47,
+      "hacked" : false,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 24,
+        "y" : 24,
+        "continent" : "SouthAmerica"
       },
       "rewardRam" : 12,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-EU-1",
-      "difficulty" : 39,
+      "name" : "Nebenserver-SA-5",
+      "difficulty" : 46,
       "hacked" : false,
-      "rewardCpu" : 20,
+      "rewardCpu" : 14,
       "serverType" : "Side",
       "tile" : {
-        "x" : 45,
-        "y" : 10,
+        "x" : 31,
+        "y" : 23,
+        "continent" : "SouthAmerica"
+      },
+      "rewardRam" : 20,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-EU-0",
+      "difficulty" : 38,
+      "hacked" : false,
+      "rewardCpu" : 15,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 46,
+        "y" : 7,
         "continent" : "Europe"
       },
-      "rewardRam" : 11,
+      "rewardRam" : 20,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-EU-1",
+      "difficulty" : 38,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 42,
+        "y" : 9,
+        "continent" : "Europe"
+      },
+      "rewardRam" : 20,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Nebenserver-EU-2",
       "difficulty" : 21,
       "hacked" : false,
-      "rewardCpu" : 17,
+      "rewardCpu" : 19,
       "serverType" : "Side",
       "tile" : {
-        "x" : 38,
-        "y" : 12,
+        "x" : 48,
+        "y" : 6,
         "continent" : "Europe"
       },
       "rewardRam" : 10,
       "cybersecurityLevel" : 0
     }, {
       "name" : "Nebenserver-EU-3",
-      "difficulty" : 45,
+      "difficulty" : 32,
       "hacked" : false,
-      "rewardCpu" : 15,
+      "rewardCpu" : 11,
       "serverType" : "Side",
       "tile" : {
-        "x" : 43,
-        "y" : 12,
+        "x" : 50,
+        "y" : 9,
         "continent" : "Europe"
       },
-      "rewardRam" : 10,
+      "rewardRam" : 15,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-EU-4",
-      "difficulty" : 28,
-      "hacked" : false,
-      "rewardCpu" : 20,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 45,
-        "y" : 12,
-        "continent" : "Europe"
-      },
-      "rewardRam" : 12,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-EU-5",
-      "difficulty" : 49,
+      "name" : "Nebenserver-AF-0",
+      "difficulty" : 22,
       "hacked" : false,
       "rewardCpu" : 11,
       "serverType" : "Side",
       "tile" : {
         "x" : 36,
-        "y" : 14,
-        "continent" : "Europe"
-      },
-      "rewardRam" : 14,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-AF-0",
-      "difficulty" : 49,
-      "hacked" : false,
-      "rewardCpu" : 18,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 42,
         "y" : 20,
-        "continent" : "Africa"
-      },
-      "rewardRam" : 11,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-AF-1",
-      "difficulty" : 47,
-      "hacked" : false,
-      "rewardCpu" : 10,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 43,
-        "y" : 21,
-        "continent" : "Africa"
-      },
-      "rewardRam" : 11,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-AF-2",
-      "difficulty" : 41,
-      "hacked" : false,
-      "rewardCpu" : 16,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 36,
-        "y" : 19,
         "continent" : "Africa"
       },
       "rewardRam" : 13,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-AF-3",
-      "difficulty" : 30,
+      "name" : "Nebenserver-AF-1",
+      "difficulty" : 35,
       "hacked" : false,
-      "rewardCpu" : 15,
+      "rewardCpu" : 14,
       "serverType" : "Side",
       "tile" : {
-        "x" : 46,
-        "y" : 21,
+        "x" : 44,
+        "y" : 22,
         "continent" : "Africa"
-      },
-      "rewardRam" : 11,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-AF-4",
-      "difficulty" : 50,
-      "hacked" : false,
-      "rewardCpu" : 16,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 38,
-        "y" : 18,
-        "continent" : "Africa"
-      },
-      "rewardRam" : 14,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-AS-0",
-      "difficulty" : 37,
-      "hacked" : false,
-      "rewardCpu" : 17,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 72,
-        "y" : 9,
-        "continent" : "Asia"
-      },
-      "rewardRam" : 11,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-AS-1",
-      "difficulty" : 38,
-      "hacked" : false,
-      "rewardCpu" : 13,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 73,
-        "y" : 8,
-        "continent" : "Asia"
-      },
-      "rewardRam" : 12,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-AS-2",
-      "difficulty" : 26,
-      "hacked" : false,
-      "rewardCpu" : 15,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 59,
-        "y" : 21,
-        "continent" : "Asia"
       },
       "rewardRam" : 10,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-AS-3",
-      "difficulty" : 35,
+      "name" : "Nebenserver-AF-2",
+      "difficulty" : 43,
       "hacked" : false,
       "rewardCpu" : 19,
       "serverType" : "Side",
       "tile" : {
-        "x" : 58,
-        "y" : 7,
-        "continent" : "Asia"
+        "x" : 40,
+        "y" : 15,
+        "continent" : "Africa"
       },
-      "rewardRam" : 16,
+      "rewardRam" : 12,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-OC-0",
-      "difficulty" : 36,
-      "hacked" : false,
-      "rewardCpu" : 15,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 66,
-        "y" : 22,
-        "continent" : "Oceania"
-      },
-      "rewardRam" : 20,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-OC-1",
-      "difficulty" : 47,
-      "hacked" : false,
-      "rewardCpu" : 19,
-      "serverType" : "Side",
-      "tile" : {
-        "x" : 62,
-        "y" : 25,
-        "continent" : "Oceania"
-      },
-      "rewardRam" : 19,
-      "cybersecurityLevel" : 0
-    }, {
-      "name" : "Nebenserver-OC-2",
-      "difficulty" : 33,
+      "name" : "Nebenserver-AF-3",
+      "difficulty" : 24,
       "hacked" : false,
       "rewardCpu" : 20,
       "serverType" : "Side",
       "tile" : {
-        "x" : 63,
+        "x" : 45,
+        "y" : 17,
+        "continent" : "Africa"
+      },
+      "rewardRam" : 15,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-AF-4",
+      "difficulty" : 32,
+      "hacked" : false,
+      "rewardCpu" : 17,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 40,
+        "y" : 18,
+        "continent" : "Africa"
+      },
+      "rewardRam" : 18,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-AF-5",
+      "difficulty" : 31,
+      "hacked" : false,
+      "rewardCpu" : 14,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 41,
+        "y" : 24,
+        "continent" : "Africa"
+      },
+      "rewardRam" : 16,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-AS-0",
+      "difficulty" : 28,
+      "hacked" : false,
+      "rewardCpu" : 16,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 64,
+        "y" : 7,
+        "continent" : "Asia"
+      },
+      "rewardRam" : 17,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-AS-1",
+      "difficulty" : 41,
+      "hacked" : false,
+      "rewardCpu" : 13,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 58,
+        "y" : 13,
+        "continent" : "Asia"
+      },
+      "rewardRam" : 17,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-AS-2",
+      "difficulty" : 44,
+      "hacked" : false,
+      "rewardCpu" : 14,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 62,
+        "y" : 19,
+        "continent" : "Asia"
+      },
+      "rewardRam" : 14,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-AS-3",
+      "difficulty" : 30,
+      "hacked" : false,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 60,
+        "y" : 22,
+        "continent" : "Asia"
+      },
+      "rewardRam" : 15,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-AS-4",
+      "difficulty" : 35,
+      "hacked" : false,
+      "rewardCpu" : 20,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 49,
+        "y" : 13,
+        "continent" : "Asia"
+      },
+      "rewardRam" : 14,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-AS-5",
+      "difficulty" : 40,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 61,
+        "y" : 21,
+        "continent" : "Asia"
+      },
+      "rewardRam" : 18,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-OC-0",
+      "difficulty" : 39,
+      "hacked" : false,
+      "rewardCpu" : 16,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 68,
         "y" : 26,
         "continent" : "Oceania"
       },
       "rewardRam" : 17,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-OC-3",
-      "difficulty" : 33,
+      "name" : "Nebenserver-OC-1",
+      "difficulty" : 23,
       "hacked" : false,
-      "rewardCpu" : 18,
+      "rewardCpu" : 12,
       "serverType" : "Side",
       "tile" : {
-        "x" : 67,
-        "y" : 29,
+        "x" : 64,
+        "y" : 22,
         "continent" : "Oceania"
       },
       "rewardRam" : 16,
       "cybersecurityLevel" : 0
     }, {
-      "name" : "Nebenserver-OC-4",
-      "difficulty" : 29,
+      "name" : "Nebenserver-OC-2",
+      "difficulty" : 37,
       "hacked" : false,
-      "rewardCpu" : 14,
+      "rewardCpu" : 11,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 63,
+        "y" : 26,
+        "continent" : "Oceania"
+      },
+      "rewardRam" : 14,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-OC-3",
+      "difficulty" : 44,
+      "hacked" : false,
+      "rewardCpu" : 19,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 62,
+        "y" : 27,
+        "continent" : "Oceania"
+      },
+      "rewardRam" : 10,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-OC-4",
+      "difficulty" : 23,
+      "hacked" : false,
+      "rewardCpu" : 11,
       "serverType" : "Side",
       "tile" : {
         "x" : 64,
+        "y" : 25,
+        "continent" : "Oceania"
+      },
+      "rewardRam" : 16,
+      "cybersecurityLevel" : 0
+    }, {
+      "name" : "Nebenserver-OC-5",
+      "difficulty" : 38,
+      "hacked" : false,
+      "rewardCpu" : 10,
+      "serverType" : "Side",
+      "tile" : {
+        "x" : 67,
         "y" : 22,
         "continent" : "Oceania"
       },
@@ -1331,7 +1334,7 @@
   "state" : {
     "status" : "Running",
     "phase" : "AwaitingInput",
-    "round" : 6,
+    "round" : 1,
     "currentPlayerIndex" : 0
   }
 }
