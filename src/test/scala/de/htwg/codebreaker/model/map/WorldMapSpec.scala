@@ -494,3 +494,221 @@ class WorldMapSpec extends AnyWordSpec with Matchers:
       } shouldBe 3
     }
   }
+
+  "WorldMap.printContinentMap" should {
+
+    "print continent map without errors for small map" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Asia),
+        Tile(0, 1, Continent.Africa),
+        Tile(1, 1, Continent.Ocean)
+      )
+      val map = WorldMap(2, 2, tiles)
+
+      noException should be thrownBy {
+        WorldMap.printContinentMap(map)
+      }
+    }
+
+    "print continent map without errors for default map" in {
+      val map = WorldMap.defaultMap
+
+      noException should be thrownBy {
+        WorldMap.printContinentMap(map)
+      }
+    }
+
+    "handle empty map" in {
+      val tiles = Vector.empty[Tile]
+      val map = WorldMap(0, 0, tiles)
+
+      noException should be thrownBy {
+        WorldMap.printContinentMap(map)
+      }
+    }
+
+    "handle map with single tile" in {
+      val tiles = Vector(Tile(0, 0, Continent.NorthAmerica))
+      val map = WorldMap(1, 1, tiles)
+
+      noException should be thrownBy {
+        WorldMap.printContinentMap(map)
+      }
+    }
+
+    "handle map with all ocean tiles" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Ocean),
+        Tile(1, 0, Continent.Ocean),
+        Tile(0, 1, Continent.Ocean),
+        Tile(1, 1, Continent.Ocean)
+      )
+      val map = WorldMap(2, 2, tiles)
+
+      noException should be thrownBy {
+        WorldMap.printContinentMap(map)
+      }
+    }
+
+    "handle map with all different continents" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.NorthAmerica),
+        Tile(1, 0, Continent.SouthAmerica),
+        Tile(2, 0, Continent.Europe),
+        Tile(3, 0, Continent.Africa),
+        Tile(4, 0, Continent.Asia),
+        Tile(5, 0, Continent.Oceania),
+        Tile(6, 0, Continent.Ocean),
+        Tile(7, 0, Continent.Antarctica)
+      )
+      val map = WorldMap(8, 1, tiles)
+
+      noException should be thrownBy {
+        WorldMap.printContinentMap(map)
+      }
+    }
+  }
+
+  "WorldMap edge cases" should {
+
+    "handle getMapData with player on first tile" in {
+      val map = WorldMap.defaultMap
+      val firstTile = map.tiles.head
+
+      val laptop = Laptop(
+        LaptopHardware(20, 20, 20, 1, 0),
+        LaptopInstalledTools.empty,
+        List.empty,
+        None,
+        5
+      )
+      val player = Player(1, "Test", firstTile, laptop, 0, 0, PlayerSkillTree(), false, 5, 5)
+
+      val mapData = map.getMapData(List(player), List.empty)
+
+      mapData(firstTile.y)(firstTile.x) shouldBe MapObject.PlayerOnTile(0)
+    }
+
+    "handle getMapData with server on last tile" in {
+      val map = WorldMap.defaultMap
+      val lastTile = map.tiles.last
+
+      val server = Server(
+        "TestServer",
+        lastTile,
+        50,
+        100,
+        200,
+        false,
+        ServerType.Bank,
+        None,
+        None,
+        0,
+        None,
+        None
+      )
+
+      val mapData = map.getMapData(List.empty, List(server))
+
+      mapData(lastTile.y)(lastTile.x) shouldBe MapObject.ServerOnTile(0, ServerType.Bank, lastTile.continent)
+    }
+
+    "handle getMapData with all tiles having different server types" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Asia),
+        Tile(2, 0, Continent.Africa),
+        Tile(3, 0, Continent.NorthAmerica)
+      )
+      val map = WorldMap(4, 1, tiles)
+
+      val servers = List(
+        Server("S1", tiles(0), 50, 100, 200, false, ServerType.Firm, None, None, 0, None, None),
+        Server("S2", tiles(1), 50, 100, 200, false, ServerType.Bank, None, None, 0, None, None),
+        Server("S3", tiles(2), 50, 100, 200, false, ServerType.Cloud, None, None, 0, None, None),
+        Server("S4", tiles(3), 50, 100, 200, false, ServerType.Military, None, None, 0, None, None)
+      )
+
+      val mapData = map.getMapData(List.empty, servers)
+
+      mapData.head(0) shouldBe MapObject.ServerOnTile(0, ServerType.Firm, Continent.Europe)
+      mapData.head(1) shouldBe MapObject.ServerOnTile(1, ServerType.Bank, Continent.Asia)
+      mapData.head(2) shouldBe MapObject.ServerOnTile(2, ServerType.Cloud, Continent.Africa)
+      mapData.head(3) shouldBe MapObject.ServerOnTile(3, ServerType.Military, Continent.NorthAmerica)
+    }
+
+    "tilesOf should return immutable vector" in {
+      val map = WorldMap.defaultMap
+      val europeTiles = map.tilesOf(Continent.Europe)
+
+      europeTiles shouldBe a[Vector[_]]
+    }
+
+    "continentAt should handle boundary coordinates" in {
+      val map = WorldMap.defaultMap
+
+      map.continentAt(0, 0) shouldBe defined
+      map.continentAt(79, 0) shouldBe defined
+      map.continentAt(0, 39) shouldBe defined
+      map.continentAt(79, 39) shouldBe defined
+    }
+
+    "tileAt should be consistent with tiles vector" in {
+      val map = WorldMap.defaultMap
+
+      map.tiles.foreach { tile =>
+        map.tileAt(tile.x, tile.y) shouldBe Some(tile)
+      }
+    }
+
+    "getMapData should handle multiple players on consecutive tiles" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Europe),
+        Tile(2, 0, Continent.Europe)
+      )
+      val map = WorldMap(3, 1, tiles)
+
+      val laptop = Laptop(
+        LaptopHardware(20, 20, 20, 1, 0),
+        LaptopInstalledTools.empty,
+        List.empty,
+        None,
+        5
+      )
+
+      val players = List(
+        Player(1, "P1", tiles(0), laptop, 0, 0, PlayerSkillTree(), false, 5, 5),
+        Player(2, "P2", tiles(1), laptop, 0, 0, PlayerSkillTree(), false, 5, 5),
+        Player(3, "P3", tiles(2), laptop, 0, 0, PlayerSkillTree(), false, 5, 5)
+      )
+
+      val mapData = map.getMapData(players, List.empty)
+
+      mapData.head(0) shouldBe MapObject.PlayerOnTile(0)
+      mapData.head(1) shouldBe MapObject.PlayerOnTile(1)
+      mapData.head(2) shouldBe MapObject.PlayerOnTile(2)
+    }
+
+    "getMapData should handle multiple servers on consecutive tiles" in {
+      val tiles = Vector(
+        Tile(0, 0, Continent.Europe),
+        Tile(1, 0, Continent.Europe),
+        Tile(2, 0, Continent.Europe)
+      )
+      val map = WorldMap(3, 1, tiles)
+
+      val servers = List(
+        Server("S1", tiles(0), 50, 100, 200, false, ServerType.Firm, None, None, 0, None, None),
+        Server("S2", tiles(1), 50, 100, 200, false, ServerType.Bank, None, None, 0, None, None),
+        Server("S3", tiles(2), 50, 100, 200, false, ServerType.Cloud, None, None, 0, None, None)
+      )
+
+      val mapData = map.getMapData(List.empty, servers)
+
+      mapData.head(0) shouldBe MapObject.ServerOnTile(0, ServerType.Firm, Continent.Europe)
+      mapData.head(1) shouldBe MapObject.ServerOnTile(1, ServerType.Bank, Continent.Europe)
+      mapData.head(2) shouldBe MapObject.ServerOnTile(2, ServerType.Cloud, Continent.Europe)
+    }
+  }
