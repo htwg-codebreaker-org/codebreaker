@@ -354,5 +354,290 @@ class FileIOXMLSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach {
       loadedServer.hacked shouldBe true
       loadedServer.hackedBy shouldBe Some(1)
     }
+
+    "save and load player with arrested status" in {
+      val arrestedPlayer = player1.copy(arrested = true)
+      val modelWithArrested = model.copy(players = List(arrestedPlayer))
+      val gameWithArrested = testGame.copy(model = modelWithArrested)
+
+      fileIO.save(gameWithArrested) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedPlayer = loaded.model.players.head
+
+      loadedPlayer.arrested shouldBe true
+    }
+
+    "save and load server with claimedBy" in {
+      val claimedServer = server1.copy(claimedBy = Some(1))
+      val modelWithClaimed = model.copy(servers = List(claimedServer))
+      val gameWithClaimed = testGame.copy(model = modelWithClaimed)
+
+      fileIO.save(gameWithClaimed) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedServer = loaded.model.servers.head
+
+      loadedServer.claimedBy shouldBe Some(1)
+    }
+
+    "save and load server with blockedUntilRound" in {
+      val blockedServer = server1.copy(blockedUntilRound = Some(10))
+      val modelWithBlocked = model.copy(servers = List(blockedServer))
+      val gameWithBlocked = testGame.copy(model = modelWithBlocked)
+
+      fileIO.save(gameWithBlocked) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedServer = loaded.model.servers.head
+
+      loadedServer.blockedUntilRound shouldBe Some(10)
+    }
+
+    "save and load player with unlocked hack skills" in {
+      val skillTree = PlayerSkillTree(unlockedHackSkills = Set("bruteforce", "exploit", "ddos"))
+      val playerWithSkills = player1.copy(skills = skillTree)
+      val modelWithSkills = model.copy(players = List(playerWithSkills))
+      val gameWithSkills = testGame.copy(model = modelWithSkills)
+
+      fileIO.save(gameWithSkills) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedPlayer = loaded.model.players.head
+
+      loadedPlayer.skills.unlockedHackSkills should contain allOf("bruteforce", "exploit", "ddos")
+      loadedPlayer.skills.unlockedHackSkills.size shouldBe 3
+    }
+
+    "save and load player with unlocked social skills" in {
+      val skillTree = PlayerSkillTree(unlockedSocialSkills = Set("phishing", "socialengineering"))
+      val playerWithSkills = player1.copy(skills = skillTree)
+      val modelWithSkills = model.copy(players = List(playerWithSkills))
+      val gameWithSkills = testGame.copy(model = modelWithSkills)
+
+      fileIO.save(gameWithSkills) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedPlayer = loaded.model.players.head
+
+      loadedPlayer.skills.unlockedSocialSkills should contain allOf("phishing", "socialengineering")
+      loadedPlayer.skills.unlockedSocialSkills.size shouldBe 2
+    }
+
+    "save and load player with both hack and social skills" in {
+      val skillTree = PlayerSkillTree(
+        unlockedHackSkills = Set("bruteforce", "exploit"),
+        unlockedSocialSkills = Set("phishing")
+      )
+      val playerWithSkills = player1.copy(skills = skillTree)
+      val modelWithSkills = model.copy(players = List(playerWithSkills))
+      val gameWithSkills = testGame.copy(model = modelWithSkills)
+
+      fileIO.save(gameWithSkills) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedPlayer = loaded.model.players.head
+
+      loadedPlayer.skills.unlockedHackSkills should contain allOf("bruteforce", "exploit")
+      loadedPlayer.skills.unlockedSocialSkills should contain("phishing")
+    }
+
+    "save and load game with all phases" in {
+      val phases = List(Phase.AwaitingInput, Phase.ExecutingTurn, Phase.FinishedTurn)
+
+      phases.foreach { phase =>
+        val stateWithPhase = state.copy(phase = phase)
+        val gameWithPhase = testGame.copy(state = stateWithPhase)
+
+        fileIO.save(gameWithPhase) shouldBe a[Success[?]]
+        val loaded = fileIO.load().get
+
+        loaded.state.phase shouldBe phase
+      }
+    }
+
+    "save and load game with all game statuses" in {
+      val statuses = List(GameStatus.Running, GameStatus.Paused, GameStatus.GameOver)
+
+      statuses.foreach { status =>
+        val stateWithStatus = state.copy(status = status)
+        val gameWithStatus = testGame.copy(state = stateWithStatus)
+
+        fileIO.save(gameWithStatus) shouldBe a[Success[?]]
+        val loaded = fileIO.load().get
+
+        loaded.state.status shouldBe status
+      }
+    }
+
+    "preserve round number correctly" in {
+      val stateWithRound = state.copy(round = 42)
+      val gameWithRound = testGame.copy(state = stateWithRound)
+
+      fileIO.save(gameWithRound) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+
+      loaded.state.round shouldBe 42
+    }
+
+    "preserve current player index correctly" in {
+      val stateWithIndex = state.copy(currentPlayerIndex = Some(1))
+      val gameWithIndex = testGame.copy(state = stateWithIndex)
+
+      fileIO.save(gameWithIndex) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+
+      loaded.state.currentPlayerIndex shouldBe Some(1)
+    }
+
+    "preserve server cybersecurity level" in {
+      val serverWithSecurity = server1.copy(cybersecurityLevel = 99)
+      val modelWithSecurity = model.copy(servers = List(serverWithSecurity))
+      val gameWithSecurity = testGame.copy(model = modelWithSecurity)
+
+      fileIO.save(gameWithSecurity) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedServer = loaded.model.servers.head
+
+      loadedServer.cybersecurityLevel shouldBe 99
+    }
+
+    "preserve server difficulty correctly" in {
+      val serverWithDifficulty = server1.copy(difficulty = 75)
+      val modelWithDifficulty = model.copy(servers = List(serverWithDifficulty))
+      val gameWithDifficulty = testGame.copy(model = modelWithDifficulty)
+
+      fileIO.save(gameWithDifficulty) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedServer = loaded.model.servers.head
+
+      loadedServer.difficulty shouldBe 75
+    }
+
+    "handle multiple players with different tiles" in {
+      val tiles = List(
+        Tile(0, 0, Continent.Europe),
+        Tile(10, 20, Continent.Asia),
+        Tile(5, 15, Continent.Africa)
+      )
+      val players = tiles.zipWithIndex.map { case (tile, idx) =>
+        player1.copy(id = idx, name = s"Player$idx", tile = tile)
+      }
+      val modelWithPlayers = model.copy(players = players)
+      val gameWithPlayers = testGame.copy(model = modelWithPlayers)
+
+      fileIO.save(gameWithPlayers) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+
+      loaded.model.players.size shouldBe 3
+      loaded.model.players(0).tile shouldBe Tile(0, 0, Continent.Europe)
+      loaded.model.players(1).tile shouldBe Tile(10, 20, Continent.Asia)
+      loaded.model.players(2).tile shouldBe Tile(5, 15, Continent.Africa)
+    }
+
+    "handle laptop hardware with different configurations" in {
+      val hardware = LaptopHardware(cpu = 200, ram = 300, code = 10, kerne = 4, networkRange = 5)
+      val laptop = laptop1.copy(hardware = hardware)
+      val player = player1.copy(laptop = laptop)
+      val modelWithHardware = model.copy(players = List(player))
+      val gameWithHardware = testGame.copy(model = modelWithHardware)
+
+      fileIO.save(gameWithHardware) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedPlayer = loaded.model.players.head
+
+      loadedPlayer.laptop.hardware.cpu shouldBe 200
+      loadedPlayer.laptop.hardware.ram shouldBe 300
+      loadedPlayer.laptop.hardware.code shouldBe 10
+      loadedPlayer.laptop.hardware.kerne shouldBe 4
+      loadedPlayer.laptop.hardware.networkRange shouldBe 5
+    }
+
+    "preserve player movement points" in {
+      val playerWithMovement = player1.copy(movementPoints = 2, maxMovementPoints = 7)
+      val modelWithMovement = model.copy(players = List(playerWithMovement))
+      val gameWithMovement = testGame.copy(model = modelWithMovement)
+
+      fileIO.save(gameWithMovement) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedPlayer = loaded.model.players.head
+
+      loadedPlayer.movementPoints shouldBe 2
+      loadedPlayer.maxMovementPoints shouldBe 7
+    }
+
+    "handle server with all optional fields as None" in {
+      val serverMinimal = Server(
+        name = "Minimal",
+        tile = tile1,
+        difficulty = 10,
+        rewardCpu = 1,
+        rewardRam = 1,
+        hacked = false,
+        serverType = ServerType.Side,
+        hackedBy = None,
+        claimedBy = None,
+        cybersecurityLevel = 5,
+        blockedUntilRound = None,
+        installedRole = None
+      )
+      val modelWithMinimal = model.copy(servers = List(serverMinimal))
+      val gameWithMinimal = testGame.copy(model = modelWithMinimal)
+
+      fileIO.save(gameWithMinimal) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedServer = loaded.model.servers.head
+
+      loadedServer.hackedBy shouldBe None
+      loadedServer.claimedBy shouldBe None
+      loadedServer.blockedUntilRound shouldBe None
+      loadedServer.installedRole shouldBe None
+    }
+
+    "handle server with all optional fields as Some" in {
+      val serverMaximal = server1.copy(
+        hacked = true,
+        hackedBy = Some(0),
+        claimedBy = Some(1),
+        blockedUntilRound = Some(20)
+      )
+      val modelWithMaximal = model.copy(servers = List(serverMaximal))
+      val gameWithMaximal = testGame.copy(model = modelWithMaximal)
+
+      fileIO.save(gameWithMaximal) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedServer = loaded.model.servers.head
+
+      loadedServer.hacked shouldBe true
+      loadedServer.hackedBy shouldBe Some(0)
+      loadedServer.claimedBy shouldBe Some(1)
+      loadedServer.blockedUntilRound shouldBe Some(20)
+    }
+
+    "preserve WorldMap dimensions" in {
+      fileIO.save(testGame) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+
+      loaded.model.map.width shouldBe worldMap.width
+      loaded.model.map.height shouldBe worldMap.height
+    }
+
+    "handle claimedBy as None correctly" in {
+      val serverNotClaimed = server1.copy(claimedBy = None)
+      val modelWithServer = model.copy(servers = List(serverNotClaimed))
+      val gameWithServer = testGame.copy(model = modelWithServer)
+
+      fileIO.save(gameWithServer) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedServer = loaded.model.servers.head
+
+      loadedServer.claimedBy shouldBe None
+    }
+
+    "handle blockedUntilRound as None correctly" in {
+      val serverNotBlocked = server1.copy(blockedUntilRound = None)
+      val modelWithServer = model.copy(servers = List(serverNotBlocked))
+      val gameWithServer = testGame.copy(model = modelWithServer)
+
+      fileIO.save(gameWithServer) shouldBe a[Success[?]]
+      val loaded = fileIO.load().get
+      val loadedServer = loaded.model.servers.head
+
+      loadedServer.blockedUntilRound shouldBe None
+    }
   }
 }
